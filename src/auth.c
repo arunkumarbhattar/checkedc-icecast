@@ -684,7 +684,7 @@ auth_t *auth_get_authenticator (xmlNodePtr node)
         thread_mutex_create (&auth->lock);
         auth->refcount = 1;
         auth->running = 1;
-        auth->thread = thread_create ("auth thread", auth_run_thread, auth, THREAD_ATTACHED);
+        auth->thread = thread_create(void, void, "auth thread", auth_run_thread, auth, THREAD_ATTACHED);
     }
 
     while (options)

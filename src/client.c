@@ -83,7 +83,7 @@ int client_create (client_t **c_ptr, connection_t *con, http_parser_t *parser)
     return ret;
 }
 
-void client_destroy(client_t *client)
+void client_destroy(_Ptr<client_t> client)
 {
     if (client == NULL)
         return;
@@ -263,7 +263,7 @@ int client_send_bytes (client_t *client, const void *buf, unsigned len)
     return ret;
 }
 
-void client_set_queue (client_t *client, refbuf_t *refbuf)
+void client_set_queue (_Ptr<client_t> client, refbuf_t *refbuf)
 {
     refbuf_t *to_release = client->refbuf;
 

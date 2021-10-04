@@ -138,7 +138,7 @@ void slave_initialize(void)
     slave_running = 1;
     max_interval = 0;
     thread_mutex_create (&_slave_mutex);
-    _slave_thread_id = thread_create("Slave Thread", _slave_thread, NULL, THREAD_ATTACHED);
+    _slave_thread_id = thread_create(void, void, "Slave Thread", _slave_thread, NULL, THREAD_ATTACHED);
 }
 
 
@@ -454,7 +454,7 @@ static void check_relay_stream (_Ptr<relay_server> relay)
 
         relay->start = time(NULL) + 5;
         relay->running = 1;
-        relay->thread = thread_create ("Relay Thread", start_relay_stream,
+        relay->thread = thread_create (void, void, "Relay Thread", start_relay_stream,
                 relay, THREAD_ATTACHED);
         return;
 

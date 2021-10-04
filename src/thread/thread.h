@@ -107,7 +107,7 @@ typedef mutex_t spin_t;
 #define thread_spin_unlock(x)    thread_mutex_unlock(x)
 #endif
 
-#define thread_create(n,x,y,z) thread_create_c(n,x,y,z,__LINE__,__FILE__)
+#define thread_create(in, out, n,x,y,z) thread_create_c<in, out>(n,x,y,z,__LINE__,__FILE__)
 #define thread_mutex_create(x) thread_mutex_create_c(x,__LINE__,__FILE__)
 #define thread_mutex_lock(x) thread_mutex_lock_c(x,__LINE__,__FILE__)
 #define thread_mutex_unlock(x) thread_mutex_unlock_c(x,__LINE__,__FILE__)
@@ -163,8 +163,11 @@ void thread_initialize_with_log_id(int log_id);
 void thread_shutdown(void);
 
 /* creation, destruction, locking, unlocking, signalling and waiting */
-thread_type *thread_create_c(char *name, void *(*start_routine)(void *), 
-        void *arg, int detached, int line, char *file);
+//   void *(*start_routine)(void *), 
+_For_any(In,Out)
+thread_type *thread_create_c(char *name, _Ptr< _Ptr<Out> (_Ptr<In>)> start_routine,
+        _Ptr<In> arg, int detached, int line, char *file);
+
 void thread_mutex_create_c(mutex_t *mutex, int line, char *file);
 void thread_mutex_lock_c(mutex_t *mutex, int line, char *file);
 void thread_mutex_unlock_c(mutex_t *mutex, int line, char *file);

@@ -1295,7 +1295,7 @@ void *source_client_thread (void *arg)
 }
 
 
-void source_client_callback (client_t *client, void *arg)
+void source_client_callback (_Ptr<client_t> client, void *arg)
 {
     const char *agent;
     source_t *source = arg;
@@ -1318,7 +1318,7 @@ void source_client_callback (client_t *client, void *arg)
     if (agent)
         stats_event (source->mount, "user_agent", agent);
 
-    thread_create ("Source Thread", source_client_thread,
+    thread_create (void, void, "Source Thread", source_client_thread,
             source, THREAD_DETACHED);
 }
 
@@ -1505,7 +1505,7 @@ void source_recheck_mounts (int update_all)
             source_t *fallback = source_find_mount (mount->fallback_mount);
             if (fallback == NULL)
             {
-                thread_create ("Fallback file thread", source_fallback_file,
+                thread_create (void, void, "Fallback file thread", source_fallback_file,
                         strdup (mount->fallback_mount), THREAD_DETACHED);
             }
         }

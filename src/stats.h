@@ -91,7 +91,7 @@ void stats_event_hidden (const char *source, const char *name, int hidden);
 void stats_event_time (const char *mount, const char *name);
 void stats_event_time_iso8601 (const char *mount, const char *name);
 
-void *stats_connection(void *arg);
+_Ptr<char> stats_connection(_Ptr<client_t> arg);
 void stats_callback (client_t *client, void *notused);
 
 void stats_transform_xslt(client_t *client, const char *uri);

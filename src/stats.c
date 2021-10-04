@@ -140,7 +140,7 @@ void stats_initialize(void)
 
     /* fire off the stats thread */
     _stats_running = 1;
-    _stats_thread_id = thread_create("Stats Thread", _stats_thread, NULL, THREAD_ATTACHED);
+    _stats_thread_id = thread_create(void, void, "Stats Thread", _stats_thread, NULL, THREAD_ATTACHED);
 }
 
 void stats_shutdown(void)
@@ -902,7 +902,7 @@ static void _register_listener (event_listener_t *listener)
     thread_mutex_unlock(&_stats_mutex);
 }
 
-void *stats_connection(void *arg)
+_Ptr<char> stats_connection(_Ptr<client_t> arg)
 {
     client_t *client = (client_t *)arg;
     stats_event_t *event;
@@ -958,7 +958,7 @@ void stats_callback (client_t *client, void *notused)
         return;
     }
     client_set_queue (client, NULL);
-    thread_create("Stats Connection", stats_connection, (void *)client, THREAD_DETACHED);
+    thread_create(client_t, char, "Stats Connection", stats_connection, client, THREAD_DETACHED);
 }
 
 
