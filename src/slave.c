@@ -389,7 +389,7 @@ static void *start_relay_stream (void *arg)
 
 
 /* wrapper for starting the provided relay stream */
-static void check_relay_stream (relay_server *relay)
+static void check_relay_stream (relay_server *relay : itype(_Ptr<relay_server>))
 {
     if (relay->source == NULL)
     {
