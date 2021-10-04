@@ -303,7 +303,7 @@ void source_clear_source (source_t *source)
 
 
 /* Remove the provided source from the global tree and free it */
-void source_free_source (source_t *source : itype(_Ptr<source_t>))
+void source_free_source (_Ptr<source_t> source) 
 {
     ICECAST_LOG_DEBUG("freeing source \"%s\"", source->mount);
     avl_tree_wlock (global.source_tree);

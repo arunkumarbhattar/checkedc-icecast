@@ -16,13 +16,14 @@
 #include "thread/thread.h"
 
 typedef struct _relay_server {
-    _Nt_array_ptr<char> server;
+    char *server : itype(_Nt_array_ptr<char>);
     int port;
-    _Nt_array_ptr<char> mount;
-    _Nt_array_ptr<char> username;
-    _Nt_array_ptr<char> password;
-    _Nt_array_ptr<char> localmount;
-    _Nt_array_ptr<char> bind;
+    char *mount : itype(_Nt_array_ptr<char>);
+    char *username : itype(_Nt_array_ptr<char>);
+    char *password : itype(_Nt_array_ptr<char>);
+    char *localmount : itype(_Nt_array_ptr<char>);
+    char *bind : itype(_Nt_array_ptr<char>);
+
     struct source_tag *source;
     int mp3metadata;
     int on_demand;
@@ -30,7 +31,7 @@ typedef struct _relay_server {
     int cleanup;
     time_t start;
     thread_type *thread;
-    _Ptr<struct _relay_server> next;
+    struct _relay_server *next : itype(_Ptr<struct _relay_server>);
 } relay_server;
 
 
