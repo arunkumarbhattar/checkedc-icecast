@@ -84,7 +84,7 @@ static void source_run_script (char *command, char *mountpoint);
  * exists with that mountpoint in the global source tree then return
  * NULL.
  */
-source_t *source_reserve (const char *mount)
+_Ptr<source_t> source_reserve (const char *mount)
 {
     source_t *src = NULL;
 

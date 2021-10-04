@@ -80,7 +80,7 @@ typedef struct source_tag
 
 } source_t;
 
-source_t *source_reserve (const char *mount);
+_Ptr<source_t> source_reserve (const char *mount);
 void *source_client_thread (void *arg);
 void source_startup (client_t *client, const char *uri, int auth_style);
 void source_client_callback (client_t *client, void *source);
