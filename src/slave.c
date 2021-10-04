@@ -567,8 +567,8 @@ update_relays (relay_server **relay_list, relay_server *new_relay_list)
 }
 
 
-static void relay_check_streams (relay_server *to_start,
-        relay_server *to_free, int skip_timer)
+static void relay_check_streams (relay_server *to_start : itype(_Ptr<relay_server>),
+        relay_server *to_free : itype(_Ptr<relay_server>), int skip_timer)
 {
     relay_server *relay;
 
