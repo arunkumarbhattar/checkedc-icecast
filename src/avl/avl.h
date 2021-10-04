@@ -24,7 +24,7 @@ extern "C" {
 #endif
 
 typedef struct avl_node_tag {
-  void *        key;
+  _Array_ptr<void>         key : byte_count(value_size);
   struct avl_node_tag *    left;
   struct avl_node_tag *    right;  
   struct avl_node_tag *    parent;
@@ -34,6 +34,7 @@ typedef struct avl_node_tag {
    * The rest of the bits are used for <rank>
    */
   unsigned int        rank_and_balance;
+  unsigned int        value_size;
 #if !defined(NO_THREAD) && defined(HAVE_AVL_NODE_LOCK)
   rwlock_t rwlock;
 #endif
