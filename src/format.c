@@ -267,7 +267,7 @@ int format_generic_write_to_client (client_t *client)
  * the next buffer in the queue if there is no more left to be written from 
  * the existing buffer.
  */
-int format_advance_queue (source_t *source, client_t *client)
+int format_advance_queue (source_t *source, _Ptr<client_t> client)
 {
     refbuf_t *refbuf = client->refbuf;
 
