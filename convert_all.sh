@@ -2,6 +2,7 @@
 3c \
 -dump-stats \
 -alltypes \
+-infer-types-for-undefs \
 -p \
 compile_commands.json \
 -extra-arg=-w \
