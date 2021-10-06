@@ -54,7 +54,8 @@ typedef struct _format_plugin_tag
     void (*apply_settings)(client_t *client, struct _format_plugin_tag *format, struct _mount_proxy *mount);
 
     /* for internal state management */
-    void *_state;
+    _Array_ptr<void> _state : byte_count(state_size);
+    unsigned int state_size;
 } format_plugin_t;
 
 format_type_t format_get_type(const char *contenttype);
