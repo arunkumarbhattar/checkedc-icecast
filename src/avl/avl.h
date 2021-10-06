@@ -23,8 +23,9 @@ extern "C" {
 #define thread_rwlock_unlock(x) do{}while(0)
 #endif
 
+  _For_all(T)
 typedef struct avl_node_tag {
-  _Array_ptr<void>         key : byte_count(value_size);
+  _Ptr<T>           key
   struct avl_node_tag *    left;
   struct avl_node_tag *    right;  
   struct avl_node_tag *    parent;
