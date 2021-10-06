@@ -12,7 +12,6 @@
 #ifndef __DEBUG_MEMORY_ALLOC__
 #define __DEBUG_MEMORY_ALLOC__
 
-
 #include <stdio.h>
 #include <libxml/xmlversion.h>
 
@@ -55,7 +54,7 @@ extern "C" {
  *
  * Signature for a free() implementation.
  */
-typedef _Itype_for_any(T) void (XMLCALL *xmlFreeFunc)(void *mem : itype(_Array_ptr<T>) byte_count(0));
+typedef void (XMLCALL *xmlFreeFunc)(void *mem);
 /**
  * xmlMallocFunc:
  * @size:  the size requested in bytes
