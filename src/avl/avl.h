@@ -141,6 +141,9 @@ int avl_get_by_key (
   void **        value_address : itype(_Ptr<_Ptr<T>>)
   );
 
+_Itype_for_any(T) 
+  void * avl_get(avl_node *n) : itype(_Ptr<T>);
+
   /*
 typedef int (*avl_iter_fun_type)    (void * key, void * iter_arg);
 typedef int (*avl_iter_index_fun_type)    (unsigned long index, void * key, void * iter_arg);
@@ -196,16 +199,18 @@ avl_node *avl_get_next(avl_node * node);
 
 /* These two are from David Ascher <david_ascher@brown.edu> */
 
+_Itype_for_any(T)
 int avl_get_item_by_key_most (
   avl_tree *        tree,
-  void *        key,
-  void **        value_address
+  void *        key : itype(_Ptr<T>),
+  void **        value_address : itype(_Ptr<_Ptr<T>>)
   );
 
+  _Itype_for_any(T)
 int avl_get_item_by_key_least (
   avl_tree *        tree,
-  void *        key,
-  void **        value_address
+  void *        key : itype(_Ptr<T>),
+  void **        value_address : itype(_Ptr<_Ptr<T>>)
   );
 
 /* optional locking stuff */

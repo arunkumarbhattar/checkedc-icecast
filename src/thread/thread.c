@@ -686,7 +686,7 @@ thread_type *thread_self(void)
     node = avl_get_first(_threadtree);
     
     while (node) {
-        th = (thread_type *)node->key;
+        th = avl_get<thread_type>(node);
 
         if (th && pthread_equal(sys_thread, th->sys_thread)) {
             _mutex_unlock(&_threadtree_mutex);

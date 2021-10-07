@@ -348,6 +348,10 @@ avl_get_by_key (avl_tree * tree,
   }
 }
 
+void* avl_get(avl_node *n) { 
+  return n->key;
+}
+
 int avl_delete(avl_tree *tree, void *key, avl_free_key_fun_type free_key_fun)
 {
   avl_node *x, *y, *p, *q, *r, *top, *x_child;

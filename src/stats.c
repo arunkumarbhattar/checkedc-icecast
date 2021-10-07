@@ -372,7 +372,7 @@ static stats_node_t *_find_node(avl_tree *stats_tree, const char *name)
     node = stats_tree->root->right;
     
     while (node) {
-        stats = (stats_node_t *)node->key;
+        stats = avl_get<stats_node_t>(node);
         cmp = strcmp(name, stats->name);
         if (cmp < 0) 
             node = node->left;
@@ -398,7 +398,7 @@ static stats_source_t *_find_source(avl_tree *source_tree, const char *source)
     /* get the root node */
     node = source_tree->root->right;
     while (node) {
-        stats = (stats_source_t *)node->key;
+        stats = avl_get<stats_source_t>(node);
         cmp = strcmp(source, stats->source);
         if (cmp < 0)
             node = node->left;
@@ -572,7 +572,7 @@ static void process_source_event (stats_event_t *event)
             snode->hidden = 0;
         while (node)
         {
-            stats_node_t *stats = (stats_node_t*)node->key;
+            stats_node_t *stats = avl_get<stats_node_t>(node);
             stats->hidden = snode->hidden;
             node = avl_get_next (node);
         }
@@ -831,7 +831,7 @@ static xmlNodePtr _dump_stats_to_doc (xmlNodePtr root, const char *show_mount, i
     avlnode = avl_get_first(_stats.source_tree);
     while (avlnode)
     {
-        stats_source_t *source = (stats_source_t *)avlnode->key;
+        stats_source_t *source = avl_get<stats_source_t>(avlnode);
         if (source->hidden <= hidden &&
                 (show_mount == NULL || strcmp (show_mount, source->source) == 0))
         {
@@ -874,7 +874,7 @@ static void _register_listener (event_listener_t *listener)
     /* start with the global stats */
     node = avl_get_first(_stats.global_tree);
     while (node) {
-        event = _make_event_from_node((stats_node_t *)node->key, NULL);
+        event = _make_event_from_node(avl_get<stats_node_t>(node), NULL);
         _add_event_to_queue (event, &listener->queue);
 
         node = avl_get_next(node);
@@ -883,10 +883,10 @@ static void _register_listener (event_listener_t *listener)
     /* now the stats for each source */
     node = avl_get_first(_stats.source_tree);
     while (node) {
-        source = (stats_source_t *)node->key;
+        source = avl_get<stats_source_t>(node);
         node2 = avl_get_first(source->stats_tree);
         while (node2) {
-            event = _make_event_from_node((stats_node_t *)node2->key, source->source);
+            event = _make_event_from_node(avl_get<stats_node_t>(node2), source->source);
             _add_event_to_queue (event, &listener->queue);
 
             node2 = avl_get_next(node2);
@@ -1058,7 +1058,7 @@ refbuf_t *stats_get_streams (void)
     while (node)
     {
         int ret;
-        stats_source_t *source = (stats_source_t *)node->key;
+        stats_source_t *source = avl_get<stats_source_t>(node);
 
         if (source->hidden == 0)
         {
@@ -1098,7 +1098,7 @@ void stats_clear_virtual_mounts (void)
     snode = avl_get_first(_stats.source_tree);
     while (snode)
     {
-        stats_source_t *src = (stats_source_t *)snode->key;
+        stats_source_t *src = avl_get<stats_source_t>(snode);
         source_t *source = source_find_mount_raw (src->source);
 
         if (source == NULL)

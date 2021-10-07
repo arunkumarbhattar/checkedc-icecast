@@ -342,7 +342,7 @@ static int check_duplicate_logins (source_t *source, client_t *client, auth_t *a
         node = avl_get_first (source->client_tree);
         while (node)
         {   
-            client_t *existing_client = (client_t *)node->key;
+            client_t *existing_client = avl_get<client_t>(node);
             if (existing_client->username && 
                     strcmp (existing_client->username, client->username) == 0)
             {
@@ -357,7 +357,7 @@ static int check_duplicate_logins (source_t *source, client_t *client, auth_t *a
         node = avl_get_first (source->pending_tree);
         while (node)
         {
-            client_t *existing_client = (client_t *)node->key;
+            client_t *existing_client = avl_get<client_t>(node);
             if (existing_client->username && 
                     strcmp (existing_client->username, client->username) == 0)
             {

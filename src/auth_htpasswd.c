@@ -434,7 +434,7 @@ static auth_result htpasswd_userlist(auth_t *auth, xmlNodePtr srcnode)
     node = avl_get_first (state->users);
     while (node)
     {
-        htpasswd_user *user = (htpasswd_user *)node->key;
+        htpasswd_user *user = avl_get<htpasswd_user>(node);
         newnode = xmlNewChild (srcnode, NULL, XMLSTR("User"), NULL);
         xmlNewTextChild(newnode, NULL, XMLSTR("username"), XMLSTR(user->name));
         node = avl_get_next (node);

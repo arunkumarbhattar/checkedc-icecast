@@ -332,7 +332,7 @@ static int format_prepare_headers (source_t *source, client_t *client)
     while (node)
     {
         int next = 1;
-        http_var_t *var = (http_var_t *)node->key;
+        http_var_t *var = avl_get<http_var_t>(node);
         bytes = 0;
         if (!strcasecmp(var->name, "ice-audio-info"))
         {

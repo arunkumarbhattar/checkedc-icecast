@@ -44,8 +44,8 @@ typedef struct connection_tag
 #ifdef HAVE_OPENSSL
     SSL *ssl;   /* SSL handler */
 #endif
-    int (*send)(struct connection_tag *handle, const void *buf, size_t len);
-    int (*read)(struct connection_tag *handle, void *buf, size_t len);
+    int (*send)(struct connection_tag *handle, const _Array_ptr<void> buf : byte_count(len), size_t len);
+    int (*read)(struct connection_tag *handle, _Array_ptr<void> buf : byte_count(len), size_t len);
 
     char *ip;
     char *host;

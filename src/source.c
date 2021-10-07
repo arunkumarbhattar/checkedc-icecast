@@ -139,7 +139,7 @@ source_t *source_find_mount_raw(const char *mount)
     node = global.source_tree->root->right;
     
     while (node) {
-        source = (source_t *)node->key;
+        source = avl_get<source_t>(node);
         cmp = strcmp(mount, source->mount);
         if (cmp < 0) 
             node = node->left;
@@ -399,7 +399,7 @@ void source_move_clients (source_t *source, source_t *dest)
             avl_node *node = avl_get_first (source->pending_tree);
             if (node == NULL)
                 break;
-            client = (client_t *)(node->key);
+            client = avl_get<client_t>(node);
             avl_delete (source->pending_tree, client, NULL);
 
             /* when switching a client to a different queue, be wary of the 
@@ -424,7 +424,7 @@ void source_move_clients (source_t *source, source_t *dest)
             if (node == NULL)
                 break;
 
-            client = (client_t *)(node->key);
+            client = avl_get<client_t>(node);
             avl_delete (source->client_tree, client, NULL);
 
             /* when switching a client to a different queue, be wary of the 
@@ -768,7 +768,7 @@ void source_main (source_t *source)
 
         client_node = avl_get_first(source->client_tree);
         while (client_node) {
-            client = (client_t *)client_node->key;
+            client = avl_get<client_t>(client_node);
 
             send_to_listener (source, client, remove_from_q);
 
@@ -796,7 +796,7 @@ void source_main (source_t *source)
                  * and doesn't give the listening client any information about
                  * why they were disconnected
                  */
-                client = (client_t *)client_node->key;
+                client = avl_get<client_t>(client_node);
                 client_node = avl_get_next(client_node);
                 avl_delete(source->pending_tree, (void *)client, _free_client);
 

@@ -214,7 +214,7 @@ xmlDocPtr admin_build_sourcelist (const char *mount)
 
     node = avl_get_first(global.source_tree);
     while(node) {
-        source = (source_t *)node->key;
+        source = avl_get<source_t>(node);
         if (mount && strcmp (mount, source->mount) == 0)
         {
             node = avl_get_next (node);
@@ -714,7 +714,7 @@ static void command_show_listeners(client_t *client, source_t *source,
 
     client_node = avl_get_first(source->client_tree);
     while(client_node) {
-        current = (client_t *)client_node->key;
+        current = avl_get<client_t>(client_node);
         listenernode = xmlNewChild(srcnode, NULL, XMLSTR("listener"), NULL);
         xmlNewTextChild(listenernode, NULL, XMLSTR("IP"), XMLSTR(current->con->ip));
         userAgent = httpp_getvar(current->parser, "user-agent");
