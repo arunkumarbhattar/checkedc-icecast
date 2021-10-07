@@ -54,7 +54,8 @@ extern "C" {
  *
  * Signature for a free() implementation.
  */
-typedef void (XMLCALL *xmlFreeFunc)(void *mem);
+  _Itype_for_any(T)
+typedef void (XMLCALL *xmlFreeFunc)(void *mem : itype(_Ptr<T>));
 /**
  * xmlMallocFunc:
  * @size:  the size requested in bytes

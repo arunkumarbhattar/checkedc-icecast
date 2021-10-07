@@ -24,6 +24,7 @@
 extern "C" {
 #endif
 
+
 XMLPUBFUN void XMLCALL xmlInitGlobals(void);
 XMLPUBFUN void XMLCALL xmlCleanupGlobals(void);
 
@@ -202,6 +203,7 @@ XMLPUBFUN xmlParserInputBufferCreateFilenameFunc XMLCALL
  *    - xmlFree
  */
 
+
 #ifdef LIBXML_THREAD_ALLOC_ENABLED
 #ifdef LIBXML_THREAD_ENABLED
 XMLPUBFUN  xmlMallocFunc * XMLCALL __xmlMalloc(void);
@@ -247,7 +249,8 @@ XMLPUBVAR xmlStrdupFunc xmlMemStrdup;
 XMLPUBVAR xmlMallocFunc xmlMalloc;
 XMLPUBVAR xmlMallocFunc xmlMallocAtomic;
 XMLPUBVAR xmlReallocFunc xmlRealloc;
-XMLPUBVAR xmlFreeFunc xmlFree;
+_Itype_for_any(T)
+XMLPUBVAR xmlFreeFunc xmlFree : itype(_Ptr<void (_Ptr<T>)>);
 XMLPUBVAR xmlStrdupFunc xmlMemStrdup;
 #endif /* LIBXML_THREAD_ALLOC_ENABLED */
 
@@ -500,6 +503,8 @@ XMLPUBFUN xmlOutputBufferCreateFilenameFunc * XMLCALL __xmlOutputBufferCreateFil
 #else
 XMLPUBVAR xmlOutputBufferCreateFilenameFunc xmlOutputBufferCreateFilenameValue;
 #endif
+
+
 
 #ifdef __cplusplus
 }
