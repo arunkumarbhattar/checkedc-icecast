@@ -123,7 +123,7 @@ sock_t sock_connect_non_blocking(const char *host, unsigned port);
 int sock_connected(sock_t sock, int timeout);
 
 /* Socket write functions */
-int sock_write_bytes(sock_t sock, const void *buff, size_t len);
+int sock_write_bytes(sock_t sock, const void *buff : itype(_Array_ptr<const void>) byte_count(len), size_t len);
 int sock_write(sock_t sock, const char *fmt, ...);
 int sock_write_fmt(sock_t sock, const char *fmt, va_list ap);
 int sock_write_string(sock_t sock, const char *buff);

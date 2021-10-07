@@ -182,7 +182,7 @@ static auth_result htpasswd_auth (auth_client *auth_user)
     htpasswd_auth_state *htpasswd = auth->state;
     client_t *client = auth_user->client;
     htpasswd_user entry;
-    void *result;
+    _Ptr<htpasswd_user> result = NULL;
 
     if (client->username == NULL || client->password == NULL)
         return AUTH_FAILED;
@@ -201,7 +201,7 @@ static auth_result htpasswd_auth (auth_client *auth_user)
 
     thread_rwlock_rlock (&htpasswd->file_rwlock);
     entry.name = client->username;
-    if (avl_get_by_key (htpasswd->users, &entry, &result) == 0)
+    if (avl_get_by_key<htpasswd_user>(htpasswd->users, &entry, &result) == 0)
     {
         htpasswd_user *found = result;
         char *hashed_pw;
@@ -265,7 +265,7 @@ static auth_result htpasswd_adduser (auth_t *auth, const char *username, const c
     char *hashed_password = NULL;
     htpasswd_auth_state *state = auth->state;
     htpasswd_user entry;
-    void *result;
+    _Ptr<htpasswd_user> result = NULL;
 
     if (state->filename == NULL) {
         ICECAST_LOG_ERROR("No filename given in options for authenticator.");
@@ -282,7 +282,7 @@ static auth_result htpasswd_adduser (auth_t *auth, const char *username, const c
     thread_rwlock_wlock (&state->file_rwlock);
 
     entry.name = (char*)username;
-    if (avl_get_by_key (state->users, &entry, &result) == 0)
+    if (avl_get_by_key<htpasswd_user>(state->users, &entry, &result) == 0)
     {
         thread_rwlock_unlock (&state->file_rwlock);
         return AUTH_USEREXISTS;

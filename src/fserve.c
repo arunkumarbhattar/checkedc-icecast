@@ -348,11 +348,11 @@ char *fserve_content_type (const char *path)
 {
     char *ext = util_get_extension(path);
     mime_type exttype = {ext, NULL};
-    void *result;
+    _Ptr<mime_type> result = NULL;
     char *type;
 
     thread_spin_lock (&pending_lock);
-    if (mimetypes && !avl_get_by_key (mimetypes, &exttype, &result))
+    if (mimetypes && !avl_get_by_key<mime_type>(mimetypes, &exttype, &result))
     {
         mime_type *mime = result;
         type = strdup (mime->type);
@@ -765,14 +765,14 @@ void fserve_recheck_mime_types (ice_config_t *config)
             *cur++ = 0;
             if(*ext)
             {
-                void *tmp;
+                _Ptr<mime_type> tmp = NULL;
                 /* Add a new extension->type mapping */
                 mapping = malloc(sizeof(mime_type));
                 mapping->ext = strdup(ext);
                 mapping->type = strdup(type);
-                if (!avl_get_by_key (new_mimetypes, mapping, &tmp))
-                    avl_delete (new_mimetypes, mapping, _delete_mapping);
-                avl_insert (new_mimetypes, mapping);
+                if (!avl_get_by_key<mime_type>(new_mimetypes, mapping, &tmp))
+                    avl_delete<mime_type>(new_mimetypes, mapping, _delete_mapping);
+                avl_insert<mime_type>(new_mimetypes, mapping);
             }
         }
     }

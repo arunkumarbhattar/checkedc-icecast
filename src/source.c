@@ -326,14 +326,14 @@ void source_free_source (_Ptr<source_t> source)
 client_t *source_find_client(source_t *source, int id)
 {
     client_t fakeclient;
-    void *result;
+    _Ptr<client_t> result = NULL;
     connection_t fakecon;
 
     fakeclient.con = &fakecon;
     fakeclient.con->id = id;
 
     avl_tree_rlock(source->client_tree);
-    if(avl_get_by_key(source->client_tree, &fakeclient, &result) == 0)
+    if(avl_get_by_key<client_t>(source->client_tree, &fakeclient, &result) == 0)
     {
         avl_tree_unlock(source->client_tree);
         return result;

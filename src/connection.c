@@ -123,10 +123,35 @@ rwlock_t _source_shutdown_rwlock;
 
 static void _handle_connection(void);
 
+typedef struct { 
+  char *str;
+} StringContainer;
+
+static _Ptr<StringContainer> box(char *str) { 
+  _Ptr<StringContainer> b = malloc(sizeof *b); 
+  b->str = str;
+  return b;
+}
+
+static int avl_box_insert(avl_tree* t, char *s) { 
+  _Ptr<StringContainer> b = box(s); 
+  return avl_insert(t, b);
+}
+
+static int avl_box_get_by_key(avl_tree *t, char *key, char **result) { 
+  _Ptr<StringContainer> box = malloc<StringContainer>(sizeof(StringContainer)); 
+  box->str = key; 
+  _Ptr<StringContainer> resultBox = NULL;
+
+  int status = avl_get_by_key<StringContainer>(t, box, &resultBox);
+  *result = resultBox->str; 
+  return status;
+}
+
 static int compare_ip (void *arg, void *a, void *b)
 {
-    const char *ip = (const char *)a;
-    const char *pattern = (const char *)b;
+    const char *ip = ((const StringContainer *)a)->str;
+    const char *pattern = ((const StringContainer *)b)->str;
 
     return strcmp (pattern, ip);
 }
@@ -134,7 +159,9 @@ static int compare_ip (void *arg, void *a, void *b)
 
 static int free_filtered_ip (void*x)
 {
-    free (x);
+  StringContainer *b = x; 
+  free(b->str);
+  free(b);
     return 1;
 }
 
@@ -373,7 +400,7 @@ static void recheck_ip_file (cache_file_contents *cache)
             count++;
             str = strdup (line);
             if (str)
-                avl_insert (new_ips, str);
+                avl_box_insert (new_ips, str);
         }
         fclose (file);
         ICECAST_LOG_INFO("%d entries read from file \"%s\"", count, cache->filename);
@@ -394,7 +421,7 @@ static int accept_ip_address (char *ip)
 
     if (banned_ip.contents)
     {
-        if (avl_get_by_key (banned_ip.contents, ip, &result) == 0)
+        if (avl_box_get_by_key (banned_ip.contents, ip, &result) == 0)
         {
             ICECAST_LOG_DEBUG("%s is banned", ip);
             return 0;
@@ -402,7 +429,7 @@ static int accept_ip_address (char *ip)
     }
     if (allowed_ip.contents)
     {
-        if (avl_get_by_key (allowed_ip.contents, ip, &result) == 0)
+        if (avl_box_get_by_key (allowed_ip.contents, ip, &result) == 0)
         {
             ICECAST_LOG_DEBUG("%s is allowed", ip);
             return 1;
