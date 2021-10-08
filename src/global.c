@@ -29,6 +29,8 @@
 
 #include "global.h"
 
+//#pragma CHECKED_SCOPE on
+
 ice_global_t global;
 
 static mutex_t _global_mutex;
@@ -41,14 +43,14 @@ void global_initialize(void)
     global.running = ICECAST_BOOTING;
     global.clients = 0;
     global.sources = 0;
-    global.source_tree = avl_tree_new(source_compare_sources, NULL);
+    global.source_tree = avl_tree_new<void>(_Assume_bounds_cast<avl_key_compare_fun_type >(source_compare_sources), NULL);
     thread_mutex_create(&_global_mutex);
 }
 
 void global_shutdown(void)
 {
     thread_mutex_destroy(&_global_mutex);
-    avl_tree_free(global.source_tree, NULL);
+    avl_tree_free<void>(global.source_tree, NULL);
 }
 
 void global_lock(void)

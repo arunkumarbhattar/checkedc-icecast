@@ -84,12 +84,12 @@
 #define ICECAST_SOURCE_AUTH 0
 
 typedef struct client_queue_tag {
-    client_t *client;
+    _Ptr<client_t> client;
     int offset;
     int stream_offset;
     int shoutcast;
     char *shoutcast_mount;
-    struct client_queue_tag *next;
+    _Ptr<struct client_queue_tag> next;
 } client_queue_t;
 
 typedef struct _thread_queue_tag {
