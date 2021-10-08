@@ -193,10 +193,11 @@ source_t *source_find_mount (const char *mount)
 }
 
 
-int source_compare_sources(void *arg, void *a, void *b)
+//int source_compare_sources(void *arg, void *a, void *b)
+int source_compare_sources(_Ptr<void> arg, _Ptr<source_t> a, _Ptr<source_t> b)
 {
-    source_t *srca = (source_t *)a;
-    source_t *srcb = (source_t *)b;
+    _Ptr<source_t> srca = a;
+    _Ptr<source_t> srcb = b;
 
     return strcmp(srca->mount, srcb->mount);
 }

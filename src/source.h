@@ -89,7 +89,7 @@ void source_clear_source (source_t *source : itype(_Ptr<source_t>));
 source_t *source_find_mount(const char *mount : itype(_Nt_array_ptr<const char>)) : itype(_Ptr<source_t>);
 source_t *source_find_mount_raw(const char *mount : itype(_Nt_array_ptr<const char>)) : itype(_Ptr<source_t>);
 client_t *source_find_client(source_t *source : itype(_Ptr<source_t>), int id) : itype(_Ptr<client_t>);
-int source_compare_sources(void *arg, void *a, void *b);
+int source_compare_sources(_Ptr<void> arg, _Ptr<source_t> a, _Ptr<source_t> b);
 void source_free_source(_Ptr<source_t> source);
 void source_move_clients (source_t *source : itype(_Ptr<source_t>), source_t *dest : itype(_Ptr<source_t>));
 _Itype_for_any(T) int source_remove_client(void *key : itype(_Ptr<T>));
