@@ -104,11 +104,11 @@ LIBXML_DLL_IMPORT xmlStrdupFunc xmlMemStrdup;
 XMLPUBFUN int XMLCALL
 	xmlMemSetup	(xmlFreeFunc freeFunc : itype(_Ptr<void (void *)>), xmlMallocFunc mallocFunc : itype(_Ptr<void *(size_t)>), xmlReallocFunc reallocFunc : itype(_Ptr<void *(void *, size_t)>), xmlStrdupFunc strdupFunc : itype(_Ptr<char *(const char *)>));
 XMLPUBFUN int XMLCALL
-	xmlMemGet	(void ((*freeFunc)(T *)) : itype(_Ptr<void (void *)>), void * ((*mallocFunc)(size_t)) : itype(_Ptr<void *(size_t)>), void * ((*reallocFunc)(void *, size_t)) : itype(_Ptr<void *(void *, size_t)>), char * ((*strdupFunc)(const char *)) : itype(_Ptr<char *(const char *)>));
+	xmlMemGet	(void ((*freeFunc)(void *)) : itype(_Ptr<void (void *)>), void * ((*mallocFunc)(size_t)) : itype(_Ptr<void *(size_t)>), void * ((*reallocFunc)(void *, size_t)) : itype(_Ptr<void *(void *, size_t)>), char * ((*strdupFunc)(const char *)) : itype(_Ptr<char *(const char *)>));
 XMLPUBFUN int XMLCALL
 	xmlGcMemSetup	(xmlFreeFunc freeFunc : itype(_Ptr<void (void *)>), xmlMallocFunc mallocFunc : itype(_Ptr<void *(size_t)>), xmlMallocFunc mallocAtomicFunc : itype(_Ptr<void *(size_t)>), xmlReallocFunc reallocFunc : itype(_Ptr<void *(void *, size_t)>), xmlStrdupFunc strdupFunc : itype(_Ptr<char *(const char *)>));
 XMLPUBFUN int XMLCALL
-	xmlGcMemGet	(void ((*freeFunc)(T *)) : itype(_Ptr<void (void *)>), void * ((*mallocFunc)(size_t)) : itype(_Ptr<void *(size_t)>), void * ((*mallocAtomicFunc)(size_t)) : itype(_Ptr<void *(size_t)>), void * ((*reallocFunc)(void *, size_t)) : itype(_Ptr<void *(void *, size_t)>), char * ((*strdupFunc)(const char *)) : itype(_Ptr<char *(const char *)>));
+	xmlGcMemGet	(void ((*freeFunc)(void *)) : itype(_Ptr<void (void *)>), void * ((*mallocFunc)(size_t)) : itype(_Ptr<void *(size_t)>), void * ((*mallocAtomicFunc)(size_t)) : itype(_Ptr<void *(size_t)>), void * ((*reallocFunc)(void *, size_t)) : itype(_Ptr<void *(void *, size_t)>), char * ((*strdupFunc)(const char *)) : itype(_Ptr<char *(const char *)>));
 
 /*
  * Initialization of the memory layer.

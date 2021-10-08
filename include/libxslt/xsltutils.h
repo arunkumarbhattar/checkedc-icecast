@@ -140,11 +140,11 @@ XSLTPUBFUN void XSLTCALL
 XSLTPUBFUN void XSLTCALL
 		xsltMessage			(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr inst : itype(_Ptr<xmlNode>));
 XSLTPUBFUN void XSLTCALL
-		xsltSetGenericErrorFunc		(void *ctx, xmlGenericErrorFunc handler : itype(_Ptr<void (void *, const char *)>));
+		xsltSetGenericErrorFunc		(void *ctx, xmlGenericErrorFunc handler);
 XSLTPUBFUN void XSLTCALL
-		xsltSetGenericDebugFunc		(void *ctx, xmlGenericErrorFunc handler : itype(_Ptr<void (void *, const char *)>));
+		xsltSetGenericDebugFunc		(void *ctx, xmlGenericErrorFunc handler);
 XSLTPUBFUN void XSLTCALL
-		xsltSetTransformErrorFunc	(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), void *ctx, xmlGenericErrorFunc handler : itype(_Ptr<void (void *, const char *)>));
+		xsltSetTransformErrorFunc	(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), void *ctx, xmlGenericErrorFunc handler); 
 XSLTPUBFUN void XSLTCALL
 		xsltTransformError		(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xsltStylesheetPtr style : itype(_Ptr<xsltStylesheet>), xmlNodePtr node : itype(_Ptr<xmlNode>), const char *msg : itype(_Ptr<const char>), ...) LIBXSLT_ATTR_FORMAT(4,5);
 

@@ -738,9 +738,9 @@ struct _xmlSAXHandler {
     ignorableWhitespaceSAXFunc ignorableWhitespace : itype(_Ptr<void (void *, _Ptr<const xmlChar>, int)>);
     processingInstructionSAXFunc processingInstruction : itype(_Ptr<void (void *, _Ptr<const xmlChar>, _Ptr<const xmlChar>)>);
     commentSAXFunc comment : itype(_Ptr<void (void *, _Ptr<const xmlChar>)>);
-    warningSAXFunc warning : itype(_Ptr<void (void *, _Ptr<const char>)>);
-    errorSAXFunc error : itype(_Ptr<void (void *, _Ptr<const char>)>);
-    fatalErrorSAXFunc fatalError : itype(_Ptr<void (void *, _Ptr<const char>)>); /* unused error() get all the errors */
+    warningSAXFunc warning;
+    errorSAXFunc error;
+    fatalErrorSAXFunc fatalError; /* unused error() get all the errors */
     getParameterEntitySAXFunc getParameterEntity : itype(_Ptr<_Ptr<xmlEntity> (void *, _Ptr<const xmlChar>)>);
     cdataBlockSAXFunc cdataBlock : itype(_Ptr<void (void *, _Ptr<const xmlChar>, int)>);
     externalSubsetSAXFunc externalSubset : itype(_Ptr<void (void *, _Ptr<const xmlChar>, _Ptr<const xmlChar>, _Ptr<const xmlChar>)>);
@@ -779,9 +779,9 @@ struct _xmlSAXHandlerV1 {
     ignorableWhitespaceSAXFunc ignorableWhitespace : itype(_Ptr<void (void *, _Ptr<const xmlChar>, int)>);
     processingInstructionSAXFunc processingInstruction : itype(_Ptr<void (void *, _Ptr<const xmlChar>, _Ptr<const xmlChar>)>);
     commentSAXFunc comment : itype(_Ptr<void (void *, _Ptr<const xmlChar>)>);
-    warningSAXFunc warning : itype(_Ptr<void (void *, _Ptr<const char>)>);
-    errorSAXFunc error : itype(_Ptr<void (void *, _Ptr<const char>)>);
-    fatalErrorSAXFunc fatalError : itype(_Ptr<void (void *, _Ptr<const char>)>); /* unused error() get all the errors */
+    warningSAXFunc warning;
+    errorSAXFunc error;
+    fatalErrorSAXFunc fatalError; /* unused error() get all the errors */
     getParameterEntitySAXFunc getParameterEntity : itype(_Ptr<_Ptr<xmlEntity> (void *, _Ptr<const xmlChar>)>);
     cdataBlockSAXFunc cdataBlock : itype(_Ptr<void (void *, _Ptr<const xmlChar>, int)>);
     externalSubsetSAXFunc externalSubset : itype(_Ptr<void (void *, _Ptr<const xmlChar>, _Ptr<const xmlChar>, _Ptr<const xmlChar>)>);

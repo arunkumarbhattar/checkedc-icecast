@@ -81,8 +81,8 @@ typedef struct _xmlValidCtxt xmlValidCtxt;
 typedef xmlValidCtxt *xmlValidCtxtPtr;
 struct _xmlValidCtxt {
     void *userData;			/* user specific data block */
-    xmlValidityErrorFunc error : itype(_Ptr<void (void *, _Ptr<const char>)>);		/* the callback in case of errors */
-    xmlValidityWarningFunc warning : itype(_Ptr<void (void *, _Ptr<const char>)>);	/* the callback in case of warning */
+    xmlValidityErrorFunc error;		/* the callback in case of errors */
+    xmlValidityWarningFunc warning;	/* the callback in case of warning */
 
     /* Node analysis stack used when validating within entities */
     xmlNodePtr node : itype(_Ptr<xmlNode>);          /* Current parsed Node */

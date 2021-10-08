@@ -18,6 +18,7 @@
 extern "C" {
 #endif
 
+
 /**
  * xmlChar:
  *

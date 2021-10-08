@@ -333,8 +333,8 @@ int config_initial_parse_file(const char *filename)
 
 int config_parse_file(const char *filename, ice_config_t *configuration)
 {
-    xmlDocPtr doc;
-    xmlNodePtr node;
+    xmlDocPtr doc = NULL;
+    xmlNodePtr node = NULL;
 
     if (filename == NULL || strcmp(filename, "") == 0) return CONFIG_EINSANE;
     
@@ -349,7 +349,7 @@ int config_parse_file(const char *filename, ice_config_t *configuration)
         return CONFIG_ENOROOT;
     }
 
-    if (xmlStrcmp (node->name, XMLSTR("icecast")) != 0) {
+    if (xmlStrcmp (node->name, "icecast") != 0) {
         xmlFreeDoc(doc);
         return CONFIG_EBADROOT;
     }
@@ -967,7 +967,7 @@ static void _parse_relay(xmlDocPtr doc, xmlNodePtr node,
         }
     } while ((node = node->next));
     if (relay->localmount == NULL)
-        relay->localmount = (char *)xmlStrdup (XMLSTR(relay->mount));
+        relay->localmount = (char *)xmlStrdup ((relay->mount));
 }
 
 static void _parse_listen_socket(xmlDocPtr doc, xmlNodePtr node,
@@ -1032,9 +1032,9 @@ static void _parse_listen_socket(xmlDocPtr doc, xmlNodePtr node,
         listener_t *sc_port = calloc (1, sizeof (listener_t));
         sc_port->port = listener->port+1;
         sc_port->shoutcast_compat = 1;
-        sc_port->shoutcast_mount = (char*)xmlStrdup (XMLSTR(listener->shoutcast_mount));
+        sc_port->shoutcast_mount = (char*)xmlStrdup ((listener->shoutcast_mount));
         if (listener->bind_address)
-            sc_port->bind_address = (char*)xmlStrdup (XMLSTR(listener->bind_address));
+            sc_port->bind_address = (char*)xmlStrdup ((listener->bind_address));
 
         sc_port->next = listener->next;
         listener->next = sc_port;
@@ -1258,7 +1258,7 @@ static void _parse_security(xmlDocPtr doc, xmlNodePtr node,
         ice_config_t *configuration)
 {
    char *tmp;
-   xmlNodePtr oldnode;
+   xmlNodePtr oldnode = NULL;
 
    do {
        if (node == NULL) break;

@@ -26,27 +26,27 @@ extern "C" {
  */
 /* xmlIO.h */
 typedef struct _xmlParserInputBuffer xmlParserInputBuffer;
-typedef xmlParserInputBuffer *xmlParserInputBufferPtr;
+typedef _Ptr<xmlParserInputBuffer> xmlParserInputBufferPtr;
 
 typedef struct _xmlOutputBuffer xmlOutputBuffer;
-typedef xmlOutputBuffer *xmlOutputBufferPtr;
+typedef _Ptr<xmlOutputBuffer> xmlOutputBufferPtr;
 
 /* parser.h */
 typedef struct _xmlParserInput xmlParserInput;
-typedef xmlParserInput *xmlParserInputPtr;
+typedef _Ptr<xmlParserInput> xmlParserInputPtr;
 
 typedef struct _xmlParserCtxt xmlParserCtxt;
-typedef xmlParserCtxt *xmlParserCtxtPtr;
+typedef _Ptr<xmlParserCtxt> xmlParserCtxtPtr;
 
 typedef struct _xmlSAXLocator xmlSAXLocator;
-typedef xmlSAXLocator *xmlSAXLocatorPtr;
+typedef _Ptr<xmlSAXLocator> xmlSAXLocatorPtr;
 
 typedef struct _xmlSAXHandler xmlSAXHandler;
-typedef xmlSAXHandler *xmlSAXHandlerPtr;
+typedef _Ptr<xmlSAXHandler> xmlSAXHandlerPtr;
 
 /* entities.h */
 typedef struct _xmlEntity xmlEntity;
-typedef xmlEntity *xmlEntityPtr;
+typedef _Ptr<xmlEntity> xmlEntityPtr;
 
 /**
  * BASE_BUFFER_SIZE:
@@ -485,7 +485,7 @@ struct _xmlRef {
  * A node in an XML tree.
  */
 typedef struct _xmlNode xmlNode;
-typedef xmlNode *xmlNodePtr;
+typedef _Ptr<xmlNode> xmlNodePtr;
 struct _xmlNode {
     void           *_private;	/* application data */
     xmlElementType   type;	/* type number, must be second ! */
@@ -547,7 +547,7 @@ typedef enum {
  * An XML document.
  */
 typedef struct _xmlDoc xmlDoc;
-typedef xmlDoc *xmlDocPtr;
+typedef _Ptr<xmlDoc> xmlDocPtr;
 struct _xmlDoc {
     void           *_private;	/* application data */
     xmlElementType  type;       /* XML_DOCUMENT_NODE, must be second ! */

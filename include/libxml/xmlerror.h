@@ -860,7 +860,7 @@ typedef void (XMLCALL *xmlStructuredErrorFunc) (void *userData, xmlErrorPtr erro
  * xmlGenericError and xmlGenericErrorContext.
  */
 XMLPUBFUN void XMLCALL
-    xmlSetGenericErrorFunc	(void *ctx, xmlGenericErrorFunc handler : itype(_Ptr<void (void *, const char *)>));
+    xmlSetGenericErrorFunc	(void *ctx, xmlGenericErrorFunc handler);
 XMLPUBFUN void XMLCALL
     initGenericErrorDefaultFunc	(void ((*handler)(void *, const char *)) : itype(_Ptr<void (void *, const char *)>));
 
