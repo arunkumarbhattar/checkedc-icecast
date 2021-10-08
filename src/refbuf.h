@@ -22,7 +22,7 @@ typedef struct _refbuf_tag
 {
     unsigned int len;
     unsigned int _count;
-    char *data;
+    _Nt_array_ptr<char> data;
     struct _refbuf_tag *associated : itype(_Ptr<struct _refbuf_tag>);
     struct _refbuf_tag *next : itype(_Ptr<struct _refbuf_tag>);
     int sync_point;

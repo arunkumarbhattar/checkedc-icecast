@@ -29,6 +29,7 @@
 
 #include "logging.h"
 
+#pragma CHECKED_SCOPE on
 
 void refbuf_initialize(void)
 {
@@ -38,17 +39,21 @@ void refbuf_shutdown(void)
 {
 }
 
-refbuf_t *refbuf_new (unsigned int size)
+refbuf_t *refbuf_new(unsigned int size) : itype(_Ptr<refbuf_t>)
 {
-    refbuf_t *refbuf;
+    _Ptr<refbuf_t> refbuf = ((void *)0);
 
-    refbuf = (refbuf_t *)malloc(sizeof(refbuf_t));
+    refbuf = malloc<refbuf_t>(sizeof(refbuf_t));
     if (refbuf == NULL)
         abort();
     refbuf->data = NULL;
     if (size)
     {
-        refbuf->data = malloc (size);
+      _Array_ptr<char> raw : count(size) = calloc<char>(sizeof(char), size); 
+      raw[size-1] = '\0';
+      _Unchecked { 
+        refbuf->data = _Assume_bounds_cast<_Nt_array_ptr<char>>(raw, count(size - 1));
+      }
         if (refbuf->data == NULL)
             abort();
     }
@@ -61,18 +66,18 @@ refbuf_t *refbuf_new (unsigned int size)
     return refbuf;
 }
 
-void refbuf_addref(refbuf_t *self)
+void refbuf_addref(refbuf_t *self : itype(_Ptr<refbuf_t>))
 {
     self->_count++;
 }
 
-static void refbuf_release_associated (refbuf_t *ref)
+static void refbuf_release_associated (_Ptr<refbuf_t> ref)
 {
     if (ref == NULL)
         return;
     while (ref)
     {
-        refbuf_t *to_go = ref;
+        _Ptr<refbuf_t> to_go = ref;
         ref = to_go->next;
         if ( to_go->_count == 1 )
 	    to_go->next = NULL;
@@ -80,7 +85,7 @@ static void refbuf_release_associated (refbuf_t *ref)
     }
 }
 
-void refbuf_release(refbuf_t *self)
+void refbuf_release(refbuf_t *self : itype(_Ptr<refbuf_t>))
 {
     if (self == NULL)
         return;
@@ -88,10 +93,11 @@ void refbuf_release(refbuf_t *self)
     if (self->_count == 0)
     {
         refbuf_release_associated (self->associated);
-        if (self->next)
+        if (self->next) _Unchecked {
             ICECAST_LOG_ERROR("next not null");
-        free(self->data);
-        free(self);
+        }
+        free<char>(self->data);
+        free<refbuf_t>(self);
     }
 }
 
