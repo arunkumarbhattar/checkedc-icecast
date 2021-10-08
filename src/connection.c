@@ -109,8 +109,10 @@ static spin_t _connection_lock; // protects _current_id, _con_queue, _con_queue_
 static volatile unsigned long _current_id = 0;
 static int _initialized = 0;
 
-static volatile client_queue_t *_req_queue = NULL, **_req_queue_tail = &_req_queue;
-static volatile client_queue_t *_con_queue = NULL, **_con_queue_tail = &_con_queue;
+static volatile _Ptr<client_queue_t> _req_queue = NULL; 
+static volatile _Ptr<_Ptr<client_queue_t>> _req_queue_tail = &_req_queue;
+static volatile _Ptr<client_queue_t> _con_queue = NULL;  
+static volatile _Ptr<_Ptr<client_queue_t>> _con_queue_tail = &_con_queue;
 static int ssl_ok;
 #ifdef HAVE_OPENSSL
 static SSL_CTX *ssl_ctx;
