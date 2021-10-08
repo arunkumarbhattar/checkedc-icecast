@@ -1,6 +1,7 @@
 #!/bin/bash
 3c \
 -dump-stats \
+-itypes-for-extern \
 -alltypes \
 -infer-types-for-undefs \
 -p \
