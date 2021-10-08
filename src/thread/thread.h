@@ -164,7 +164,11 @@ void thread_shutdown(void);
 
 /* creation, destruction, locking, unlocking, signalling and waiting */
 //   void *(*start_routine)(void *), 
-thread_type *thread_create_c(char *name : itype(_Nt_array_ptr<char>), _Ptr, _Ptr<In> arg, int detached, int line, char *file : itype(_Nt_array_ptr<char>)) : itype(_Ptr<thread_type>);
+typedef void* (*start_fn)(void*);
+_Itype_for_any(In,Out)
+thread_type *thread_create_c(char *name : itype(_Nt_array_ptr<char>), start_fn start : itype(_Ptr< _Ptr<Out> (_Ptr<In>)>), 
+    void *arg : itype(_Ptr<In>),
+    int detached, int line, char *file : itype(_Nt_array_ptr<char>)) : itype(_Ptr<thread_type>);
 
 void thread_mutex_create_c(mutex_t *mutex : itype(_Ptr<mutex_t>), int line, char *file : itype(_Ptr<char>));
 void thread_mutex_lock_c(mutex_t *mutex : itype(_Ptr<mutex_t>), int line, char *file : itype(_Ptr<char>));
