@@ -83,18 +83,10 @@ extern "C" {
 /*
  * Our own version of namespaced attributes lookup.
  */
-XSLTPUBFUN xmlChar * XSLTCALL
-		xsltGetNsProp	(xmlNodePtr node,
-				 const xmlChar *name,
-				 const xmlChar *nameSpace);
-XSLTPUBFUN const xmlChar * XSLTCALL
-		xsltGetCNsProp	(xsltStylesheetPtr style,
-				 xmlNodePtr node,
-				 const xmlChar *name,
-				 const xmlChar *nameSpace);
+XSLTPUBFUN xmlChar *xsltGetNsProp(xmlNodePtr node : itype(_Ptr<xmlNode>), const xmlChar *name : itype(_Ptr<const xmlChar>), const xmlChar *nameSpace : itype(_Ptr<const xmlChar>)) : itype(_Ptr<xmlChar>);
+XSLTPUBFUN const xmlChar *xsltGetCNsProp(xsltStylesheetPtr style : itype(_Ptr<xsltStylesheet>), xmlNodePtr node : itype(_Ptr<xmlNode>), const xmlChar *name : itype(_Ptr<const xmlChar>), const xmlChar *nameSpace : itype(_Ptr<const xmlChar>)) : itype(_Ptr<const xmlChar>);
 XSLTPUBFUN int XSLTCALL
-		xsltGetUTF8Char	(const unsigned char *utf,
-				 int *len);
+		xsltGetUTF8Char	(const unsigned char *utf : itype(_Ptr<const unsigned char>), int *len : itype(_Ptr<int>));
 
 /*
  * XSLT Debug Tracing Tracing Types
@@ -144,118 +136,71 @@ XSLTPUBVAR xmlGenericErrorFunc xsltGenericDebug;
 XSLTPUBVAR void *xsltGenericDebugContext;
 
 XSLTPUBFUN void XSLTCALL
-		xsltPrintErrorContext		(xsltTransformContextPtr ctxt,
-	                                         xsltStylesheetPtr style,
-						 xmlNodePtr node);
+		xsltPrintErrorContext		(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xsltStylesheetPtr style : itype(_Ptr<xsltStylesheet>), xmlNodePtr node : itype(_Ptr<xmlNode>));
 XSLTPUBFUN void XSLTCALL
-		xsltMessage			(xsltTransformContextPtr ctxt,
-						 xmlNodePtr node,
-						 xmlNodePtr inst);
+		xsltMessage			(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr inst : itype(_Ptr<xmlNode>));
 XSLTPUBFUN void XSLTCALL
-		xsltSetGenericErrorFunc		(void *ctx,
-						 xmlGenericErrorFunc handler);
+		xsltSetGenericErrorFunc		(void *ctx, xmlGenericErrorFunc handler : itype(_Ptr<void (void *, const char *)>));
 XSLTPUBFUN void XSLTCALL
-		xsltSetGenericDebugFunc		(void *ctx,
-						 xmlGenericErrorFunc handler);
+		xsltSetGenericDebugFunc		(void *ctx, xmlGenericErrorFunc handler : itype(_Ptr<void (void *, const char *)>));
 XSLTPUBFUN void XSLTCALL
-		xsltSetTransformErrorFunc	(xsltTransformContextPtr ctxt,
-						 void *ctx,
-						 xmlGenericErrorFunc handler);
+		xsltSetTransformErrorFunc	(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), void *ctx, xmlGenericErrorFunc handler : itype(_Ptr<void (void *, const char *)>));
 XSLTPUBFUN void XSLTCALL
-		xsltTransformError		(xsltTransformContextPtr ctxt,
-						 xsltStylesheetPtr style,
-						 xmlNodePtr node,
-						 const char *msg,
-						 ...) LIBXSLT_ATTR_FORMAT(4,5);
+		xsltTransformError		(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xsltStylesheetPtr style : itype(_Ptr<xsltStylesheet>), xmlNodePtr node : itype(_Ptr<xmlNode>), const char *msg : itype(_Ptr<const char>), ...) LIBXSLT_ATTR_FORMAT(4,5);
 
 XSLTPUBFUN int XSLTCALL
-		xsltSetCtxtParseOptions		(xsltTransformContextPtr ctxt,
-						 int options);
+		xsltSetCtxtParseOptions		(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), int options);
 /*
  * Sorting.
  */
 
 XSLTPUBFUN void XSLTCALL
-		xsltDocumentSortFunction	(xmlNodeSetPtr list);
+		xsltDocumentSortFunction	(xmlNodeSetPtr list : itype(_Ptr<xmlNodeSet>));
 XSLTPUBFUN void XSLTCALL
-		xsltSetSortFunc			(xsltSortFunc handler);
+		xsltSetSortFunc			(xsltSortFunc handler : itype(_Ptr<void (xsltTransformContextPtr, xmlNodePtr *, int)>));
 XSLTPUBFUN void XSLTCALL
-		xsltSetCtxtSortFunc		(xsltTransformContextPtr ctxt,
-						 xsltSortFunc handler);
+		xsltSetCtxtSortFunc		(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xsltSortFunc handler : itype(_Ptr<void (xsltTransformContextPtr, xmlNodePtr *, int)>));
 XSLTPUBFUN void XSLTCALL
-		xsltDefaultSortFunction		(xsltTransformContextPtr ctxt,
-						 xmlNodePtr *sorts,
-						 int nbsorts);
+		xsltDefaultSortFunction		(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xmlNodePtr *sorts : itype(_Ptr<xmlNodePtr>), int nbsorts);
 XSLTPUBFUN void XSLTCALL
-		xsltDoSortFunction		(xsltTransformContextPtr ctxt,
-						 xmlNodePtr * sorts,
-						 int nbsorts);
-XSLTPUBFUN xmlXPathObjectPtr * XSLTCALL
-		xsltComputeSortResult		(xsltTransformContextPtr ctxt,
-						 xmlNodePtr sort);
+		xsltDoSortFunction		(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xmlNodePtr *sorts : itype(_Ptr<xmlNodePtr>), int nbsorts);
+XSLTPUBFUN xmlXPathObjectPtr *xsltComputeSortResult(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xmlNodePtr sort : itype(_Ptr<xmlNode>)) : itype(_Ptr<xmlXPathObjectPtr>);
 
 /*
  * QNames handling.
  */
 
-XSLTPUBFUN const xmlChar * XSLTCALL
-		xsltSplitQName			(xmlDictPtr dict,
-						 const xmlChar *name,
-						 const xmlChar **prefix);
-XSLTPUBFUN const xmlChar * XSLTCALL
-		xsltGetQNameURI			(xmlNodePtr node,
-						 xmlChar **name);
+XSLTPUBFUN const xmlChar *xsltSplitQName(xmlDictPtr dict : itype(_Ptr<xmlDict>), const xmlChar *name : itype(_Ptr<const xmlChar>), const xmlChar **prefix : itype(_Ptr<_Ptr<const xmlChar>>)) : itype(_Ptr<const xmlChar>);
+XSLTPUBFUN const xmlChar *xsltGetQNameURI(xmlNodePtr node : itype(_Ptr<xmlNode>), xmlChar **name : itype(_Ptr<_Ptr<xmlChar>>)) : itype(_Ptr<const xmlChar>);
 
-XSLTPUBFUN const xmlChar * XSLTCALL
-		xsltGetQNameURI2		(xsltStylesheetPtr style,
-						 xmlNodePtr node,
-						 const xmlChar **name);
+XSLTPUBFUN const xmlChar *xsltGetQNameURI2(xsltStylesheetPtr style : itype(_Ptr<xsltStylesheet>), xmlNodePtr node : itype(_Ptr<xmlNode>), const xmlChar **name : itype(_Ptr<_Ptr<const xmlChar>>)) : itype(_Ptr<const xmlChar>);
 
 /*
  * Output, reuse libxml I/O buffers.
  */
 XSLTPUBFUN int XSLTCALL
-		xsltSaveResultTo		(xmlOutputBufferPtr buf,
-						 xmlDocPtr result,
-						 xsltStylesheetPtr style);
+		xsltSaveResultTo		(xmlOutputBufferPtr buf : itype(_Ptr<xmlOutputBuffer>), xmlDocPtr result : itype(_Ptr<xmlDoc>), xsltStylesheetPtr style : itype(_Ptr<xsltStylesheet>));
 XSLTPUBFUN int XSLTCALL
-		xsltSaveResultToFilename	(const char *URI,
-						 xmlDocPtr result,
-						 xsltStylesheetPtr style,
-						 int compression);
+		xsltSaveResultToFilename	(const char *URI : itype(_Ptr<const char>), xmlDocPtr result : itype(_Ptr<xmlDoc>), xsltStylesheetPtr style : itype(_Ptr<xsltStylesheet>), int compression);
 XSLTPUBFUN int XSLTCALL
-		xsltSaveResultToFile		(FILE *file,
-						 xmlDocPtr result,
-						 xsltStylesheetPtr style);
+		xsltSaveResultToFile		(FILE *file : itype(_Ptr<FILE>), xmlDocPtr result : itype(_Ptr<xmlDoc>), xsltStylesheetPtr style : itype(_Ptr<xsltStylesheet>));
 XSLTPUBFUN int XSLTCALL
-		xsltSaveResultToFd		(int fd,
-						 xmlDocPtr result,
-						 xsltStylesheetPtr style);
+		xsltSaveResultToFd		(int fd, xmlDocPtr result : itype(_Ptr<xmlDoc>), xsltStylesheetPtr style : itype(_Ptr<xsltStylesheet>));
 XSLTPUBFUN int XSLTCALL
-		xsltSaveResultToString          (xmlChar **doc_txt_ptr,
-                                                 int * doc_txt_len,
-                                                 xmlDocPtr result,
-                                                 xsltStylesheetPtr style);
+		xsltSaveResultToString          (xmlChar **doc_txt_ptr : itype(_Ptr<xmlChar *>), int *doc_txt_len : itype(_Ptr<int>), xmlDocPtr result : itype(_Ptr<xmlDoc>), xsltStylesheetPtr style : itype(_Ptr<xsltStylesheet>));
 
 /*
  * XPath interface
  */
-XSLTPUBFUN xmlXPathCompExprPtr XSLTCALL
-		xsltXPathCompile		(xsltStylesheetPtr style,
-						 const xmlChar *str);
-XSLTPUBFUN xmlXPathCompExprPtr XSLTCALL
-		xsltXPathCompileFlags		(xsltStylesheetPtr style,
-						 const xmlChar *str,
-						 int flags);
+XSLTPUBFUN xmlXPathCompExprPtr xsltXPathCompile(xsltStylesheetPtr style : itype(_Ptr<xsltStylesheet>), const xmlChar *str : itype(_Ptr<const xmlChar>)) : itype(_Ptr<xmlXPathCompExpr>);
+XSLTPUBFUN xmlXPathCompExprPtr xsltXPathCompileFlags(xsltStylesheetPtr style : itype(_Ptr<xsltStylesheet>), const xmlChar *str : itype(_Ptr<const xmlChar>), int flags) : itype(_Ptr<xmlXPathCompExpr>);
 
 /*
  * Profiling.
  */
 XSLTPUBFUN void XSLTCALL
-		xsltSaveProfiling		(xsltTransformContextPtr ctxt,
-						 FILE *output);
-XSLTPUBFUN xmlDocPtr XSLTCALL
-		xsltGetProfileInformation	(xsltTransformContextPtr ctxt);
+		xsltSaveProfiling		(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), FILE *output : itype(_Ptr<FILE>));
+XSLTPUBFUN xmlDocPtr xsltGetProfileInformation(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>)) : itype(_Ptr<xmlDoc>);
 
 XSLTPUBFUN long XSLTCALL
 		xsltTimestamp			(void);
@@ -300,8 +245,7 @@ XSLTPUBFUN int XSLTCALL
 XSLTPUBFUN int XSLTCALL
 		xsltSetDebuggerCallbacks	(int no, void *block);
 XSLTPUBFUN int XSLTCALL
-		xslAddCall			(xsltTemplatePtr templ,
-						 xmlNodePtr source);
+		xslAddCall			(xsltTemplatePtr templ : itype(_Ptr<xsltTemplate>), xmlNodePtr source : itype(_Ptr<xmlNode>));
 XSLTPUBFUN void XSLTCALL
 		xslDropCall			(void);
 

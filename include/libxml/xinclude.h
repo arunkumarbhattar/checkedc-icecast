@@ -90,36 +90,27 @@ typedef xmlXIncludeCtxt *xmlXIncludeCtxtPtr;
  * standalone processing
  */
 XMLPUBFUN int XMLCALL
-		xmlXIncludeProcess	(xmlDocPtr doc);
+		xmlXIncludeProcess	(xmlDocPtr doc : itype(_Ptr<xmlDoc>));
 XMLPUBFUN int XMLCALL
-		xmlXIncludeProcessFlags	(xmlDocPtr doc,
-					 int flags);
+		xmlXIncludeProcessFlags	(xmlDocPtr doc : itype(_Ptr<xmlDoc>), int flags);
 XMLPUBFUN int XMLCALL
-		xmlXIncludeProcessFlagsData(xmlDocPtr doc,
-					 int flags,
-					 void *data);
+		xmlXIncludeProcessFlagsData(xmlDocPtr doc : itype(_Ptr<xmlDoc>), int flags, void *data);
 XMLPUBFUN int XMLCALL
-                xmlXIncludeProcessTreeFlagsData(xmlNodePtr tree,
-                                         int flags,
-                                         void *data);
+                xmlXIncludeProcessTreeFlagsData(xmlNodePtr tree : itype(_Ptr<xmlNode>), int flags, void *data);
 XMLPUBFUN int XMLCALL
-		xmlXIncludeProcessTree	(xmlNodePtr tree);
+		xmlXIncludeProcessTree	(xmlNodePtr tree : itype(_Ptr<xmlNode>));
 XMLPUBFUN int XMLCALL
-		xmlXIncludeProcessTreeFlags(xmlNodePtr tree,
-					 int flags);
+		xmlXIncludeProcessTreeFlags(xmlNodePtr tree : itype(_Ptr<xmlNode>), int flags);
 /*
  * contextual processing
  */
-XMLPUBFUN xmlXIncludeCtxtPtr XMLCALL
-		xmlXIncludeNewContext	(xmlDocPtr doc);
+XMLPUBFUN xmlXIncludeCtxtPtr xmlXIncludeNewContext(xmlDocPtr doc : itype(_Ptr<xmlDoc>)) : itype(_Ptr<xmlXIncludeCtxt>);
 XMLPUBFUN int XMLCALL
-		xmlXIncludeSetFlags	(xmlXIncludeCtxtPtr ctxt,
-					 int flags);
+		xmlXIncludeSetFlags	(xmlXIncludeCtxtPtr ctxt : itype(_Ptr<xmlXIncludeCtxt>), int flags);
 XMLPUBFUN void XMLCALL
-		xmlXIncludeFreeContext	(xmlXIncludeCtxtPtr ctxt);
+		xmlXIncludeFreeContext	(xmlXIncludeCtxtPtr ctxt : itype(_Ptr<xmlXIncludeCtxt>));
 XMLPUBFUN int XMLCALL
-		xmlXIncludeProcessNode	(xmlXIncludeCtxtPtr ctxt,
-					 xmlNodePtr tree);
+		xmlXIncludeProcessNode	(xmlXIncludeCtxtPtr ctxt : itype(_Ptr<xmlXIncludeCtxt>), xmlNodePtr tree : itype(_Ptr<xmlNode>));
 #ifdef __cplusplus
 }
 #endif

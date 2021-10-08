@@ -49,19 +49,19 @@ typedef struct ice_config_http_header_tag {
     int status;
 
     /* link to the next list element */
-    struct ice_config_http_header_tag *next;
+    struct ice_config_http_header_tag *next : itype(_Ptr<struct ice_config_http_header_tag>);
 } ice_config_http_header_t;
 
 typedef struct ice_config_dir_tag {
     char *host;
     int touch_interval;
-    struct ice_config_dir_tag *next;
+    struct ice_config_dir_tag *next : itype(_Ptr<struct ice_config_dir_tag>);
 } ice_config_dir_t;
 
 typedef struct _config_options {
     char *name;
     char *value;
-    struct _config_options *next;
+    struct _config_options *next : itype(_Ptr<struct _config_options>);
 } config_options_t;
 
 typedef enum _mount_type {
@@ -98,12 +98,12 @@ typedef struct _mount_proxy {
     char *charset;  /* character set if not utf8 */
     int mp3_meta_interval; /* outgoing per-stream metadata interval */
 
-    ice_config_http_header_t *http_headers; /* additional HTTP headers */
+    ice_config_http_header_t *http_headers : itype(_Ptr<ice_config_http_header_t>); /* additional HTTP headers */
 
     char *auth_type; /* Authentication type */
-    struct auth_tag *auth;
+    struct auth_tag *auth : itype(_Ptr<struct auth_tag>);
     char *cluster_password;
-    config_options_t *auth_options; /* Options for this type */
+    config_options_t *auth_options : itype(_Ptr<config_options_t>); /* Options for this type */
     char *on_connect;
     char *on_disconnect;
     unsigned int max_listener_duration;
@@ -117,7 +117,7 @@ typedef struct _mount_proxy {
     char *subtype;
     int yp_public;
 
-    struct _mount_proxy *next;
+    struct _mount_proxy *next : itype(_Ptr<struct _mount_proxy>);
 } mount_proxy;
 
 typedef struct _aliases {
@@ -125,11 +125,11 @@ typedef struct _aliases {
     char *destination;
     int port;
     char *bind_address;
-    struct _aliases *next;
+    struct _aliases *next : itype(_Ptr<struct _aliases>);
 } aliases;
 
 typedef struct _listener_t {
-    struct _listener_t *next;
+    struct _listener_t *next : itype(_Ptr<struct _listener_t>);
     int port;
     int so_sndbuf;
     char *bind_address;
@@ -139,7 +139,7 @@ typedef struct _listener_t {
 } listener_t;
 
 typedef struct ice_config_tag {
-    char *config_filename;
+    char *config_filename : itype(_Nt_array_ptr<char>);
 
     char *location;
     char *admin;
@@ -164,13 +164,13 @@ typedef struct ice_config_tag {
     char *relay_password;
 
     int touch_interval;
-    ice_config_dir_t *dir_list;
+    ice_config_dir_t *dir_list : itype(_Ptr<ice_config_dir_t>);
 
     char *hostname;
     int port;
     char *mimetypes_fn;
 
-    listener_t *listen_sock;
+    listener_t *listen_sock : itype(_Ptr<listener_t>);
     unsigned int listen_sock_count;
 
     char *master_server;
@@ -179,11 +179,11 @@ typedef struct ice_config_tag {
     char *master_username;
     char *master_password;
 
-    ice_config_http_header_t *http_headers;
+    ice_config_http_header_t *http_headers : itype(_Ptr<ice_config_http_header_t>);
 
-    relay_server *relay;
+    relay_server *relay : itype(_Ptr<relay_server>);
 
-    mount_proxy *mounts;
+    mount_proxy *mounts : itype(_Ptr<mount_proxy>);
 
     char *server_id;
     char *base_dir;
@@ -195,7 +195,7 @@ typedef struct ice_config_tag {
     char *cipher_list;
     char *webroot_dir;
     char *adminroot_dir;
-    aliases *aliases;
+    aliases *aliases : itype(_Ptr<aliases>);
 
     char *access_log;
     char *error_log;
@@ -208,9 +208,9 @@ typedef struct ice_config_tag {
     int chuid;
     char *user;
     char *group;
-    char *yp_url[MAX_YP_DIRECTORIES];
-    int    yp_url_timeout[MAX_YP_DIRECTORIES];
-    int    yp_touch_interval[MAX_YP_DIRECTORIES];
+    char *yp_url[25] : itype(char * _Checked[MAX_YP_DIRECTORIES]);
+    int yp_url_timeout[25] : itype(int _Checked[MAX_YP_DIRECTORIES]);
+    int yp_touch_interval[25] : itype(int _Checked[MAX_YP_DIRECTORIES]);
     int num_yp_directories;
 } ice_config_t;
 
@@ -222,24 +222,24 @@ typedef struct {
 void config_initialize(void);
 void config_shutdown(void);
 
-int config_parse_file(const char *filename, ice_config_t *configuration);
-int config_initial_parse_file(const char *filename);
-int config_parse_cmdline(int arg, char **argv);
-void config_set_config(ice_config_t *config);
-listener_t *config_clear_listener (listener_t *listener);
-void config_clear(ice_config_t *config);
-mount_proxy *config_find_mount (ice_config_t *config, const char *mount, mount_type type);
-listener_t *config_get_listen_sock (ice_config_t *config, connection_t *con);
+int config_parse_file(const char *filename : itype(_Nt_array_ptr<const char>), ice_config_t *configuration : itype(_Array_ptr<ice_config_t>));
+int config_initial_parse_file(const char *filename : itype(_Nt_array_ptr<const char>));
+int config_parse_cmdline(int arg, char **argv : itype(_Ptr<_Nt_array_ptr<char>>));
+void config_set_config(ice_config_t *config : itype(_Array_ptr<ice_config_t>));
+listener_t *config_clear_listener(listener_t *listener : itype(_Ptr<listener_t>)) : itype(_Ptr<listener_t>);
+void config_clear(ice_config_t *config : itype(_Array_ptr<ice_config_t>));
+mount_proxy *config_find_mount(ice_config_t *config : itype(_Ptr<ice_config_t>), const char *mount : itype(_Nt_array_ptr<const char>), mount_type type) : itype(_Ptr<mount_proxy>);
+listener_t *config_get_listen_sock(ice_config_t *config : itype(_Ptr<ice_config_t>), connection_t *con : itype(_Ptr<connection_t>)) : itype(_Ptr<listener_t>);
 
 int config_rehash(void);
 
-ice_config_locks *config_locks(void);
+ice_config_locks *config_locks(void) : itype(_Ptr<ice_config_locks>);
 
-ice_config_t *config_get_config(void);
-ice_config_t *config_grab_config(void);
+ice_config_t *config_get_config(void) : itype(_Ptr<ice_config_t>);
+ice_config_t *config_grab_config(void) : itype(_Array_ptr<ice_config_t>);
 void config_release_config(void);
 
 /* To be used ONLY in one-time startup code */
-ice_config_t *config_get_config_unlocked(void);
+ice_config_t *config_get_config_unlocked(void) : itype(_Array_ptr<ice_config_t>);
 
 #endif  /* __CFGFILE_H__ */

@@ -26,40 +26,25 @@ extern "C" {
  * The standard Dump routines.
  */
 XMLPUBFUN void XMLCALL
-	xmlDebugDumpString	(FILE *output,
-				 const xmlChar *str);
+	xmlDebugDumpString	(FILE *output : itype(_Ptr<FILE>), const xmlChar *str : itype(_Ptr<const xmlChar>));
 XMLPUBFUN void XMLCALL
-	xmlDebugDumpAttr	(FILE *output,
-				 xmlAttrPtr attr,
-				 int depth);
+	xmlDebugDumpAttr	(FILE *output : itype(_Ptr<FILE>), xmlAttrPtr attr : itype(_Ptr<xmlAttr>), int depth);
 XMLPUBFUN void XMLCALL
-	xmlDebugDumpAttrList	(FILE *output,
-				 xmlAttrPtr attr,
-				 int depth);
+	xmlDebugDumpAttrList	(FILE *output : itype(_Ptr<FILE>), xmlAttrPtr attr : itype(_Ptr<xmlAttr>), int depth);
 XMLPUBFUN void XMLCALL
-	xmlDebugDumpOneNode	(FILE *output,
-				 xmlNodePtr node,
-				 int depth);
+	xmlDebugDumpOneNode	(FILE *output : itype(_Ptr<FILE>), xmlNodePtr node : itype(_Ptr<xmlNode>), int depth);
 XMLPUBFUN void XMLCALL
-	xmlDebugDumpNode	(FILE *output,
-				 xmlNodePtr node,
-				 int depth);
+	xmlDebugDumpNode	(FILE *output : itype(_Ptr<FILE>), xmlNodePtr node : itype(_Ptr<xmlNode>), int depth);
 XMLPUBFUN void XMLCALL
-	xmlDebugDumpNodeList	(FILE *output,
-				 xmlNodePtr node,
-				 int depth);
+	xmlDebugDumpNodeList	(FILE *output : itype(_Ptr<FILE>), xmlNodePtr node : itype(_Ptr<xmlNode>), int depth);
 XMLPUBFUN void XMLCALL
-	xmlDebugDumpDocumentHead(FILE *output,
-				 xmlDocPtr doc);
+	xmlDebugDumpDocumentHead(FILE *output : itype(_Ptr<FILE>), xmlDocPtr doc : itype(_Ptr<xmlDoc>));
 XMLPUBFUN void XMLCALL
-	xmlDebugDumpDocument	(FILE *output,
-				 xmlDocPtr doc);
+	xmlDebugDumpDocument	(FILE *output : itype(_Ptr<FILE>), xmlDocPtr doc : itype(_Ptr<xmlDoc>));
 XMLPUBFUN void XMLCALL
-	xmlDebugDumpDTD		(FILE *output,
-				 xmlDtdPtr dtd);
+	xmlDebugDumpDTD		(FILE *output : itype(_Ptr<FILE>), xmlDtdPtr dtd : itype(_Ptr<xmlDtd>));
 XMLPUBFUN void XMLCALL
-	xmlDebugDumpEntities	(FILE *output,
-				 xmlDocPtr doc);
+	xmlDebugDumpEntities	(FILE *output : itype(_Ptr<FILE>), xmlDocPtr doc : itype(_Ptr<xmlDoc>));
 
 /****************************************************************
  *								*
@@ -68,8 +53,7 @@ XMLPUBFUN void XMLCALL
  ****************************************************************/
 
 XMLPUBFUN int XMLCALL
-	xmlDebugCheckDocument	(FILE * output,
-				 xmlDocPtr doc);
+	xmlDebugCheckDocument	(FILE *output : itype(_Ptr<FILE>), xmlDocPtr doc : itype(_Ptr<xmlDoc>));
 
 /****************************************************************
  *								*
@@ -78,12 +62,11 @@ XMLPUBFUN int XMLCALL
  ****************************************************************/
 
 XMLPUBFUN void XMLCALL
-	xmlLsOneNode		(FILE *output, xmlNodePtr node);
+	xmlLsOneNode		(FILE *output : itype(_Ptr<FILE>), xmlNodePtr node : itype(_Ptr<xmlNode>));
 XMLPUBFUN int XMLCALL
-	xmlLsCountNode		(xmlNodePtr node);
+	xmlLsCountNode		(xmlNodePtr node : itype(_Ptr<xmlNode>));
 
-XMLPUBFUN const char * XMLCALL
-	xmlBoolToText		(int boolval);
+XMLPUBFUN const char *xmlBoolToText(int boolval) : itype(_Ptr<const char>);
 
 /****************************************************************
  *								*
@@ -111,13 +94,13 @@ typedef char * (* xmlShellReadlineFunc)(char *prompt);
 typedef struct _xmlShellCtxt xmlShellCtxt;
 typedef xmlShellCtxt *xmlShellCtxtPtr;
 struct _xmlShellCtxt {
-    char *filename;
-    xmlDocPtr doc;
-    xmlNodePtr node;
-    xmlXPathContextPtr pctxt;
+    char *filename : itype(_Ptr<char>);
+    xmlDocPtr doc : itype(_Ptr<xmlDoc>);
+    xmlNodePtr node : itype(_Ptr<xmlNode>);
+    xmlXPathContextPtr pctxt : itype(_Ptr<xmlXPathContext>);
     int loaded;
-    FILE *output;
-    xmlShellReadlineFunc input;
+    FILE *output : itype(_Ptr<FILE>);
+    xmlShellReadlineFunc input : itype(_Ptr<char *(char *)>);
 };
 
 /**
@@ -137,75 +120,41 @@ typedef int (* xmlShellCmd) (xmlShellCtxtPtr ctxt,
 			     xmlNodePtr node2);
 
 XMLPUBFUN void XMLCALL
-	xmlShellPrintXPathError	(int errorType,
-				 const char *arg);
+	xmlShellPrintXPathError	(int errorType, const char *arg : itype(_Ptr<const char>));
 XMLPUBFUN void XMLCALL
-	xmlShellPrintXPathResult(xmlXPathObjectPtr list);
+	xmlShellPrintXPathResult(xmlXPathObjectPtr list : itype(_Ptr<xmlXPathObject>));
 XMLPUBFUN int XMLCALL
-	xmlShellList		(xmlShellCtxtPtr ctxt,
-				 char *arg,
-				 xmlNodePtr node,
-				 xmlNodePtr node2);
+	xmlShellList		(xmlShellCtxtPtr ctxt : itype(_Ptr<xmlShellCtxt>), char *arg : itype(_Ptr<char>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr node2 : itype(_Ptr<xmlNode>));
 XMLPUBFUN int XMLCALL
-	xmlShellBase		(xmlShellCtxtPtr ctxt,
-				 char *arg,
-				 xmlNodePtr node,
-				 xmlNodePtr node2);
+	xmlShellBase		(xmlShellCtxtPtr ctxt : itype(_Ptr<xmlShellCtxt>), char *arg : itype(_Ptr<char>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr node2 : itype(_Ptr<xmlNode>));
 XMLPUBFUN int XMLCALL
-	xmlShellDir		(xmlShellCtxtPtr ctxt,
-				 char *arg,
-				 xmlNodePtr node,
-				 xmlNodePtr node2);
+	xmlShellDir		(xmlShellCtxtPtr ctxt : itype(_Ptr<xmlShellCtxt>), char *arg : itype(_Ptr<char>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr node2 : itype(_Ptr<xmlNode>));
 XMLPUBFUN int XMLCALL
-	xmlShellLoad		(xmlShellCtxtPtr ctxt,
-				 char *filename,
-				 xmlNodePtr node,
-				 xmlNodePtr node2);
+	xmlShellLoad		(xmlShellCtxtPtr ctxt : itype(_Ptr<xmlShellCtxt>), char *filename : itype(_Ptr<char>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr node2 : itype(_Ptr<xmlNode>));
 #ifdef LIBXML_OUTPUT_ENABLED
 XMLPUBFUN void XMLCALL
-	xmlShellPrintNode	(xmlNodePtr node);
+	xmlShellPrintNode	(xmlNodePtr node : itype(_Ptr<xmlNode>));
 XMLPUBFUN int XMLCALL
-	xmlShellCat		(xmlShellCtxtPtr ctxt,
-				 char *arg,
-				 xmlNodePtr node,
-				 xmlNodePtr node2);
+	xmlShellCat		(xmlShellCtxtPtr ctxt : itype(_Ptr<xmlShellCtxt>), char *arg : itype(_Ptr<char>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr node2 : itype(_Ptr<xmlNode>));
 XMLPUBFUN int XMLCALL
-	xmlShellWrite		(xmlShellCtxtPtr ctxt,
-				 char *filename,
-				 xmlNodePtr node,
-				 xmlNodePtr node2);
+	xmlShellWrite		(xmlShellCtxtPtr ctxt : itype(_Ptr<xmlShellCtxt>), char *filename : itype(_Ptr<char>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr node2 : itype(_Ptr<xmlNode>));
 XMLPUBFUN int XMLCALL
-	xmlShellSave		(xmlShellCtxtPtr ctxt,
-				 char *filename,
-				 xmlNodePtr node,
-				 xmlNodePtr node2);
+	xmlShellSave		(xmlShellCtxtPtr ctxt : itype(_Ptr<xmlShellCtxt>), char *filename : itype(_Ptr<char>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr node2 : itype(_Ptr<xmlNode>));
 #endif /* LIBXML_OUTPUT_ENABLED */
 #ifdef LIBXML_VALID_ENABLED
 XMLPUBFUN int XMLCALL
-	xmlShellValidate	(xmlShellCtxtPtr ctxt,
-				 char *dtd,
-				 xmlNodePtr node,
-				 xmlNodePtr node2);
+	xmlShellValidate	(xmlShellCtxtPtr ctxt : itype(_Ptr<xmlShellCtxt>), char *dtd : itype(_Ptr<char>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr node2 : itype(_Ptr<xmlNode>));
 #endif /* LIBXML_VALID_ENABLED */
 XMLPUBFUN int XMLCALL
-	xmlShellDu		(xmlShellCtxtPtr ctxt,
-				 char *arg,
-				 xmlNodePtr tree,
-				 xmlNodePtr node2);
+	xmlShellDu		(xmlShellCtxtPtr ctxt : itype(_Ptr<xmlShellCtxt>), char *arg : itype(_Ptr<char>), xmlNodePtr tree : itype(_Ptr<xmlNode>), xmlNodePtr node2 : itype(_Ptr<xmlNode>));
 XMLPUBFUN int XMLCALL
-	xmlShellPwd		(xmlShellCtxtPtr ctxt,
-				 char *buffer,
-				 xmlNodePtr node,
-				 xmlNodePtr node2);
+	xmlShellPwd		(xmlShellCtxtPtr ctxt : itype(_Ptr<xmlShellCtxt>), char *buffer : itype(_Ptr<char>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr node2 : itype(_Ptr<xmlNode>));
 
 /*
  * The Shell interface.
  */
 XMLPUBFUN void XMLCALL
-	xmlShell		(xmlDocPtr doc,
-				 char *filename,
-				 xmlShellReadlineFunc input,
-				 FILE *output);
+	xmlShell		(xmlDocPtr doc : itype(_Ptr<xmlDoc>), char *filename : itype(_Ptr<char>), xmlShellReadlineFunc input : itype(_Ptr<char *(char *)>), FILE *output : itype(_Ptr<FILE>));
 
 #endif /* LIBXML_XPATH_ENABLED */
 

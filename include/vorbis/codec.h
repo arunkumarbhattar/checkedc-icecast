@@ -58,10 +58,10 @@ typedef struct vorbis_info{
    logical bitstream ****************************************************/
 typedef struct vorbis_dsp_state{
   int analysisp;
-  vorbis_info *vi;
+  vorbis_info *vi : itype(_Ptr<vorbis_info>);
 
-  float **pcm;
-  float **pcmret;
+  float **pcm : itype(_Ptr<_Ptr<float>>);
+  float **pcmret : itype(_Ptr<_Ptr<float>>);
   int      pcm_storage;
   int      pcm_current;
   int      pcm_returned;
@@ -87,7 +87,7 @@ typedef struct vorbis_dsp_state{
 
 typedef struct vorbis_block{
   /* necessary stream state for linking to the framing abstraction */
-  float  **pcm;       /* this is a pointer into local storage */
+  float **pcm : itype(_Ptr<_Ptr<float>>);       /* this is a pointer into local storage */
   oggpack_buffer opb;
 
   long  lW;
@@ -99,7 +99,7 @@ typedef struct vorbis_block{
   int         eofflag;
   ogg_int64_t granulepos;
   ogg_int64_t sequence;
-  vorbis_dsp_state *vd; /* For read-only access of configuration */
+  vorbis_dsp_state *vd : itype(_Ptr<vorbis_dsp_state>); /* For read-only access of configuration */
 
   /* local storage to avoid remallocing; it's up to the mapping to
      structure it */
@@ -107,7 +107,7 @@ typedef struct vorbis_block{
   long                localtop;
   long                localalloc;
   long                totaluse;
-  struct alloc_chain *reap;
+  struct alloc_chain *reap : itype(_Ptr<struct alloc_chain>);
 
   /* bitmetrics for the frame */
   long glue_bits;
@@ -126,7 +126,7 @@ that logical bitstream. *************************************************/
 
 struct alloc_chain{
   void *ptr;
-  struct alloc_chain *next;
+  struct alloc_chain *next : itype(_Ptr<struct alloc_chain>);
 };
 
 /* vorbis_info contains all the setup information specific to the
@@ -140,10 +140,10 @@ struct alloc_chain{
 typedef struct vorbis_comment{
   /* unlimited user comment fields.  libvorbis writes 'libvorbis'
      whatever vendor is set to in encode */
-  char **user_comments;
-  int   *comment_lengths;
+  char **user_comments : itype(_Ptr<_Ptr<char>>);
+  int *comment_lengths : itype(_Ptr<int>);
   int    comments;
-  char  *vendor;
+  char *vendor : itype(_Ptr<char>);
 
 } vorbis_comment;
 
@@ -162,60 +162,52 @@ typedef struct vorbis_comment{
 
 /* Vorbis PRIMITIVES: general ***************************************/
 
-extern void     vorbis_info_init(vorbis_info *vi);
-extern void     vorbis_info_clear(vorbis_info *vi);
-extern int      vorbis_info_blocksize(vorbis_info *vi,int zo);
-extern void     vorbis_comment_init(vorbis_comment *vc);
-extern void     vorbis_comment_add(vorbis_comment *vc, const char *comment);
-extern void     vorbis_comment_add_tag(vorbis_comment *vc,
-                                       const char *tag, const char *contents);
-extern char    *vorbis_comment_query(vorbis_comment *vc, const char *tag, int count);
-extern int      vorbis_comment_query_count(vorbis_comment *vc, const char *tag);
-extern void     vorbis_comment_clear(vorbis_comment *vc);
+extern void     vorbis_info_init(vorbis_info *vi : itype(_Ptr<vorbis_info>));
+extern void     vorbis_info_clear(vorbis_info *vi : itype(_Ptr<vorbis_info>));
+extern int      vorbis_info_blocksize(vorbis_info *vi : itype(_Ptr<vorbis_info>), int zo);
+extern void     vorbis_comment_init(vorbis_comment *vc : itype(_Ptr<vorbis_comment>));
+extern void     vorbis_comment_add(vorbis_comment *vc : itype(_Ptr<vorbis_comment>), const char *comment : itype(_Ptr<const char>));
+extern void     vorbis_comment_add_tag(vorbis_comment *vc : itype(_Ptr<vorbis_comment>), const char *tag : itype(_Ptr<const char>), const char *contents : itype(_Ptr<const char>));
+extern char *vorbis_comment_query(vorbis_comment *vc : itype(_Ptr<vorbis_comment>), const char *tag : itype(_Ptr<const char>), int count) : itype(_Nt_array_ptr<char>);
+extern int      vorbis_comment_query_count(vorbis_comment *vc : itype(_Ptr<vorbis_comment>), const char *tag : itype(_Ptr<const char>));
+extern void     vorbis_comment_clear(vorbis_comment *vc : itype(_Ptr<vorbis_comment>));
 
-extern int      vorbis_block_init(vorbis_dsp_state *v, vorbis_block *vb);
-extern int      vorbis_block_clear(vorbis_block *vb);
-extern void     vorbis_dsp_clear(vorbis_dsp_state *v);
-extern double   vorbis_granule_time(vorbis_dsp_state *v,
-                                    ogg_int64_t granulepos);
+extern int      vorbis_block_init(vorbis_dsp_state *v : itype(_Ptr<vorbis_dsp_state>), vorbis_block *vb : itype(_Ptr<vorbis_block>));
+extern int      vorbis_block_clear(vorbis_block *vb : itype(_Ptr<vorbis_block>));
+extern void     vorbis_dsp_clear(vorbis_dsp_state *v : itype(_Ptr<vorbis_dsp_state>));
+extern double   vorbis_granule_time(vorbis_dsp_state *v : itype(_Ptr<vorbis_dsp_state>), ogg_int64_t granulepos);
 
-extern const char *vorbis_version_string(void);
+extern const char *vorbis_version_string(void) : itype(_Ptr<const char>);
 
 /* Vorbis PRIMITIVES: analysis/DSP layer ****************************/
 
-extern int      vorbis_analysis_init(vorbis_dsp_state *v,vorbis_info *vi);
-extern int      vorbis_commentheader_out(vorbis_comment *vc, ogg_packet *op);
-extern int      vorbis_analysis_headerout(vorbis_dsp_state *v,
-                                          vorbis_comment *vc,
-                                          ogg_packet *op,
-                                          ogg_packet *op_comm,
-                                          ogg_packet *op_code);
-extern float  **vorbis_analysis_buffer(vorbis_dsp_state *v,int vals);
-extern int      vorbis_analysis_wrote(vorbis_dsp_state *v,int vals);
-extern int      vorbis_analysis_blockout(vorbis_dsp_state *v,vorbis_block *vb);
-extern int      vorbis_analysis(vorbis_block *vb,ogg_packet *op);
+extern int      vorbis_analysis_init(vorbis_dsp_state *v : itype(_Ptr<vorbis_dsp_state>), vorbis_info *vi : itype(_Ptr<vorbis_info>));
+extern int      vorbis_commentheader_out(vorbis_comment *vc : itype(_Ptr<vorbis_comment>), ogg_packet *op : itype(_Ptr<ogg_packet>));
+extern int      vorbis_analysis_headerout(vorbis_dsp_state *v : itype(_Ptr<vorbis_dsp_state>), vorbis_comment *vc : itype(_Ptr<vorbis_comment>), ogg_packet *op : itype(_Ptr<ogg_packet>), ogg_packet *op_comm : itype(_Ptr<ogg_packet>), ogg_packet *op_code : itype(_Ptr<ogg_packet>));
+extern float **vorbis_analysis_buffer(vorbis_dsp_state *v : itype(_Ptr<vorbis_dsp_state>), int vals) : itype(_Ptr<float *>);
+extern int      vorbis_analysis_wrote(vorbis_dsp_state *v : itype(_Ptr<vorbis_dsp_state>), int vals);
+extern int      vorbis_analysis_blockout(vorbis_dsp_state *v : itype(_Ptr<vorbis_dsp_state>), vorbis_block *vb : itype(_Ptr<vorbis_block>));
+extern int      vorbis_analysis(vorbis_block *vb : itype(_Ptr<vorbis_block>), ogg_packet *op : itype(_Ptr<ogg_packet>));
 
-extern int      vorbis_bitrate_addblock(vorbis_block *vb);
-extern int      vorbis_bitrate_flushpacket(vorbis_dsp_state *vd,
-                                           ogg_packet *op);
+extern int      vorbis_bitrate_addblock(vorbis_block *vb : itype(_Ptr<vorbis_block>));
+extern int      vorbis_bitrate_flushpacket(vorbis_dsp_state *vd : itype(_Ptr<vorbis_dsp_state>), ogg_packet *op : itype(_Ptr<ogg_packet>));
 
 /* Vorbis PRIMITIVES: synthesis layer *******************************/
-extern int      vorbis_synthesis_idheader(ogg_packet *op);
-extern int      vorbis_synthesis_headerin(vorbis_info *vi,vorbis_comment *vc,
-                                          ogg_packet *op);
+extern int      vorbis_synthesis_idheader(ogg_packet *op : itype(_Ptr<ogg_packet>));
+extern int      vorbis_synthesis_headerin(vorbis_info *vi : itype(_Ptr<vorbis_info>), vorbis_comment *vc : itype(_Ptr<vorbis_comment>), ogg_packet *op : itype(_Ptr<ogg_packet>));
 
-extern int      vorbis_synthesis_init(vorbis_dsp_state *v,vorbis_info *vi);
-extern int      vorbis_synthesis_restart(vorbis_dsp_state *v);
-extern int      vorbis_synthesis(vorbis_block *vb,ogg_packet *op);
-extern int      vorbis_synthesis_trackonly(vorbis_block *vb,ogg_packet *op);
-extern int      vorbis_synthesis_blockin(vorbis_dsp_state *v,vorbis_block *vb);
-extern int      vorbis_synthesis_pcmout(vorbis_dsp_state *v,float ***pcm);
-extern int      vorbis_synthesis_lapout(vorbis_dsp_state *v,float ***pcm);
-extern int      vorbis_synthesis_read(vorbis_dsp_state *v,int samples);
-extern long     vorbis_packet_blocksize(vorbis_info *vi,ogg_packet *op);
+extern int      vorbis_synthesis_init(vorbis_dsp_state *v : itype(_Ptr<vorbis_dsp_state>), vorbis_info *vi : itype(_Ptr<vorbis_info>));
+extern int      vorbis_synthesis_restart(vorbis_dsp_state *v : itype(_Ptr<vorbis_dsp_state>));
+extern int      vorbis_synthesis(vorbis_block *vb : itype(_Ptr<vorbis_block>), ogg_packet *op : itype(_Ptr<ogg_packet>));
+extern int      vorbis_synthesis_trackonly(vorbis_block *vb : itype(_Ptr<vorbis_block>), ogg_packet *op : itype(_Ptr<ogg_packet>));
+extern int      vorbis_synthesis_blockin(vorbis_dsp_state *v : itype(_Ptr<vorbis_dsp_state>), vorbis_block *vb : itype(_Ptr<vorbis_block>));
+extern int      vorbis_synthesis_pcmout(vorbis_dsp_state *v : itype(_Ptr<vorbis_dsp_state>), float ***pcm : itype(_Ptr<_Ptr<_Ptr<float>>>));
+extern int      vorbis_synthesis_lapout(vorbis_dsp_state *v : itype(_Ptr<vorbis_dsp_state>), float ***pcm : itype(_Ptr<_Ptr<_Ptr<float>>>));
+extern int      vorbis_synthesis_read(vorbis_dsp_state *v : itype(_Ptr<vorbis_dsp_state>), int samples);
+extern long     vorbis_packet_blocksize(vorbis_info *vi : itype(_Ptr<vorbis_info>), ogg_packet *op : itype(_Ptr<ogg_packet>));
 
-extern int      vorbis_synthesis_halfrate(vorbis_info *v,int flag);
-extern int      vorbis_synthesis_halfrate_p(vorbis_info *v);
+extern int      vorbis_synthesis_halfrate(vorbis_info *v : itype(_Ptr<vorbis_info>), int flag);
+extern int      vorbis_synthesis_halfrate_p(vorbis_info *v : itype(_Ptr<vorbis_info>));
 
 /* Vorbis ERRORS and return codes ***********************************/
 

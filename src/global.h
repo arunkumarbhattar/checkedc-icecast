@@ -27,7 +27,7 @@
 
 typedef struct ice_global_tag
 {
-    sock_t *serversock;
+    int *serversock : itype(_Array_ptr<sock_t>) count(server_sockets);
     int server_sockets;
 
     int running;
@@ -36,11 +36,11 @@ typedef struct ice_global_tag
     int clients;
     int schedule_config_reread;
 
-    avl_tree *source_tree;
+    avl_tree *source_tree : itype(_Ptr<avl_tree>);
     /* for locally defined relays */
-    struct _relay_server *relays;
+    struct _relay_server *relays : itype(_Ptr<struct _relay_server>);
     /* relays retrieved from master */
-    struct _relay_server *master_relays;
+    struct _relay_server *master_relays : itype(_Ptr<struct _relay_server>);
 
     cond_t shutdown_cond;
 } ice_global_t;

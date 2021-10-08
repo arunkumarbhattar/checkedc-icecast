@@ -26,9 +26,9 @@
 typedef struct _client_tag
 {
     /* the client's connection */
-    connection_t *con;
+    connection_t *con : itype(_Ptr<connection_t>);
     /* the client's http headers */
-    http_parser_t *parser;
+    http_parser_t *parser : itype(_Ptr<http_parser_t>);
 
     /* http response code for this client */
     int respcode;
@@ -40,46 +40,46 @@ typedef struct _client_tag
     long intro_offset;
 
     /* where in the queue the client is */
-    refbuf_t *refbuf;
+    refbuf_t *refbuf : itype(_Ptr<refbuf_t>);
 
     /* position in first buffer */
     unsigned int pos;
 
     /* auth used for this client */
-    struct auth_tag *auth;
+    struct auth_tag *auth : itype(_Ptr<struct auth_tag>);
 
     /* Client username, if authenticated */
     char *username;
 
     /* Client password, if authenticated */
-    char *password;
+    char *password : itype(_Nt_array_ptr<char>);
 
     /* Format-handler-specific data for this client */
     void *format_data;
 
     /* function to call to release format specific resources */
-    void (*free_client_data)(struct _client_tag *client);
+    void ((*free_client_data)(struct _client_tag *client)) : itype(_Ptr<void (_Ptr<struct _client_tag> client)>);
 
     /* write out data associated with client */
-    int (*write_to_client)(struct _client_tag *client);
+    int ((*write_to_client)(struct _client_tag *client)) : itype(_Ptr<int (_Ptr<struct _client_tag> client)>);
 
     /* function to check if refbuf needs updating */
-    int (*check_buffer)(struct source_tag *source, struct _client_tag *client);
+    int ((*check_buffer)(struct source_tag *source, struct _client_tag *client)) : itype(_Ptr<int (_Ptr<struct source_tag> source, _Ptr<struct _client_tag> client)>);
 
 } client_t;
 
-int client_create (client_t **c_ptr, connection_t *con, http_parser_t *parser);
+int client_create (client_t **c_ptr : itype(_Ptr<_Ptr<client_t>>), connection_t *con : itype(_Ptr<connection_t>), http_parser_t *parser : itype(_Ptr<http_parser_t>));
 void client_destroy(_Ptr<client_t> client);
-void client_send_100(client_t *client);
-void client_send_404(client_t *client, const char *message);
-void client_send_401(client_t *client);
-void client_send_403(client_t *client, const char *message);
-void client_send_400(client_t *client, const char *message);
-void client_send_500(client_t *client, const char *message);
-int client_send_bytes (client_t *client, const void *buf, unsigned len);
-int client_read_bytes (client_t *client, void *buf, unsigned len);
-void client_set_queue (_Ptr<client_t> client, refbuf_t *refbuf);
-int client_check_source_auth (client_t *client, const char *mount);
-void client_send_error(client_t *client, int status, int plain, const char *message);
+void client_send_100(client_t *client : itype(_Ptr<client_t>));
+void client_send_404(client_t *client : itype(_Ptr<client_t>), const char *message : itype(_Nt_array_ptr<const char>) count(0));
+void client_send_401(client_t *client : itype(_Ptr<client_t>));
+void client_send_403(client_t *client : itype(_Ptr<client_t>), const char *message : itype(_Nt_array_ptr<const char>) count(0));
+void client_send_400(client_t *client : itype(_Ptr<client_t>), const char *message : itype(_Nt_array_ptr<const char>) count(0));
+void client_send_500(client_t *client : itype(_Ptr<client_t>), const char *message : itype(_Nt_array_ptr<const char>) count(20));
+_Itype_for_any(T) int client_send_bytes(client_t *client : itype(_Ptr<client_t>), const void *buf : itype(_Array_ptr<T>) count(20), unsigned len);
+int client_read_bytes (client_t *client : itype(_Ptr<client_t>), void *buf, unsigned len);
+void client_set_queue (_Ptr<client_t> client, refbuf_t *refbuf : itype(_Ptr<refbuf_t>));
+int client_check_source_auth (client_t *client : itype(_Ptr<client_t>), const char *mount : itype(_Nt_array_ptr<const char>));
+void client_send_error(client_t *client : itype(_Ptr<client_t>), int status, int plain, const char *message : itype(_Nt_array_ptr<const char>) count(0));
 
 #endif  /* __CLIENT_H__ */

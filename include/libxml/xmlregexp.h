@@ -48,17 +48,14 @@ extern "C" {
 /*
  * The POSIX like API
  */
-XMLPUBFUN xmlRegexpPtr XMLCALL
-		    xmlRegexpCompile	(const xmlChar *regexp);
-XMLPUBFUN void XMLCALL			 xmlRegFreeRegexp(xmlRegexpPtr regexp);
+XMLPUBFUN xmlRegexpPtr xmlRegexpCompile(const xmlChar *regexp : itype(_Ptr<const xmlChar>)) : itype(_Ptr<xmlRegexp>);
+XMLPUBFUN void XMLCALL			 xmlRegFreeRegexp(xmlRegexpPtr regexp : itype(_Ptr<xmlRegexp>));
 XMLPUBFUN int XMLCALL
-		    xmlRegexpExec	(xmlRegexpPtr comp,
-					 const xmlChar *value);
+		    xmlRegexpExec	(xmlRegexpPtr comp : itype(_Ptr<xmlRegexp>), const xmlChar *value : itype(_Ptr<const xmlChar>));
 XMLPUBFUN void XMLCALL
-		    xmlRegexpPrint	(FILE *output,
-					 xmlRegexpPtr regexp);
+		    xmlRegexpPrint	(FILE *output : itype(_Ptr<FILE>), xmlRegexpPtr regexp : itype(_Ptr<xmlRegexp>));
 XMLPUBFUN int XMLCALL
-		    xmlRegexpIsDeterminist(xmlRegexpPtr comp);
+		    xmlRegexpIsDeterminist(xmlRegexpPtr comp : itype(_Ptr<xmlRegexp>));
 
 /**
  * xmlRegExecCallbacks:
@@ -77,35 +74,18 @@ typedef void (*xmlRegExecCallbacks) (xmlRegExecCtxtPtr exec,
 /*
  * The progressive API
  */
-XMLPUBFUN xmlRegExecCtxtPtr XMLCALL
-		    xmlRegNewExecCtxt	(xmlRegexpPtr comp,
-					 xmlRegExecCallbacks callback,
-					 void *data);
+XMLPUBFUN xmlRegExecCtxtPtr xmlRegNewExecCtxt(xmlRegexpPtr comp : itype(_Ptr<xmlRegexp>), xmlRegExecCallbacks callback : itype(_Ptr<void (xmlRegExecCtxtPtr, const xmlChar *, void *, void *)>), void *data) : itype(_Ptr<xmlRegExecCtxt>);
 XMLPUBFUN void XMLCALL
-		    xmlRegFreeExecCtxt	(xmlRegExecCtxtPtr exec);
+		    xmlRegFreeExecCtxt	(xmlRegExecCtxtPtr exec : itype(_Ptr<xmlRegExecCtxt>));
 XMLPUBFUN int XMLCALL
-		    xmlRegExecPushString(xmlRegExecCtxtPtr exec,
-					 const xmlChar *value,
-					 void *data);
+		    xmlRegExecPushString(xmlRegExecCtxtPtr exec : itype(_Ptr<xmlRegExecCtxt>), const xmlChar *value : itype(_Ptr<const xmlChar>), void *data);
 XMLPUBFUN int XMLCALL
-		    xmlRegExecPushString2(xmlRegExecCtxtPtr exec,
-					 const xmlChar *value,
-					 const xmlChar *value2,
-					 void *data);
+		    xmlRegExecPushString2(xmlRegExecCtxtPtr exec : itype(_Ptr<xmlRegExecCtxt>), const xmlChar *value : itype(_Ptr<const xmlChar>), const xmlChar *value2 : itype(_Ptr<const xmlChar>), void *data);
 
 XMLPUBFUN int XMLCALL
-		    xmlRegExecNextValues(xmlRegExecCtxtPtr exec,
-					 int *nbval,
-					 int *nbneg,
-					 xmlChar **values,
-					 int *terminal);
+		    xmlRegExecNextValues(xmlRegExecCtxtPtr exec : itype(_Ptr<xmlRegExecCtxt>), int *nbval : itype(_Ptr<int>), int *nbneg : itype(_Ptr<int>), xmlChar **values : itype(_Ptr<_Ptr<xmlChar>>), int *terminal : itype(_Ptr<int>));
 XMLPUBFUN int XMLCALL
-		    xmlRegExecErrInfo	(xmlRegExecCtxtPtr exec,
-					 const xmlChar **string,
-					 int *nbval,
-					 int *nbneg,
-					 xmlChar **values,
-					 int *terminal);
+		    xmlRegExecErrInfo	(xmlRegExecCtxtPtr exec : itype(_Ptr<xmlRegExecCtxt>), const xmlChar **string : itype(_Ptr<_Ptr<const xmlChar>>), int *nbval : itype(_Ptr<int>), int *nbneg : itype(_Ptr<int>), xmlChar **values : itype(_Ptr<_Ptr<xmlChar>>), int *terminal : itype(_Ptr<int>));
 #ifdef LIBXML_EXPR_ENABLED
 /*
  * Formal regular expression handling

@@ -53,13 +53,13 @@ typedef void (* xmlParserInputDeallocate)(xmlChar *str);
 
 struct _xmlParserInput {
     /* Input buffer */
-    xmlParserInputBufferPtr buf;      /* UTF-8 encoded buffer */
+    xmlParserInputBufferPtr buf : itype(_Ptr<xmlParserInputBuffer>);      /* UTF-8 encoded buffer */
 
-    const char *filename;             /* The file analyzed, if any */
-    const char *directory;            /* the directory/base of the file */
-    const xmlChar *base;              /* Base of the array to parse */
-    const xmlChar *cur;               /* Current char being parsed */
-    const xmlChar *end;               /* end of the array to parse */
+    const char *filename : itype(_Ptr<const char>);             /* The file analyzed, if any */
+    const char *directory : itype(_Ptr<const char>);            /* the directory/base of the file */
+    const xmlChar *base : itype(_Ptr<const xmlChar>);              /* Base of the array to parse */
+    const xmlChar *cur : itype(_Ptr<const xmlChar>);               /* Current char being parsed */
+    const xmlChar *end : itype(_Ptr<const xmlChar>);               /* end of the array to parse */
     int length;                       /* length if known */
     int line;                         /* Current line */
     int col;                          /* Current column */
@@ -69,9 +69,9 @@ struct _xmlParserInput {
      *       for parsing very large instances.
      */
     unsigned long consumed;           /* How many xmlChars already consumed */
-    xmlParserInputDeallocate free;    /* function to deallocate the base */
-    const xmlChar *encoding;          /* the encoding string for entity */
-    const xmlChar *version;           /* the version string for entity */
+    xmlParserInputDeallocate free : itype(_Ptr<void (_Ptr<xmlChar>)>);    /* function to deallocate the base */
+    const xmlChar *encoding : itype(_Ptr<const xmlChar>);          /* the encoding string for entity */
+    const xmlChar *version : itype(_Ptr<const xmlChar>);           /* the version string for entity */
     int standalone;                   /* Was that entity marked standalone */
     int id;                           /* an unique identifier for the entity */
 };
@@ -87,7 +87,7 @@ typedef struct _xmlParserNodeInfo xmlParserNodeInfo;
 typedef xmlParserNodeInfo *xmlParserNodeInfoPtr;
 
 struct _xmlParserNodeInfo {
-  const struct _xmlNode* node;
+  const struct _xmlNode *node : itype(_Ptr<const struct _xmlNode>);
   /* Position & line # that text that created the node begins & ends on */
   unsigned long begin_pos;
   unsigned long begin_line;
@@ -100,7 +100,7 @@ typedef xmlParserNodeInfoSeq *xmlParserNodeInfoSeqPtr;
 struct _xmlParserNodeInfoSeq {
   unsigned long maximum;
   unsigned long length;
-  xmlParserNodeInfo* buffer;
+  xmlParserNodeInfo *buffer : itype(_Ptr<xmlParserNodeInfo>);
 };
 
 /**
@@ -182,13 +182,13 @@ typedef enum {
  *      to a state based parser for progressive parsing shouldn't be too hard.
  */
 struct _xmlParserCtxt {
-    struct _xmlSAXHandler *sax;       /* The SAX handler */
+    struct _xmlSAXHandler *sax : itype(_Ptr<struct _xmlSAXHandler>);       /* The SAX handler */
     void            *userData;        /* For SAX interface only, used by DOM build */
-    xmlDocPtr           myDoc;        /* the document being built */
+    xmlDocPtr myDoc : itype(_Ptr<xmlDoc>);        /* the document being built */
     int            wellFormed;        /* is the document well formed */
     int       replaceEntities;        /* shall we replace entities ? */
-    const xmlChar    *version;        /* the XML version string */
-    const xmlChar   *encoding;        /* the declared encoding, if any */
+    const xmlChar *version : itype(_Ptr<const xmlChar>);        /* the XML version string */
+    const xmlChar *encoding : itype(_Ptr<const xmlChar>);        /* the declared encoding, if any */
     int            standalone;        /* standalone document */
     int                  html;        /* an HTML(1)/Docbook(2) document
                                        * 3 is HTML after <head>
@@ -196,16 +196,16 @@ struct _xmlParserCtxt {
                                        */
 
     /* Input stream stack */
-    xmlParserInputPtr  input;         /* Current input stream */
+    xmlParserInputPtr input : itype(_Ptr<xmlParserInput>);         /* Current input stream */
     int                inputNr;       /* Number of current input streams */
     int                inputMax;      /* Max number of input streams */
-    xmlParserInputPtr *inputTab;      /* stack of inputs */
+    xmlParserInputPtr *inputTab : itype(_Ptr<xmlParserInputPtr>);      /* stack of inputs */
 
     /* Node analysis stack only used for DOM building */
-    xmlNodePtr         node;          /* Current parsed Node */
+    xmlNodePtr node : itype(_Ptr<xmlNode>);          /* Current parsed Node */
     int                nodeNr;        /* Depth of the parsing stack */
     int                nodeMax;       /* Max depth of the parsing stack */
-    xmlNodePtr        *nodeTab;       /* array of nodes */
+    xmlNodePtr *nodeTab : itype(_Ptr<xmlNodePtr>);       /* array of nodes */
 
     int record_info;                  /* Whether node info should be kept */
     xmlParserNodeInfoSeq node_seq;    /* info about each node parsed */
@@ -223,31 +223,31 @@ struct _xmlParserCtxt {
     xmlParserInputState instate;      /* current type of input */
     int                 token;        /* next char look-ahead */
 
-    char           *directory;        /* the data directory */
+    char *directory : itype(_Ptr<char>);        /* the data directory */
 
     /* Node name stack */
-    const xmlChar     *name;          /* Current parsed Node */
+    const xmlChar *name : itype(_Ptr<const xmlChar>);          /* Current parsed Node */
     int                nameNr;        /* Depth of the parsing stack */
     int                nameMax;       /* Max depth of the parsing stack */
-    const xmlChar *   *nameTab;       /* array of nodes */
+    const xmlChar **nameTab : itype(_Ptr<_Ptr<const xmlChar>>);       /* array of nodes */
 
     long               nbChars;       /* number of xmlChar processed */
     long            checkIndex;       /* used by progressive parsing lookup */
     int             keepBlanks;       /* ugly but ... */
     int             disableSAX;       /* SAX callbacks are disabled */
     int               inSubset;       /* Parsing is in int 1/ext 2 subset */
-    const xmlChar *    intSubName;    /* name of subset */
-    xmlChar *          extSubURI;     /* URI of external subset */
-    xmlChar *          extSubSystem;  /* SYSTEM ID of external subset */
+    const xmlChar *intSubName : itype(_Ptr<const xmlChar>);    /* name of subset */
+    xmlChar *extSubURI : itype(_Ptr<xmlChar>);     /* URI of external subset */
+    xmlChar *extSubSystem : itype(_Ptr<xmlChar>);  /* SYSTEM ID of external subset */
 
     /* xml:space values */
-    int *              space;         /* Should the parser preserve spaces */
+    int *space : itype(_Ptr<int>);         /* Should the parser preserve spaces */
     int                spaceNr;       /* Depth of the parsing stack */
     int                spaceMax;      /* Max depth of the parsing stack */
-    int *              spaceTab;      /* array of space infos */
+    int *spaceTab : itype(_Ptr<int>);      /* array of space infos */
 
     int                depth;         /* to prevent entity substitution loops */
-    xmlParserInputPtr  entity;        /* used to check entities boundaries */
+    xmlParserInputPtr entity : itype(_Ptr<xmlParserInput>);        /* used to check entities boundaries */
     int                charset;       /* encoding of the in-memory content
 				         actually an xmlCharEncoding */
     int                nodelen;       /* Those two fields are there to */
@@ -260,17 +260,17 @@ struct _xmlParserCtxt {
     void              *catalogs;      /* document's own catalog */
     int                recovery;      /* run in recovery mode */
     int                progressive;   /* is this a progressive parsing */
-    xmlDictPtr         dict;          /* dictionary for the parser */
-    const xmlChar *   *atts;          /* array for the attributes callbacks */
+    xmlDictPtr dict : itype(_Ptr<xmlDict>);          /* dictionary for the parser */
+    const xmlChar **atts : itype(_Ptr<_Ptr<const xmlChar>>);          /* array for the attributes callbacks */
     int                maxatts;       /* the size of the array */
     int                docdict;       /* use strings from dict to build tree */
 
     /*
      * pre-interned strings
      */
-    const xmlChar *str_xml;
-    const xmlChar *str_xmlns;
-    const xmlChar *str_xml_ns;
+    const xmlChar *str_xml : itype(_Ptr<const xmlChar>);
+    const xmlChar *str_xmlns : itype(_Ptr<const xmlChar>);
+    const xmlChar *str_xml_ns : itype(_Ptr<const xmlChar>);
 
     /*
      * Everything below is used only by the new SAX mode
@@ -278,11 +278,11 @@ struct _xmlParserCtxt {
     int                sax2;          /* operating in the new SAX mode */
     int                nsNr;          /* the number of inherited namespaces */
     int                nsMax;         /* the size of the arrays */
-    const xmlChar *   *nsTab;         /* the array of prefix/namespace name */
-    int               *attallocs;     /* which attribute were allocated */
+    const xmlChar **nsTab : itype(_Ptr<_Ptr<const xmlChar>>);         /* the array of prefix/namespace name */
+    int *attallocs : itype(_Ptr<int>);     /* which attribute were allocated */
     void *            *pushTab;       /* array of data for push */
-    xmlHashTablePtr    attsDefault;   /* defaulted attributes if any */
-    xmlHashTablePtr    attsSpecial;   /* non-CDATA attributes if any */
+    xmlHashTablePtr attsDefault : itype(_Ptr<xmlHashTable>);   /* defaulted attributes if any */
+    xmlHashTablePtr attsSpecial : itype(_Ptr<xmlHashTable>);   /* non-CDATA attributes if any */
     int                nsWellFormed;  /* is the document XML Namespace okay */
     int                options;       /* Extra options */
 
@@ -291,9 +291,9 @@ struct _xmlParserCtxt {
      */
     int               dictNames;    /* Use dictionary names for the tree */
     int               freeElemsNr;  /* number of freed element nodes */
-    xmlNodePtr        freeElems;    /* List of freed element nodes */
+    xmlNodePtr freeElems : itype(_Ptr<xmlNode>);    /* List of freed element nodes */
     int               freeAttrsNr;  /* number of freed attributes nodes */
-    xmlAttrPtr        freeAttrs;    /* List of freed attributes nodes */
+    xmlAttrPtr freeAttrs : itype(_Ptr<xmlAttr>);    /* List of freed attributes nodes */
 
     /*
      * the complete error informations for the last error.
@@ -304,10 +304,10 @@ struct _xmlParserCtxt {
     unsigned long  sizeentities;    /* size of parsed entities */
 
     /* for use by HTML non-recursive parser */
-    xmlParserNodeInfo *nodeInfo;      /* Current NodeInfo */
+    xmlParserNodeInfo *nodeInfo : itype(_Ptr<xmlParserNodeInfo>);      /* Current NodeInfo */
     int                nodeInfoNr;    /* Depth of the parsing stack */
     int                nodeInfoMax;   /* Max depth of the parsing stack */
-    xmlParserNodeInfo *nodeInfoTab;   /* array of nodeInfos */
+    xmlParserNodeInfo *nodeInfoTab : itype(_Ptr<xmlParserNodeInfo>);   /* array of nodeInfos */
 
     int                input_id;      /* we need to label inputs */
     unsigned long      sizeentcopy;   /* volume of entity copy */
@@ -319,10 +319,10 @@ struct _xmlParserCtxt {
  * A SAX Locator.
  */
 struct _xmlSAXLocator {
-    const xmlChar *(*getPublicId)(void *ctx);
-    const xmlChar *(*getSystemId)(void *ctx);
-    int (*getLineNumber)(void *ctx);
-    int (*getColumnNumber)(void *ctx);
+    const xmlChar * ((*getPublicId)(void *ctx)) : itype(_Ptr<_Ptr<const xmlChar> (void *ctx)>);
+    const xmlChar * ((*getSystemId)(void *ctx)) : itype(_Ptr<_Ptr<const xmlChar> (void *ctx)>);
+    int ((*getLineNumber)(void *ctx)) : itype(_Ptr<int (void *ctx)>);
+    int ((*getColumnNumber)(void *ctx)) : itype(_Ptr<int (void *ctx)>);
 };
 
 /**
@@ -717,39 +717,39 @@ typedef void (*endElementNsSAX2Func)   (void *ctx,
 
 
 struct _xmlSAXHandler {
-    internalSubsetSAXFunc internalSubset;
-    isStandaloneSAXFunc isStandalone;
-    hasInternalSubsetSAXFunc hasInternalSubset;
-    hasExternalSubsetSAXFunc hasExternalSubset;
-    resolveEntitySAXFunc resolveEntity;
-    getEntitySAXFunc getEntity;
-    entityDeclSAXFunc entityDecl;
-    notationDeclSAXFunc notationDecl;
-    attributeDeclSAXFunc attributeDecl;
-    elementDeclSAXFunc elementDecl;
-    unparsedEntityDeclSAXFunc unparsedEntityDecl;
-    setDocumentLocatorSAXFunc setDocumentLocator;
-    startDocumentSAXFunc startDocument;
-    endDocumentSAXFunc endDocument;
-    startElementSAXFunc startElement;
-    endElementSAXFunc endElement;
-    referenceSAXFunc reference;
-    charactersSAXFunc characters;
-    ignorableWhitespaceSAXFunc ignorableWhitespace;
-    processingInstructionSAXFunc processingInstruction;
-    commentSAXFunc comment;
-    warningSAXFunc warning;
-    errorSAXFunc error;
-    fatalErrorSAXFunc fatalError; /* unused error() get all the errors */
-    getParameterEntitySAXFunc getParameterEntity;
-    cdataBlockSAXFunc cdataBlock;
-    externalSubsetSAXFunc externalSubset;
+    internalSubsetSAXFunc internalSubset : itype(_Ptr<void (void *, _Ptr<const xmlChar>, _Ptr<const xmlChar>, _Ptr<const xmlChar>)>);
+    isStandaloneSAXFunc isStandalone : itype(_Ptr<int (void *)>);
+    hasInternalSubsetSAXFunc hasInternalSubset : itype(_Ptr<int (void *)>);
+    hasExternalSubsetSAXFunc hasExternalSubset : itype(_Ptr<int (void *)>);
+    resolveEntitySAXFunc resolveEntity : itype(_Ptr<_Ptr<xmlParserInput> (void *, _Ptr<const xmlChar>, _Ptr<const xmlChar>)>);
+    getEntitySAXFunc getEntity : itype(_Ptr<_Ptr<xmlEntity> (void *, _Ptr<const xmlChar>)>);
+    entityDeclSAXFunc entityDecl : itype(_Ptr<void (void *, _Ptr<const xmlChar>, int, _Ptr<const xmlChar>, _Ptr<const xmlChar>, _Ptr<xmlChar>)>);
+    notationDeclSAXFunc notationDecl : itype(_Ptr<void (void *, _Ptr<const xmlChar>, _Ptr<const xmlChar>, _Ptr<const xmlChar>)>);
+    attributeDeclSAXFunc attributeDecl : itype(_Ptr<void (void *, _Ptr<const xmlChar>, _Ptr<const xmlChar>, int, int, _Ptr<const xmlChar>, _Ptr<xmlEnumeration>)>);
+    elementDeclSAXFunc elementDecl : itype(_Ptr<void (void *, _Ptr<const xmlChar>, int, _Ptr<xmlElementContent>)>);
+    unparsedEntityDeclSAXFunc unparsedEntityDecl : itype(_Ptr<void (void *, _Ptr<const xmlChar>, _Ptr<const xmlChar>, _Ptr<const xmlChar>, _Ptr<const xmlChar>)>);
+    setDocumentLocatorSAXFunc setDocumentLocator : itype(_Ptr<void (void *, _Ptr<xmlSAXLocator>)>);
+    startDocumentSAXFunc startDocument : itype(_Ptr<void (void *)>);
+    endDocumentSAXFunc endDocument : itype(_Ptr<void (void *)>);
+    startElementSAXFunc startElement : itype(_Ptr<void (void *, _Ptr<const xmlChar>, _Ptr<_Ptr<const xmlChar>>)>);
+    endElementSAXFunc endElement : itype(_Ptr<void (void *, _Ptr<const xmlChar>)>);
+    referenceSAXFunc reference : itype(_Ptr<void (void *, _Ptr<const xmlChar>)>);
+    charactersSAXFunc characters : itype(_Ptr<void (void *, _Ptr<const xmlChar>, int)>);
+    ignorableWhitespaceSAXFunc ignorableWhitespace : itype(_Ptr<void (void *, _Ptr<const xmlChar>, int)>);
+    processingInstructionSAXFunc processingInstruction : itype(_Ptr<void (void *, _Ptr<const xmlChar>, _Ptr<const xmlChar>)>);
+    commentSAXFunc comment : itype(_Ptr<void (void *, _Ptr<const xmlChar>)>);
+    warningSAXFunc warning : itype(_Ptr<void (void *, _Ptr<const char>)>);
+    errorSAXFunc error : itype(_Ptr<void (void *, _Ptr<const char>)>);
+    fatalErrorSAXFunc fatalError : itype(_Ptr<void (void *, _Ptr<const char>)>); /* unused error() get all the errors */
+    getParameterEntitySAXFunc getParameterEntity : itype(_Ptr<_Ptr<xmlEntity> (void *, _Ptr<const xmlChar>)>);
+    cdataBlockSAXFunc cdataBlock : itype(_Ptr<void (void *, _Ptr<const xmlChar>, int)>);
+    externalSubsetSAXFunc externalSubset : itype(_Ptr<void (void *, _Ptr<const xmlChar>, _Ptr<const xmlChar>, _Ptr<const xmlChar>)>);
     unsigned int initialized;
     /* The following fields are extensions available only on version 2 */
     void *_private;
-    startElementNsSAX2Func startElementNs;
-    endElementNsSAX2Func endElementNs;
-    xmlStructuredErrorFunc serror;
+    startElementNsSAX2Func startElementNs : itype(_Ptr<void (void *, _Ptr<const xmlChar>, _Ptr<const xmlChar>, _Ptr<const xmlChar>, int, _Ptr<_Ptr<const xmlChar>>, int, int, _Ptr<_Ptr<const xmlChar>>)>);
+    endElementNsSAX2Func endElementNs : itype(_Ptr<void (void *, _Ptr<const xmlChar>, _Ptr<const xmlChar>, _Ptr<const xmlChar>)>);
+    xmlStructuredErrorFunc serror : itype(_Ptr<void (void *, xmlErrorPtr)>);
 };
 
 /*
@@ -758,33 +758,33 @@ struct _xmlSAXHandler {
 typedef struct _xmlSAXHandlerV1 xmlSAXHandlerV1;
 typedef xmlSAXHandlerV1 *xmlSAXHandlerV1Ptr;
 struct _xmlSAXHandlerV1 {
-    internalSubsetSAXFunc internalSubset;
-    isStandaloneSAXFunc isStandalone;
-    hasInternalSubsetSAXFunc hasInternalSubset;
-    hasExternalSubsetSAXFunc hasExternalSubset;
-    resolveEntitySAXFunc resolveEntity;
-    getEntitySAXFunc getEntity;
-    entityDeclSAXFunc entityDecl;
-    notationDeclSAXFunc notationDecl;
-    attributeDeclSAXFunc attributeDecl;
-    elementDeclSAXFunc elementDecl;
-    unparsedEntityDeclSAXFunc unparsedEntityDecl;
-    setDocumentLocatorSAXFunc setDocumentLocator;
-    startDocumentSAXFunc startDocument;
-    endDocumentSAXFunc endDocument;
-    startElementSAXFunc startElement;
-    endElementSAXFunc endElement;
-    referenceSAXFunc reference;
-    charactersSAXFunc characters;
-    ignorableWhitespaceSAXFunc ignorableWhitespace;
-    processingInstructionSAXFunc processingInstruction;
-    commentSAXFunc comment;
-    warningSAXFunc warning;
-    errorSAXFunc error;
-    fatalErrorSAXFunc fatalError; /* unused error() get all the errors */
-    getParameterEntitySAXFunc getParameterEntity;
-    cdataBlockSAXFunc cdataBlock;
-    externalSubsetSAXFunc externalSubset;
+    internalSubsetSAXFunc internalSubset : itype(_Ptr<void (void *, _Ptr<const xmlChar>, _Ptr<const xmlChar>, _Ptr<const xmlChar>)>);
+    isStandaloneSAXFunc isStandalone : itype(_Ptr<int (void *)>);
+    hasInternalSubsetSAXFunc hasInternalSubset : itype(_Ptr<int (void *)>);
+    hasExternalSubsetSAXFunc hasExternalSubset : itype(_Ptr<int (void *)>);
+    resolveEntitySAXFunc resolveEntity : itype(_Ptr<_Ptr<xmlParserInput> (void *, _Ptr<const xmlChar>, _Ptr<const xmlChar>)>);
+    getEntitySAXFunc getEntity : itype(_Ptr<_Ptr<xmlEntity> (void *, _Ptr<const xmlChar>)>);
+    entityDeclSAXFunc entityDecl : itype(_Ptr<void (void *, _Ptr<const xmlChar>, int, _Ptr<const xmlChar>, _Ptr<const xmlChar>, _Ptr<xmlChar>)>);
+    notationDeclSAXFunc notationDecl : itype(_Ptr<void (void *, _Ptr<const xmlChar>, _Ptr<const xmlChar>, _Ptr<const xmlChar>)>);
+    attributeDeclSAXFunc attributeDecl : itype(_Ptr<void (void *, _Ptr<const xmlChar>, _Ptr<const xmlChar>, int, int, _Ptr<const xmlChar>, _Ptr<xmlEnumeration>)>);
+    elementDeclSAXFunc elementDecl : itype(_Ptr<void (void *, _Ptr<const xmlChar>, int, _Ptr<xmlElementContent>)>);
+    unparsedEntityDeclSAXFunc unparsedEntityDecl : itype(_Ptr<void (void *, _Ptr<const xmlChar>, _Ptr<const xmlChar>, _Ptr<const xmlChar>, _Ptr<const xmlChar>)>);
+    setDocumentLocatorSAXFunc setDocumentLocator : itype(_Ptr<void (void *, _Ptr<xmlSAXLocator>)>);
+    startDocumentSAXFunc startDocument : itype(_Ptr<void (void *)>);
+    endDocumentSAXFunc endDocument : itype(_Ptr<void (void *)>);
+    startElementSAXFunc startElement : itype(_Ptr<void (void *, _Ptr<const xmlChar>, _Ptr<_Ptr<const xmlChar>>)>);
+    endElementSAXFunc endElement : itype(_Ptr<void (void *, _Ptr<const xmlChar>)>);
+    referenceSAXFunc reference : itype(_Ptr<void (void *, _Ptr<const xmlChar>)>);
+    charactersSAXFunc characters : itype(_Ptr<void (void *, _Ptr<const xmlChar>, int)>);
+    ignorableWhitespaceSAXFunc ignorableWhitespace : itype(_Ptr<void (void *, _Ptr<const xmlChar>, int)>);
+    processingInstructionSAXFunc processingInstruction : itype(_Ptr<void (void *, _Ptr<const xmlChar>, _Ptr<const xmlChar>)>);
+    commentSAXFunc comment : itype(_Ptr<void (void *, _Ptr<const xmlChar>)>);
+    warningSAXFunc warning : itype(_Ptr<void (void *, _Ptr<const char>)>);
+    errorSAXFunc error : itype(_Ptr<void (void *, _Ptr<const char>)>);
+    fatalErrorSAXFunc fatalError : itype(_Ptr<void (void *, _Ptr<const char>)>); /* unused error() get all the errors */
+    getParameterEntitySAXFunc getParameterEntity : itype(_Ptr<_Ptr<xmlEntity> (void *, _Ptr<const xmlChar>)>);
+    cdataBlockSAXFunc cdataBlock : itype(_Ptr<void (void *, _Ptr<const xmlChar>, int)>);
+    externalSubsetSAXFunc externalSubset : itype(_Ptr<void (void *, _Ptr<const xmlChar>, _Ptr<const xmlChar>, _Ptr<const xmlChar>)>);
     unsigned int initialized;
 };
 
@@ -828,30 +828,24 @@ XMLPUBFUN void XMLCALL
  * Input functions
  */
 XMLPUBFUN int XMLCALL
-		xmlParserInputRead	(xmlParserInputPtr in,
-					 int len);
+		xmlParserInputRead	(xmlParserInputPtr in : itype(_Ptr<xmlParserInput>), int len);
 XMLPUBFUN int XMLCALL
-		xmlParserInputGrow	(xmlParserInputPtr in,
-					 int len);
+		xmlParserInputGrow	(xmlParserInputPtr in : itype(_Ptr<xmlParserInput>), int len);
 
 /*
  * Basic parsing Interfaces
  */
 #ifdef LIBXML_SAX1_ENABLED
-XMLPUBFUN xmlDocPtr XMLCALL
-		xmlParseDoc		(const xmlChar *cur);
-XMLPUBFUN xmlDocPtr XMLCALL
-		xmlParseFile		(const char *filename);
-XMLPUBFUN xmlDocPtr XMLCALL
-		xmlParseMemory		(const char *buffer,
-					 int size);
+XMLPUBFUN xmlDocPtr xmlParseDoc(const xmlChar *cur : itype(_Ptr<const xmlChar>)) : itype(_Ptr<xmlDoc>);
+XMLPUBFUN xmlDocPtr xmlParseFile(const char *filename : itype(_Ptr<const char>)) : itype(_Ptr<xmlDoc>);
+XMLPUBFUN xmlDocPtr xmlParseMemory(const char *buffer : itype(_Ptr<const char>), int size) : itype(_Ptr<xmlDoc>);
 #endif /* LIBXML_SAX1_ENABLED */
 XMLPUBFUN int XMLCALL
 		xmlSubstituteEntitiesDefault(int val);
 XMLPUBFUN int XMLCALL
 		xmlKeepBlanksDefault	(int val);
 XMLPUBFUN void XMLCALL
-		xmlStopParser		(xmlParserCtxtPtr ctxt);
+		xmlStopParser		(xmlParserCtxtPtr ctxt : itype(_Ptr<xmlParserCtxt>));
 XMLPUBFUN int XMLCALL
 		xmlPedanticParserDefault(int val);
 XMLPUBFUN int XMLCALL
@@ -861,221 +855,124 @@ XMLPUBFUN int XMLCALL
 /*
  * Recovery mode
  */
-XMLPUBFUN xmlDocPtr XMLCALL
-		xmlRecoverDoc		(const xmlChar *cur);
-XMLPUBFUN xmlDocPtr XMLCALL
-		xmlRecoverMemory	(const char *buffer,
-					 int size);
-XMLPUBFUN xmlDocPtr XMLCALL
-		xmlRecoverFile		(const char *filename);
+XMLPUBFUN xmlDocPtr xmlRecoverDoc(const xmlChar *cur : itype(_Ptr<const xmlChar>)) : itype(_Ptr<xmlDoc>);
+XMLPUBFUN xmlDocPtr xmlRecoverMemory(const char *buffer : itype(_Ptr<const char>), int size) : itype(_Ptr<xmlDoc>);
+XMLPUBFUN xmlDocPtr xmlRecoverFile(const char *filename : itype(_Ptr<const char>)) : itype(_Ptr<xmlDoc>);
 #endif /* LIBXML_SAX1_ENABLED */
 
 /*
  * Less common routines and SAX interfaces
  */
 XMLPUBFUN int XMLCALL
-		xmlParseDocument	(xmlParserCtxtPtr ctxt);
+		xmlParseDocument	(xmlParserCtxtPtr ctxt : itype(_Ptr<xmlParserCtxt>));
 XMLPUBFUN int XMLCALL
-		xmlParseExtParsedEnt	(xmlParserCtxtPtr ctxt);
+		xmlParseExtParsedEnt	(xmlParserCtxtPtr ctxt : itype(_Ptr<xmlParserCtxt>));
 #ifdef LIBXML_SAX1_ENABLED
 XMLPUBFUN int XMLCALL
-		xmlSAXUserParseFile	(xmlSAXHandlerPtr sax,
-					 void *user_data,
-					 const char *filename);
+		xmlSAXUserParseFile	(xmlSAXHandlerPtr sax : itype(_Ptr<xmlSAXHandler>), void *user_data, const char *filename : itype(_Ptr<const char>));
 XMLPUBFUN int XMLCALL
-		xmlSAXUserParseMemory	(xmlSAXHandlerPtr sax,
-					 void *user_data,
-					 const char *buffer,
-					 int size);
-XMLPUBFUN xmlDocPtr XMLCALL
-		xmlSAXParseDoc		(xmlSAXHandlerPtr sax,
-					 const xmlChar *cur,
-					 int recovery);
-XMLPUBFUN xmlDocPtr XMLCALL
-		xmlSAXParseMemory	(xmlSAXHandlerPtr sax,
-					 const char *buffer,
-					 int size,
-					 int recovery);
-XMLPUBFUN xmlDocPtr XMLCALL
-		xmlSAXParseMemoryWithData (xmlSAXHandlerPtr sax,
-					 const char *buffer,
-					 int size,
-					 int recovery,
-					 void *data);
-XMLPUBFUN xmlDocPtr XMLCALL
-		xmlSAXParseFile		(xmlSAXHandlerPtr sax,
-					 const char *filename,
-					 int recovery);
-XMLPUBFUN xmlDocPtr XMLCALL
-		xmlSAXParseFileWithData	(xmlSAXHandlerPtr sax,
-					 const char *filename,
-					 int recovery,
-					 void *data);
-XMLPUBFUN xmlDocPtr XMLCALL
-		xmlSAXParseEntity	(xmlSAXHandlerPtr sax,
-					 const char *filename);
-XMLPUBFUN xmlDocPtr XMLCALL
-		xmlParseEntity		(const char *filename);
+		xmlSAXUserParseMemory	(xmlSAXHandlerPtr sax : itype(_Ptr<xmlSAXHandler>), void *user_data, const char *buffer : itype(_Ptr<const char>), int size);
+XMLPUBFUN xmlDocPtr xmlSAXParseDoc(xmlSAXHandlerPtr sax : itype(_Ptr<xmlSAXHandler>), const xmlChar *cur : itype(_Ptr<const xmlChar>), int recovery) : itype(_Ptr<xmlDoc>);
+XMLPUBFUN xmlDocPtr xmlSAXParseMemory(xmlSAXHandlerPtr sax : itype(_Ptr<xmlSAXHandler>), const char *buffer : itype(_Ptr<const char>), int size, int recovery) : itype(_Ptr<xmlDoc>);
+XMLPUBFUN xmlDocPtr xmlSAXParseMemoryWithData(xmlSAXHandlerPtr sax : itype(_Ptr<xmlSAXHandler>), const char *buffer : itype(_Ptr<const char>), int size, int recovery, void *data) : itype(_Ptr<xmlDoc>);
+XMLPUBFUN xmlDocPtr xmlSAXParseFile(xmlSAXHandlerPtr sax : itype(_Ptr<xmlSAXHandler>), const char *filename : itype(_Ptr<const char>), int recovery) : itype(_Ptr<xmlDoc>);
+XMLPUBFUN xmlDocPtr xmlSAXParseFileWithData(xmlSAXHandlerPtr sax : itype(_Ptr<xmlSAXHandler>), const char *filename : itype(_Ptr<const char>), int recovery, void *data) : itype(_Ptr<xmlDoc>);
+XMLPUBFUN xmlDocPtr xmlSAXParseEntity(xmlSAXHandlerPtr sax : itype(_Ptr<xmlSAXHandler>), const char *filename : itype(_Ptr<const char>)) : itype(_Ptr<xmlDoc>);
+XMLPUBFUN xmlDocPtr xmlParseEntity(const char *filename : itype(_Ptr<const char>)) : itype(_Ptr<xmlDoc>);
 #endif /* LIBXML_SAX1_ENABLED */
 
 #ifdef LIBXML_VALID_ENABLED
-XMLPUBFUN xmlDtdPtr XMLCALL
-		xmlSAXParseDTD		(xmlSAXHandlerPtr sax,
-					 const xmlChar *ExternalID,
-					 const xmlChar *SystemID);
-XMLPUBFUN xmlDtdPtr XMLCALL
-		xmlParseDTD		(const xmlChar *ExternalID,
-					 const xmlChar *SystemID);
-XMLPUBFUN xmlDtdPtr XMLCALL
-		xmlIOParseDTD		(xmlSAXHandlerPtr sax,
-					 xmlParserInputBufferPtr input,
-					 xmlCharEncoding enc);
+XMLPUBFUN xmlDtdPtr xmlSAXParseDTD(xmlSAXHandlerPtr sax : itype(_Ptr<xmlSAXHandler>), const xmlChar *ExternalID : itype(_Ptr<const xmlChar>), const xmlChar *SystemID : itype(_Ptr<const xmlChar>)) : itype(_Ptr<xmlDtd>);
+XMLPUBFUN xmlDtdPtr xmlParseDTD(const xmlChar *ExternalID : itype(_Ptr<const xmlChar>), const xmlChar *SystemID : itype(_Ptr<const xmlChar>)) : itype(_Ptr<xmlDtd>);
+XMLPUBFUN xmlDtdPtr xmlIOParseDTD(xmlSAXHandlerPtr sax : itype(_Ptr<xmlSAXHandler>), xmlParserInputBufferPtr input : itype(_Ptr<xmlParserInputBuffer>), xmlCharEncoding enc) : itype(_Ptr<xmlDtd>);
 #endif /* LIBXML_VALID_ENABLE */
 #ifdef LIBXML_SAX1_ENABLED
 XMLPUBFUN int XMLCALL
-		xmlParseBalancedChunkMemory(xmlDocPtr doc,
-					 xmlSAXHandlerPtr sax,
-					 void *user_data,
-					 int depth,
-					 const xmlChar *string,
-					 xmlNodePtr *lst);
+		xmlParseBalancedChunkMemory(xmlDocPtr doc : itype(_Ptr<xmlDoc>), xmlSAXHandlerPtr sax : itype(_Ptr<xmlSAXHandler>), void *user_data, int depth, const xmlChar *string : itype(_Ptr<const xmlChar>), xmlNodePtr *lst : itype(_Ptr<xmlNodePtr>));
 #endif /* LIBXML_SAX1_ENABLED */
 XMLPUBFUN xmlParserErrors XMLCALL
-		xmlParseInNodeContext	(xmlNodePtr node,
-					 const char *data,
-					 int datalen,
-					 int options,
-					 xmlNodePtr *lst);
+		xmlParseInNodeContext	(xmlNodePtr node : itype(_Ptr<xmlNode>), const char *data : itype(_Ptr<const char>), int datalen, int options, xmlNodePtr *lst : itype(_Ptr<xmlNodePtr>));
 #ifdef LIBXML_SAX1_ENABLED
 XMLPUBFUN int XMLCALL
-		xmlParseBalancedChunkMemoryRecover(xmlDocPtr doc,
-                     xmlSAXHandlerPtr sax,
-                     void *user_data,
-                     int depth,
-                     const xmlChar *string,
-                     xmlNodePtr *lst,
-                     int recover);
+		xmlParseBalancedChunkMemoryRecover(xmlDocPtr doc : itype(_Ptr<xmlDoc>), xmlSAXHandlerPtr sax : itype(_Ptr<xmlSAXHandler>), void *user_data, int depth, const xmlChar *string : itype(_Ptr<const xmlChar>), xmlNodePtr *lst : itype(_Ptr<xmlNodePtr>), int recover);
 XMLPUBFUN int XMLCALL
-		xmlParseExternalEntity	(xmlDocPtr doc,
-					 xmlSAXHandlerPtr sax,
-					 void *user_data,
-					 int depth,
-					 const xmlChar *URL,
-					 const xmlChar *ID,
-					 xmlNodePtr *lst);
+		xmlParseExternalEntity	(xmlDocPtr doc : itype(_Ptr<xmlDoc>), xmlSAXHandlerPtr sax : itype(_Ptr<xmlSAXHandler>), void *user_data, int depth, const xmlChar *URL : itype(_Ptr<const xmlChar>), const xmlChar *ID : itype(_Ptr<const xmlChar>), xmlNodePtr *lst : itype(_Ptr<xmlNodePtr>));
 #endif /* LIBXML_SAX1_ENABLED */
 XMLPUBFUN int XMLCALL
-		xmlParseCtxtExternalEntity(xmlParserCtxtPtr ctx,
-					 const xmlChar *URL,
-					 const xmlChar *ID,
-					 xmlNodePtr *lst);
+		xmlParseCtxtExternalEntity(xmlParserCtxtPtr ctx : itype(_Ptr<xmlParserCtxt>), const xmlChar *URL : itype(_Ptr<const xmlChar>), const xmlChar *ID : itype(_Ptr<const xmlChar>), xmlNodePtr *lst : itype(_Ptr<xmlNodePtr>));
 
 /*
  * Parser contexts handling.
  */
-XMLPUBFUN xmlParserCtxtPtr XMLCALL
-		xmlNewParserCtxt	(void);
+XMLPUBFUN xmlParserCtxtPtr xmlNewParserCtxt(void) : itype(_Ptr<xmlParserCtxt>);
 XMLPUBFUN int XMLCALL
-		xmlInitParserCtxt	(xmlParserCtxtPtr ctxt);
+		xmlInitParserCtxt	(xmlParserCtxtPtr ctxt : itype(_Ptr<xmlParserCtxt>));
 XMLPUBFUN void XMLCALL
-		xmlClearParserCtxt	(xmlParserCtxtPtr ctxt);
+		xmlClearParserCtxt	(xmlParserCtxtPtr ctxt : itype(_Ptr<xmlParserCtxt>));
 XMLPUBFUN void XMLCALL
-		xmlFreeParserCtxt	(xmlParserCtxtPtr ctxt);
+		xmlFreeParserCtxt	(xmlParserCtxtPtr ctxt : itype(_Ptr<xmlParserCtxt>));
 #ifdef LIBXML_SAX1_ENABLED
 XMLPUBFUN void XMLCALL
-		xmlSetupParserForBuffer	(xmlParserCtxtPtr ctxt,
-					 const xmlChar* buffer,
-					 const char *filename);
+		xmlSetupParserForBuffer	(xmlParserCtxtPtr ctxt : itype(_Ptr<xmlParserCtxt>), const xmlChar *buffer : itype(_Ptr<const xmlChar>), const char *filename : itype(_Ptr<const char>));
 #endif /* LIBXML_SAX1_ENABLED */
-XMLPUBFUN xmlParserCtxtPtr XMLCALL
-		xmlCreateDocParserCtxt	(const xmlChar *cur);
+XMLPUBFUN xmlParserCtxtPtr xmlCreateDocParserCtxt(const xmlChar *cur : itype(_Ptr<const xmlChar>)) : itype(_Ptr<xmlParserCtxt>);
 
 #ifdef LIBXML_LEGACY_ENABLED
 /*
  * Reading/setting optional parsing features.
  */
 XMLPUBFUN int XMLCALL
-		xmlGetFeaturesList	(int *len,
-					 const char **result);
+		xmlGetFeaturesList	(int *len : itype(_Ptr<int>), const char **result : itype(_Ptr<_Ptr<const char>>));
 XMLPUBFUN int XMLCALL
-		xmlGetFeature		(xmlParserCtxtPtr ctxt,
-					 const char *name,
-					 void *result);
+		xmlGetFeature		(xmlParserCtxtPtr ctxt : itype(_Ptr<xmlParserCtxt>), const char *name : itype(_Ptr<const char>), void *result);
 XMLPUBFUN int XMLCALL
-		xmlSetFeature		(xmlParserCtxtPtr ctxt,
-					 const char *name,
-					 void *value);
+		xmlSetFeature		(xmlParserCtxtPtr ctxt : itype(_Ptr<xmlParserCtxt>), const char *name : itype(_Ptr<const char>), void *value);
 #endif /* LIBXML_LEGACY_ENABLED */
 
 #ifdef LIBXML_PUSH_ENABLED
 /*
  * Interfaces for the Push mode.
  */
-XMLPUBFUN xmlParserCtxtPtr XMLCALL
-		xmlCreatePushParserCtxt(xmlSAXHandlerPtr sax,
-					 void *user_data,
-					 const char *chunk,
-					 int size,
-					 const char *filename);
+XMLPUBFUN xmlParserCtxtPtr xmlCreatePushParserCtxt(xmlSAXHandlerPtr sax : itype(_Ptr<xmlSAXHandler>), void *user_data, const char *chunk : itype(_Ptr<const char>), int size, const char *filename : itype(_Ptr<const char>)) : itype(_Ptr<xmlParserCtxt>);
 XMLPUBFUN int XMLCALL
-		xmlParseChunk		(xmlParserCtxtPtr ctxt,
-					 const char *chunk,
-					 int size,
-					 int terminate);
+		xmlParseChunk		(xmlParserCtxtPtr ctxt : itype(_Ptr<xmlParserCtxt>), const char *chunk : itype(_Ptr<const char>), int size, int terminate);
 #endif /* LIBXML_PUSH_ENABLED */
 
 /*
  * Special I/O mode.
  */
 
-XMLPUBFUN xmlParserCtxtPtr XMLCALL
-		xmlCreateIOParserCtxt	(xmlSAXHandlerPtr sax,
-					 void *user_data,
-					 xmlInputReadCallback   ioread,
-					 xmlInputCloseCallback  ioclose,
-					 void *ioctx,
-					 xmlCharEncoding enc);
+XMLPUBFUN xmlParserCtxtPtr xmlCreateIOParserCtxt(xmlSAXHandlerPtr sax : itype(_Ptr<xmlSAXHandler>), void *user_data, xmlInputReadCallback ioread : itype(_Ptr<int (void *, char *, int)>), xmlInputCloseCallback ioclose : itype(_Ptr<int (void *)>), void *ioctx, xmlCharEncoding enc) : itype(_Ptr<xmlParserCtxt>);
 
-XMLPUBFUN xmlParserInputPtr XMLCALL
-		xmlNewIOInputStream	(xmlParserCtxtPtr ctxt,
-					 xmlParserInputBufferPtr input,
-					 xmlCharEncoding enc);
+XMLPUBFUN xmlParserInputPtr xmlNewIOInputStream(xmlParserCtxtPtr ctxt : itype(_Ptr<xmlParserCtxt>), xmlParserInputBufferPtr input : itype(_Ptr<xmlParserInputBuffer>), xmlCharEncoding enc) : itype(_Ptr<xmlParserInput>);
 
 /*
  * Node infos.
  */
-XMLPUBFUN const xmlParserNodeInfo* XMLCALL
-		xmlParserFindNodeInfo	(const xmlParserCtxtPtr ctxt,
-				         const xmlNodePtr node);
+XMLPUBFUN const xmlParserNodeInfo *xmlParserFindNodeInfo(const xmlParserCtxtPtr ctxt : itype(const _Ptr<xmlParserCtxt>), const xmlNodePtr node : itype(const _Ptr<xmlNode>)) : itype(_Ptr<const xmlParserNodeInfo>);
 XMLPUBFUN void XMLCALL
-		xmlInitNodeInfoSeq	(xmlParserNodeInfoSeqPtr seq);
+		xmlInitNodeInfoSeq	(xmlParserNodeInfoSeqPtr seq : itype(_Ptr<xmlParserNodeInfoSeq>));
 XMLPUBFUN void XMLCALL
-		xmlClearNodeInfoSeq	(xmlParserNodeInfoSeqPtr seq);
+		xmlClearNodeInfoSeq	(xmlParserNodeInfoSeqPtr seq : itype(_Ptr<xmlParserNodeInfoSeq>));
 XMLPUBFUN unsigned long XMLCALL
-		xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeqPtr seq,
-                                         const xmlNodePtr node);
+		xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeqPtr seq : itype(const _Ptr<xmlParserNodeInfoSeq>), const xmlNodePtr node : itype(const _Ptr<xmlNode>));
 XMLPUBFUN void XMLCALL
-		xmlParserAddNodeInfo	(xmlParserCtxtPtr ctxt,
-					 const xmlParserNodeInfoPtr info);
+		xmlParserAddNodeInfo	(xmlParserCtxtPtr ctxt : itype(_Ptr<xmlParserCtxt>), const xmlParserNodeInfoPtr info : itype(const _Ptr<xmlParserNodeInfo>));
 
 /*
  * External entities handling actually implemented in xmlIO.
  */
 
 XMLPUBFUN void XMLCALL
-		xmlSetExternalEntityLoader(xmlExternalEntityLoader f);
-XMLPUBFUN xmlExternalEntityLoader XMLCALL
-		xmlGetExternalEntityLoader(void);
-XMLPUBFUN xmlParserInputPtr XMLCALL
-		xmlLoadExternalEntity	(const char *URL,
-					 const char *ID,
-					 xmlParserCtxtPtr ctxt);
+		xmlSetExternalEntityLoader(xmlExternalEntityLoader f : itype(_Ptr<xmlParserInputPtr (const char *, const char *, xmlParserCtxtPtr)>));
+XMLPUBFUN xmlExternalEntityLoader xmlGetExternalEntityLoader(void) : itype(_Ptr<xmlParserInputPtr (const char *, const char *, xmlParserCtxtPtr)>);
+XMLPUBFUN xmlParserInputPtr xmlLoadExternalEntity(const char *URL : itype(_Ptr<const char>), const char *ID : itype(_Ptr<const char>), xmlParserCtxtPtr ctxt : itype(_Ptr<xmlParserCtxt>)) : itype(_Ptr<xmlParserInput>);
 
 /*
  * Index lookup, actually implemented in the encoding module
  */
 XMLPUBFUN long XMLCALL
-		xmlByteConsumed		(xmlParserCtxtPtr ctxt);
+		xmlByteConsumed		(xmlParserCtxtPtr ctxt : itype(_Ptr<xmlParserCtxt>));
 
 /*
  * New set of simpler/more flexible APIs
@@ -1115,75 +1012,21 @@ typedef enum {
 } xmlParserOption;
 
 XMLPUBFUN void XMLCALL
-		xmlCtxtReset		(xmlParserCtxtPtr ctxt);
+		xmlCtxtReset		(xmlParserCtxtPtr ctxt : itype(_Ptr<xmlParserCtxt>));
 XMLPUBFUN int XMLCALL
-		xmlCtxtResetPush	(xmlParserCtxtPtr ctxt,
-					 const char *chunk,
-					 int size,
-					 const char *filename,
-					 const char *encoding);
+		xmlCtxtResetPush	(xmlParserCtxtPtr ctxt : itype(_Ptr<xmlParserCtxt>), const char *chunk : itype(_Ptr<const char>), int size, const char *filename : itype(_Ptr<const char>), const char *encoding : itype(_Ptr<const char>));
 XMLPUBFUN int XMLCALL
-		xmlCtxtUseOptions	(xmlParserCtxtPtr ctxt,
-					 int options);
-XMLPUBFUN xmlDocPtr XMLCALL
-		xmlReadDoc		(const xmlChar *cur,
-					 const char *URL,
-					 const char *encoding,
-					 int options);
-XMLPUBFUN xmlDocPtr XMLCALL
-		xmlReadFile		(const char *URL,
-					 const char *encoding,
-					 int options);
-XMLPUBFUN xmlDocPtr XMLCALL
-		xmlReadMemory		(const char *buffer,
-					 int size,
-					 const char *URL,
-					 const char *encoding,
-					 int options);
-XMLPUBFUN xmlDocPtr XMLCALL
-		xmlReadFd		(int fd,
-					 const char *URL,
-					 const char *encoding,
-					 int options);
-XMLPUBFUN xmlDocPtr XMLCALL
-		xmlReadIO		(xmlInputReadCallback ioread,
-					 xmlInputCloseCallback ioclose,
-					 void *ioctx,
-					 const char *URL,
-					 const char *encoding,
-					 int options);
-XMLPUBFUN xmlDocPtr XMLCALL
-		xmlCtxtReadDoc		(xmlParserCtxtPtr ctxt,
-					 const xmlChar *cur,
-					 const char *URL,
-					 const char *encoding,
-					 int options);
-XMLPUBFUN xmlDocPtr XMLCALL
-		xmlCtxtReadFile		(xmlParserCtxtPtr ctxt,
-					 const char *filename,
-					 const char *encoding,
-					 int options);
-XMLPUBFUN xmlDocPtr XMLCALL
-		xmlCtxtReadMemory		(xmlParserCtxtPtr ctxt,
-					 const char *buffer,
-					 int size,
-					 const char *URL,
-					 const char *encoding,
-					 int options);
-XMLPUBFUN xmlDocPtr XMLCALL
-		xmlCtxtReadFd		(xmlParserCtxtPtr ctxt,
-					 int fd,
-					 const char *URL,
-					 const char *encoding,
-					 int options);
-XMLPUBFUN xmlDocPtr XMLCALL
-		xmlCtxtReadIO		(xmlParserCtxtPtr ctxt,
-					 xmlInputReadCallback ioread,
-					 xmlInputCloseCallback ioclose,
-					 void *ioctx,
-					 const char *URL,
-					 const char *encoding,
-					 int options);
+		xmlCtxtUseOptions	(xmlParserCtxtPtr ctxt : itype(_Ptr<xmlParserCtxt>), int options);
+XMLPUBFUN xmlDocPtr xmlReadDoc(const xmlChar *cur : itype(_Ptr<const xmlChar>), const char *URL : itype(_Ptr<const char>), const char *encoding : itype(_Ptr<const char>), int options) : itype(_Ptr<xmlDoc>);
+XMLPUBFUN xmlDocPtr xmlReadFile(const char *URL : itype(_Ptr<const char>), const char *encoding : itype(_Ptr<const char>), int options) : itype(_Ptr<xmlDoc>);
+XMLPUBFUN xmlDocPtr xmlReadMemory(const char *buffer : itype(_Ptr<const char>), int size, const char *URL : itype(_Ptr<const char>), const char *encoding : itype(_Ptr<const char>), int options) : itype(_Ptr<xmlDoc>);
+XMLPUBFUN xmlDocPtr xmlReadFd(int fd, const char *URL : itype(_Ptr<const char>), const char *encoding : itype(_Ptr<const char>), int options) : itype(_Ptr<xmlDoc>);
+XMLPUBFUN xmlDocPtr xmlReadIO(xmlInputReadCallback ioread : itype(_Ptr<int (void *, char *, int)>), xmlInputCloseCallback ioclose : itype(_Ptr<int (void *)>), void *ioctx, const char *URL : itype(_Ptr<const char>), const char *encoding : itype(_Ptr<const char>), int options) : itype(_Ptr<xmlDoc>);
+XMLPUBFUN xmlDocPtr xmlCtxtReadDoc(xmlParserCtxtPtr ctxt : itype(_Ptr<xmlParserCtxt>), const xmlChar *cur : itype(_Ptr<const xmlChar>), const char *URL : itype(_Ptr<const char>), const char *encoding : itype(_Ptr<const char>), int options) : itype(_Ptr<xmlDoc>);
+XMLPUBFUN xmlDocPtr xmlCtxtReadFile(xmlParserCtxtPtr ctxt : itype(_Ptr<xmlParserCtxt>), const char *filename : itype(_Ptr<const char>), const char *encoding : itype(_Ptr<const char>), int options) : itype(_Ptr<xmlDoc>);
+XMLPUBFUN xmlDocPtr xmlCtxtReadMemory(xmlParserCtxtPtr ctxt : itype(_Ptr<xmlParserCtxt>), const char *buffer : itype(_Ptr<const char>), int size, const char *URL : itype(_Ptr<const char>), const char *encoding : itype(_Ptr<const char>), int options) : itype(_Ptr<xmlDoc>);
+XMLPUBFUN xmlDocPtr xmlCtxtReadFd(xmlParserCtxtPtr ctxt : itype(_Ptr<xmlParserCtxt>), int fd, const char *URL : itype(_Ptr<const char>), const char *encoding : itype(_Ptr<const char>), int options) : itype(_Ptr<xmlDoc>);
+XMLPUBFUN xmlDocPtr xmlCtxtReadIO(xmlParserCtxtPtr ctxt : itype(_Ptr<xmlParserCtxt>), xmlInputReadCallback ioread : itype(_Ptr<int (void *, char *, int)>), xmlInputCloseCallback ioclose : itype(_Ptr<int (void *)>), void *ioctx, const char *URL : itype(_Ptr<const char>), const char *encoding : itype(_Ptr<const char>), int options) : itype(_Ptr<xmlDoc>);
 
 /*
  * Library wide options

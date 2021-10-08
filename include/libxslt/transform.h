@@ -32,172 +32,76 @@ XSLTPUBFUN int XSLTCALL
 /**
  * Export context to users.
  */
-XSLTPUBFUN xsltTransformContextPtr XSLTCALL
-		xsltNewTransformContext	(xsltStylesheetPtr style,
-					 xmlDocPtr doc);
+XSLTPUBFUN xsltTransformContextPtr xsltNewTransformContext(xsltStylesheetPtr style : itype(_Ptr<xsltStylesheet>), xmlDocPtr doc : itype(_Ptr<xmlDoc>)) : itype(_Ptr<xsltTransformContext>);
 
 XSLTPUBFUN void XSLTCALL
-		xsltFreeTransformContext(xsltTransformContextPtr ctxt);
+		xsltFreeTransformContext(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>));
 
-XSLTPUBFUN xmlDocPtr XSLTCALL
-		xsltApplyStylesheetUser	(xsltStylesheetPtr style,
-					 xmlDocPtr doc,
-					 const char **params,
-					 const char *output,
-					 FILE * profile,
-					 xsltTransformContextPtr userCtxt);
+XSLTPUBFUN xmlDocPtr xsltApplyStylesheetUser(xsltStylesheetPtr style : itype(_Ptr<xsltStylesheet>), xmlDocPtr doc : itype(_Ptr<xmlDoc>), const char **params : itype(_Ptr<_Ptr<const char>>), const char *output : itype(_Ptr<const char>), FILE *profile : itype(_Ptr<FILE>), xsltTransformContextPtr userCtxt : itype(_Ptr<xsltTransformContext>)) : itype(_Ptr<xmlDoc>);
 XSLTPUBFUN void XSLTCALL
-                xsltProcessOneNode      (xsltTransformContextPtr ctxt,
-                                         xmlNodePtr node,
-                                         xsltStackElemPtr params);
+                xsltProcessOneNode      (xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xmlNodePtr node : itype(_Ptr<xmlNode>), xsltStackElemPtr params : itype(_Ptr<xsltStackElem>));
 /**
  * Private Interfaces.
  */
 XSLTPUBFUN void XSLTCALL
-		xsltApplyStripSpaces	(xsltTransformContextPtr ctxt,
-					 xmlNodePtr node);
-XSLTPUBFUN xmlDocPtr XSLTCALL
-		xsltApplyStylesheet	(xsltStylesheetPtr style,
-					 xmlDocPtr doc,
-					 const char **params);
-XSLTPUBFUN xmlDocPtr XSLTCALL
-		xsltProfileStylesheet	(xsltStylesheetPtr style,
-					 xmlDocPtr doc,
-					 const char **params,
-					 FILE * output);
+		xsltApplyStripSpaces	(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xmlNodePtr node : itype(_Ptr<xmlNode>));
+XSLTPUBFUN xmlDocPtr xsltApplyStylesheet(xsltStylesheetPtr style : itype(_Ptr<xsltStylesheet>), xmlDocPtr doc : itype(_Ptr<xmlDoc>), const char **params : itype(_Ptr<_Ptr<const char>>)) : itype(_Ptr<xmlDoc>);
+XSLTPUBFUN xmlDocPtr xsltProfileStylesheet(xsltStylesheetPtr style : itype(_Ptr<xsltStylesheet>), xmlDocPtr doc : itype(_Ptr<xmlDoc>), const char **params : itype(_Ptr<_Ptr<const char>>), FILE *output : itype(_Ptr<FILE>)) : itype(_Ptr<xmlDoc>);
 XSLTPUBFUN int XSLTCALL
-		xsltRunStylesheet	(xsltStylesheetPtr style,
-					 xmlDocPtr doc,
-					 const char **params,
-					 const char *output,
-					 xmlSAXHandlerPtr SAX,
-					 xmlOutputBufferPtr IObuf);
+		xsltRunStylesheet	(xsltStylesheetPtr style : itype(_Ptr<xsltStylesheet>), xmlDocPtr doc : itype(_Ptr<xmlDoc>), const char **params : itype(_Ptr<_Ptr<const char>>), const char *output : itype(_Ptr<const char>), xmlSAXHandlerPtr SAX : itype(_Ptr<xmlSAXHandler>), xmlOutputBufferPtr IObuf : itype(_Ptr<xmlOutputBuffer>));
 XSLTPUBFUN int XSLTCALL
-		xsltRunStylesheetUser	(xsltStylesheetPtr style,
-					 xmlDocPtr doc,
-					 const char **params,
-					 const char *output,
-					 xmlSAXHandlerPtr SAX,
-					 xmlOutputBufferPtr IObuf,
-					 FILE * profile,
-					 xsltTransformContextPtr userCtxt);
+		xsltRunStylesheetUser	(xsltStylesheetPtr style : itype(_Ptr<xsltStylesheet>), xmlDocPtr doc : itype(_Ptr<xmlDoc>), const char **params : itype(_Ptr<_Ptr<const char>>), const char *output : itype(_Ptr<const char>), xmlSAXHandlerPtr SAX : itype(_Ptr<xmlSAXHandler>), xmlOutputBufferPtr IObuf : itype(_Ptr<xmlOutputBuffer>), FILE *profile : itype(_Ptr<FILE>), xsltTransformContextPtr userCtxt : itype(_Ptr<xsltTransformContext>));
 XSLTPUBFUN void XSLTCALL
-		xsltApplyOneTemplate	(xsltTransformContextPtr ctxt,
-					 xmlNodePtr node,
-					 xmlNodePtr list,
-					 xsltTemplatePtr templ,
-					 xsltStackElemPtr params);
+		xsltApplyOneTemplate	(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr list : itype(_Ptr<xmlNode>), xsltTemplatePtr templ : itype(_Ptr<xsltTemplate>), xsltStackElemPtr params : itype(_Ptr<xsltStackElem>));
 XSLTPUBFUN void XSLTCALL
-		xsltDocumentElem	(xsltTransformContextPtr ctxt,
-	                                 xmlNodePtr node,
-					 xmlNodePtr inst,
-					 xsltElemPreCompPtr comp);
+		xsltDocumentElem	(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr inst : itype(_Ptr<xmlNode>), xsltElemPreCompPtr comp : itype(_Ptr<xsltElemPreComp>));
 XSLTPUBFUN void XSLTCALL
-		xsltSort		(xsltTransformContextPtr ctxt,
-	                                 xmlNodePtr node,
-					 xmlNodePtr inst,
-					 xsltElemPreCompPtr comp);
+		xsltSort		(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr inst : itype(_Ptr<xmlNode>), xsltElemPreCompPtr comp : itype(_Ptr<xsltElemPreComp>));
 XSLTPUBFUN void XSLTCALL
-		xsltCopy		(xsltTransformContextPtr ctxt,
-	                                 xmlNodePtr node,
-					 xmlNodePtr inst,
-					 xsltElemPreCompPtr comp);
+		xsltCopy		(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr inst : itype(_Ptr<xmlNode>), xsltElemPreCompPtr comp : itype(_Ptr<xsltElemPreComp>));
 XSLTPUBFUN void XSLTCALL
-		xsltText		(xsltTransformContextPtr ctxt,
-	                                 xmlNodePtr node,
-					 xmlNodePtr inst,
-					 xsltElemPreCompPtr comp);
+		xsltText		(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr inst : itype(_Ptr<xmlNode>), xsltElemPreCompPtr comp : itype(_Ptr<xsltElemPreComp>));
 XSLTPUBFUN void XSLTCALL
-		xsltElement		(xsltTransformContextPtr ctxt,
-	                                 xmlNodePtr node,
-					 xmlNodePtr inst,
-					 xsltElemPreCompPtr comp);
+		xsltElement		(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr inst : itype(_Ptr<xmlNode>), xsltElemPreCompPtr comp : itype(_Ptr<xsltElemPreComp>));
 XSLTPUBFUN void XSLTCALL
-		xsltComment		(xsltTransformContextPtr ctxt,
-	                                 xmlNodePtr node,
-					 xmlNodePtr inst,
-					 xsltElemPreCompPtr comp);
+		xsltComment		(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr inst : itype(_Ptr<xmlNode>), xsltElemPreCompPtr comp : itype(_Ptr<xsltElemPreComp>));
 XSLTPUBFUN void XSLTCALL
-		xsltAttribute		(xsltTransformContextPtr ctxt,
-	                                 xmlNodePtr node,
-					 xmlNodePtr inst,
-					 xsltElemPreCompPtr comp);
+		xsltAttribute		(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr inst : itype(_Ptr<xmlNode>), xsltElemPreCompPtr comp : itype(_Ptr<xsltElemPreComp>));
 XSLTPUBFUN void XSLTCALL
-		xsltProcessingInstruction(xsltTransformContextPtr ctxt,
-	                                 xmlNodePtr node,
-					 xmlNodePtr inst,
-					 xsltElemPreCompPtr comp);
+		xsltProcessingInstruction(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr inst : itype(_Ptr<xmlNode>), xsltElemPreCompPtr comp : itype(_Ptr<xsltElemPreComp>));
 XSLTPUBFUN void XSLTCALL
-		xsltCopyOf		(xsltTransformContextPtr ctxt,
-	                                 xmlNodePtr node,
-					 xmlNodePtr inst,
-					 xsltElemPreCompPtr comp);
+		xsltCopyOf		(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr inst : itype(_Ptr<xmlNode>), xsltElemPreCompPtr comp : itype(_Ptr<xsltElemPreComp>));
 XSLTPUBFUN void XSLTCALL
-		xsltValueOf		(xsltTransformContextPtr ctxt,
-	                                 xmlNodePtr node,
-					 xmlNodePtr inst,
-					 xsltElemPreCompPtr comp);
+		xsltValueOf		(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr inst : itype(_Ptr<xmlNode>), xsltElemPreCompPtr comp : itype(_Ptr<xsltElemPreComp>));
 XSLTPUBFUN void XSLTCALL
-		xsltNumber		(xsltTransformContextPtr ctxt,
-	                                 xmlNodePtr node,
-					 xmlNodePtr inst,
-					 xsltElemPreCompPtr comp);
+		xsltNumber		(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr inst : itype(_Ptr<xmlNode>), xsltElemPreCompPtr comp : itype(_Ptr<xsltElemPreComp>));
 XSLTPUBFUN void XSLTCALL
-		xsltApplyImports	(xsltTransformContextPtr ctxt,
-	                                 xmlNodePtr node,
-					 xmlNodePtr inst,
-					 xsltElemPreCompPtr comp);
+		xsltApplyImports	(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr inst : itype(_Ptr<xmlNode>), xsltElemPreCompPtr comp : itype(_Ptr<xsltElemPreComp>));
 XSLTPUBFUN void XSLTCALL
-		xsltCallTemplate	(xsltTransformContextPtr ctxt,
-	                                 xmlNodePtr node,
-					 xmlNodePtr inst,
-					 xsltElemPreCompPtr comp);
+		xsltCallTemplate	(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr inst : itype(_Ptr<xmlNode>), xsltElemPreCompPtr comp : itype(_Ptr<xsltElemPreComp>));
 XSLTPUBFUN void XSLTCALL
-		xsltApplyTemplates	(xsltTransformContextPtr ctxt,
-	                                 xmlNodePtr node,
-					 xmlNodePtr inst,
-					 xsltElemPreCompPtr comp);
+		xsltApplyTemplates	(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr inst : itype(_Ptr<xmlNode>), xsltElemPreCompPtr comp : itype(_Ptr<xsltElemPreComp>));
 XSLTPUBFUN void XSLTCALL
-		xsltChoose		(xsltTransformContextPtr ctxt,
-	                                 xmlNodePtr node,
-					 xmlNodePtr inst,
-					 xsltElemPreCompPtr comp);
+		xsltChoose		(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr inst : itype(_Ptr<xmlNode>), xsltElemPreCompPtr comp : itype(_Ptr<xsltElemPreComp>));
 XSLTPUBFUN void XSLTCALL
-		xsltIf			(xsltTransformContextPtr ctxt,
-	                                 xmlNodePtr node,
-					 xmlNodePtr inst,
-					 xsltElemPreCompPtr comp);
+		xsltIf			(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr inst : itype(_Ptr<xmlNode>), xsltElemPreCompPtr comp : itype(_Ptr<xsltElemPreComp>));
 XSLTPUBFUN void XSLTCALL
-		xsltForEach		(xsltTransformContextPtr ctxt,
-	                                 xmlNodePtr node,
-					 xmlNodePtr inst,
-					 xsltElemPreCompPtr comp);
+		xsltForEach		(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNodePtr inst : itype(_Ptr<xmlNode>), xsltElemPreCompPtr comp : itype(_Ptr<xsltElemPreComp>));
 XSLTPUBFUN void XSLTCALL
-		xsltRegisterAllElement	(xsltTransformContextPtr ctxt);
+		xsltRegisterAllElement	(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>));
 
-XSLTPUBFUN xmlNodePtr XSLTCALL
-		xsltCopyTextString	(xsltTransformContextPtr ctxt,
-					 xmlNodePtr target,
-					 const xmlChar *string,
-					 int noescape);
+XSLTPUBFUN xmlNodePtr xsltCopyTextString(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xmlNodePtr target : itype(_Ptr<xmlNode>), const xmlChar *string : itype(_Ptr<const xmlChar>), int noescape) : itype(_Ptr<xmlNode>);
 
 /* Following 2 functions needed for libexslt/functions.c */
 XSLTPUBFUN void XSLTCALL
-		xsltLocalVariablePop	(xsltTransformContextPtr ctxt,
-					 int limitNr,
-					 int level);
+		xsltLocalVariablePop	(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), int limitNr, int level);
 XSLTPUBFUN int XSLTCALL
-		xsltLocalVariablePush	(xsltTransformContextPtr ctxt,
-					 xsltStackElemPtr variable,
-					 int level);
+		xsltLocalVariablePush	(xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>), xsltStackElemPtr variable : itype(_Ptr<xsltStackElem>), int level);
 /*
  * Hook for the debugger if activated.
  */
 XSLTPUBFUN void XSLTCALL
-		xslHandleDebugger	(xmlNodePtr cur,
-					 xmlNodePtr node,
-					 xsltTemplatePtr templ,
-					 xsltTransformContextPtr ctxt);
+		xslHandleDebugger	(xmlNodePtr cur : itype(_Ptr<xmlNode>), xmlNodePtr node : itype(_Ptr<xmlNode>), xsltTemplatePtr templ : itype(_Ptr<xsltTemplate>), xsltTransformContextPtr ctxt : itype(_Ptr<xsltTransformContext>));
 
 #ifdef __cplusplus
 }

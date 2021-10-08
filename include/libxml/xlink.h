@@ -150,9 +150,9 @@ typedef void
 typedef struct _xlinkHandler xlinkHandler;
 typedef xlinkHandler *xlinkHandlerPtr;
 struct _xlinkHandler {
-    xlinkSimpleLinkFunk simple;
-    xlinkExtendedLinkFunk extended;
-    xlinkExtendedLinkSetFunk set;
+    xlinkSimpleLinkFunk simple : itype(_Ptr<void (void *, _Ptr<xmlNode>, const _Ptr<xmlChar>, const _Ptr<xmlChar>, const _Ptr<xmlChar>)>);
+    xlinkExtendedLinkFunk extended : itype(_Ptr<void (void *, _Ptr<xmlNode>, int, _Ptr<const xlinkHRef>, _Ptr<const xlinkRole>, int, _Ptr<const xlinkRole>, _Ptr<const xlinkRole>, _Ptr<xlinkShow>, _Ptr<xlinkActuate>, int, _Ptr<const xlinkTitle>, _Ptr<_Ptr<const xmlChar>>)>);
+    xlinkExtendedLinkSetFunk set : itype(_Ptr<void (void *, _Ptr<xmlNode>, int, _Ptr<const xlinkHRef>, _Ptr<const xlinkRole>, int, _Ptr<const xlinkTitle>, _Ptr<_Ptr<const xmlChar>>)>);
 };
 
 /*
@@ -160,25 +160,22 @@ struct _xlinkHandler {
  * detection callbacks.
  */
 
-XMLPUBFUN xlinkNodeDetectFunc XMLCALL
-		xlinkGetDefaultDetect	(void);
+XMLPUBFUN xlinkNodeDetectFunc xlinkGetDefaultDetect(void) : itype(_Ptr<void (void *, xmlNodePtr)>);
 XMLPUBFUN void XMLCALL
-		xlinkSetDefaultDetect	(xlinkNodeDetectFunc func);
+		xlinkSetDefaultDetect	(xlinkNodeDetectFunc func : itype(_Ptr<void (void *, xmlNodePtr)>));
 
 /*
  * Routines to set/get the default handlers.
  */
-XMLPUBFUN xlinkHandlerPtr XMLCALL
-		xlinkGetDefaultHandler	(void);
+XMLPUBFUN xlinkHandlerPtr xlinkGetDefaultHandler(void) : itype(_Ptr<xlinkHandler>);
 XMLPUBFUN void XMLCALL
-		xlinkSetDefaultHandler	(xlinkHandlerPtr handler);
+		xlinkSetDefaultHandler	(xlinkHandlerPtr handler : itype(_Ptr<xlinkHandler>));
 
 /*
  * Link detection module itself.
  */
 XMLPUBFUN xlinkType XMLCALL
-		xlinkIsLink		(xmlDocPtr doc,
-					 xmlNodePtr node);
+		xlinkIsLink		(xmlDocPtr doc : itype(_Ptr<xmlDoc>), xmlNodePtr node : itype(_Ptr<xmlNode>));
 
 #ifdef __cplusplus
 }

@@ -59,82 +59,44 @@ extern "C" {
  */
 #define HTML_PI_NODE		XML_PI_NODE
 
-XMLPUBFUN htmlDocPtr XMLCALL
-		htmlNewDoc		(const xmlChar *URI,
-					 const xmlChar *ExternalID);
-XMLPUBFUN htmlDocPtr XMLCALL
-		htmlNewDocNoDtD		(const xmlChar *URI,
-					 const xmlChar *ExternalID);
-XMLPUBFUN const xmlChar * XMLCALL
-		htmlGetMetaEncoding	(htmlDocPtr doc);
+XMLPUBFUN htmlDocPtr htmlNewDoc(const xmlChar *URI : itype(_Ptr<const xmlChar>), const xmlChar *ExternalID : itype(_Ptr<const xmlChar>)) : itype(xmlDocPtr);
+XMLPUBFUN htmlDocPtr htmlNewDocNoDtD(const xmlChar *URI : itype(_Ptr<const xmlChar>), const xmlChar *ExternalID : itype(_Ptr<const xmlChar>)) : itype(xmlDocPtr);
+XMLPUBFUN const xmlChar *htmlGetMetaEncoding(htmlDocPtr doc : itype(xmlDocPtr)) : itype(_Ptr<const xmlChar>);
 XMLPUBFUN int XMLCALL
-		htmlSetMetaEncoding	(htmlDocPtr doc,
-					 const xmlChar *encoding);
+		htmlSetMetaEncoding	(htmlDocPtr doc : itype(xmlDocPtr), const xmlChar *encoding : itype(_Ptr<const xmlChar>));
 #ifdef LIBXML_OUTPUT_ENABLED
 XMLPUBFUN void XMLCALL
-		htmlDocDumpMemory	(xmlDocPtr cur,
-					 xmlChar **mem,
-					 int *size);
+		htmlDocDumpMemory	(xmlDocPtr cur : itype(_Ptr<xmlDoc>), xmlChar **mem : itype(_Ptr<_Ptr<xmlChar>>), int *size : itype(_Ptr<int>));
 XMLPUBFUN void XMLCALL
-		htmlDocDumpMemoryFormat	(xmlDocPtr cur,
-					 xmlChar **mem,
-					 int *size,
-					 int format);
+		htmlDocDumpMemoryFormat	(xmlDocPtr cur : itype(_Ptr<xmlDoc>), xmlChar **mem : itype(_Ptr<_Ptr<xmlChar>>), int *size : itype(_Ptr<int>), int format);
 XMLPUBFUN int XMLCALL
-		htmlDocDump		(FILE *f,
-					 xmlDocPtr cur);
+		htmlDocDump		(FILE *f : itype(_Ptr<FILE>), xmlDocPtr cur : itype(_Ptr<xmlDoc>));
 XMLPUBFUN int XMLCALL
-		htmlSaveFile		(const char *filename,
-					 xmlDocPtr cur);
+		htmlSaveFile		(const char *filename : itype(_Ptr<const char>), xmlDocPtr cur : itype(_Ptr<xmlDoc>));
 XMLPUBFUN int XMLCALL
-		htmlNodeDump		(xmlBufferPtr buf,
-					 xmlDocPtr doc,
-					 xmlNodePtr cur);
+		htmlNodeDump		(xmlBufferPtr buf : itype(_Ptr<xmlBuffer>), xmlDocPtr doc : itype(_Ptr<xmlDoc>), xmlNodePtr cur : itype(_Ptr<xmlNode>));
 XMLPUBFUN void XMLCALL
-		htmlNodeDumpFile	(FILE *out,
-					 xmlDocPtr doc,
-					 xmlNodePtr cur);
+		htmlNodeDumpFile	(FILE *out : itype(_Ptr<FILE>), xmlDocPtr doc : itype(_Ptr<xmlDoc>), xmlNodePtr cur : itype(_Ptr<xmlNode>));
 XMLPUBFUN int XMLCALL
-		htmlNodeDumpFileFormat	(FILE *out,
-					 xmlDocPtr doc,
-					 xmlNodePtr cur,
-					 const char *encoding,
-					 int format);
+		htmlNodeDumpFileFormat	(FILE *out : itype(_Ptr<FILE>), xmlDocPtr doc : itype(_Ptr<xmlDoc>), xmlNodePtr cur : itype(_Ptr<xmlNode>), const char *encoding : itype(_Ptr<const char>), int format);
 XMLPUBFUN int XMLCALL
-		htmlSaveFileEnc		(const char *filename,
-					 xmlDocPtr cur,
-					 const char *encoding);
+		htmlSaveFileEnc		(const char *filename : itype(_Ptr<const char>), xmlDocPtr cur : itype(_Ptr<xmlDoc>), const char *encoding : itype(_Ptr<const char>));
 XMLPUBFUN int XMLCALL
-		htmlSaveFileFormat	(const char *filename,
-					 xmlDocPtr cur,
-					 const char *encoding,
-					 int format);
+		htmlSaveFileFormat	(const char *filename : itype(_Ptr<const char>), xmlDocPtr cur : itype(_Ptr<xmlDoc>), const char *encoding : itype(_Ptr<const char>), int format);
 
 XMLPUBFUN void XMLCALL
-		htmlNodeDumpFormatOutput(xmlOutputBufferPtr buf,
-					 xmlDocPtr doc,
-					 xmlNodePtr cur,
-					 const char *encoding,
-					 int format);
+		htmlNodeDumpFormatOutput(xmlOutputBufferPtr buf : itype(_Ptr<xmlOutputBuffer>), xmlDocPtr doc : itype(_Ptr<xmlDoc>), xmlNodePtr cur : itype(_Ptr<xmlNode>), const char *encoding : itype(_Ptr<const char>), int format);
 XMLPUBFUN void XMLCALL
-		htmlDocContentDumpOutput(xmlOutputBufferPtr buf,
-					 xmlDocPtr cur,
-					 const char *encoding);
+		htmlDocContentDumpOutput(xmlOutputBufferPtr buf : itype(_Ptr<xmlOutputBuffer>), xmlDocPtr cur : itype(_Ptr<xmlDoc>), const char *encoding : itype(_Ptr<const char>));
 XMLPUBFUN void XMLCALL
-		htmlDocContentDumpFormatOutput(xmlOutputBufferPtr buf,
-					 xmlDocPtr cur,
-					 const char *encoding,
-					 int format);
+		htmlDocContentDumpFormatOutput(xmlOutputBufferPtr buf : itype(_Ptr<xmlOutputBuffer>), xmlDocPtr cur : itype(_Ptr<xmlDoc>), const char *encoding : itype(_Ptr<const char>), int format);
 XMLPUBFUN void XMLCALL
-		htmlNodeDumpOutput	(xmlOutputBufferPtr buf,
-					 xmlDocPtr doc,
-					 xmlNodePtr cur,
-					 const char *encoding);
+		htmlNodeDumpOutput	(xmlOutputBufferPtr buf : itype(_Ptr<xmlOutputBuffer>), xmlDocPtr doc : itype(_Ptr<xmlDoc>), xmlNodePtr cur : itype(_Ptr<xmlNode>), const char *encoding : itype(_Ptr<const char>));
 
 #endif /* LIBXML_OUTPUT_ENABLED */
 
 XMLPUBFUN int XMLCALL
-		htmlIsBooleanAttr	(const xmlChar *name);
+		htmlIsBooleanAttr	(const xmlChar *name : itype(_Ptr<const xmlChar>));
 
 
 #ifdef __cplusplus

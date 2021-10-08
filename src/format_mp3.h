@@ -23,14 +23,14 @@ typedef struct {
     int inline_metadata_interval;
     int offset;
     int interval;
-    char *url_artist;
-    char *url_title;
-    char *url;
-    char *inline_url;
+    char *url_artist : itype(_Nt_array_ptr<char>);
+    char *url_title : itype(_Nt_array_ptr<char>);
+    char *url : itype(_Nt_array_ptr<char>);
+    char *inline_url : itype(_Nt_array_ptr<char>);
     int update_metadata;
 
-    refbuf_t *metadata;
-    refbuf_t *read_data;
+    refbuf_t *metadata : itype(_Ptr<refbuf_t>);
+    refbuf_t *read_data : itype(_Ptr<refbuf_t>);
     int read_count;
     mutex_t url_lock;
 
@@ -39,6 +39,6 @@ typedef struct {
     char build_metadata[4081];
 } mp3_state;
 
-int format_mp3_get_plugin(struct source_tag *src);
+int format_mp3_get_plugin(struct source_tag *src : itype(_Ptr<struct source_tag>));
 
 #endif  /* __FORMAT_MP3_H__ */

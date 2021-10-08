@@ -28,19 +28,19 @@ typedef struct _xsltNumberData xsltNumberData;
 typedef xsltNumberData *xsltNumberDataPtr;
 
 struct _xsltNumberData {
-    const xmlChar *level;
-    const xmlChar *count;
-    const xmlChar *from;
-    const xmlChar *value;
-    const xmlChar *format;
+    const xmlChar *level : itype(_Ptr<const xmlChar>);
+    const xmlChar *count : itype(_Ptr<const xmlChar>);
+    const xmlChar *from : itype(_Ptr<const xmlChar>);
+    const xmlChar *value : itype(_Ptr<const xmlChar>);
+    const xmlChar *format : itype(_Ptr<const xmlChar>);
     int has_format;
     int digitsPerGroup;
     int groupingCharacter;
     int groupingCharacterLen;
-    xmlDocPtr doc;
-    xmlNodePtr node;
-    struct _xsltCompMatch *countPat;
-    struct _xsltCompMatch *fromPat;
+    xmlDocPtr doc : itype(_Ptr<xmlDoc>);
+    xmlNodePtr node : itype(_Ptr<xmlNode>);
+    struct _xsltCompMatch *countPat : itype(_Ptr<struct _xsltCompMatch>);
+    struct _xsltCompMatch *fromPat : itype(_Ptr<struct _xsltCompMatch>);
 
     /*
      * accelerators

@@ -78,13 +78,13 @@ typedef xmlError *xmlErrorPtr;
 struct _xmlError {
     int		domain;	/* What part of the library raised this error */
     int		code;	/* The error code, e.g. an xmlParserError */
-    char       *message;/* human-readable informative error message */
+    char *message : itype(_Ptr<char>);/* human-readable informative error message */
     xmlErrorLevel level;/* how consequent is the error */
-    char       *file;	/* the filename */
+    char *file : itype(_Ptr<char>);	/* the filename */
     int		line;	/* the line number if available */
-    char       *str1;	/* extra string information */
-    char       *str2;	/* extra string information */
-    char       *str3;	/* extra string information */
+    char *str1 : itype(_Ptr<char>);	/* extra string information */
+    char *str2 : itype(_Ptr<char>);	/* extra string information */
+    char *str3 : itype(_Ptr<char>);	/* extra string information */
     int		int1;	/* extra number information */
     int		int2;	/* error column # or 0 if N/A (todo: rename field when we would brk ABI) */
     void       *ctxt;   /* the parser context if available */
@@ -860,55 +860,42 @@ typedef void (XMLCALL *xmlStructuredErrorFunc) (void *userData, xmlErrorPtr erro
  * xmlGenericError and xmlGenericErrorContext.
  */
 XMLPUBFUN void XMLCALL
-    xmlSetGenericErrorFunc	(void *ctx,
-				 xmlGenericErrorFunc handler);
+    xmlSetGenericErrorFunc	(void *ctx, xmlGenericErrorFunc handler : itype(_Ptr<void (void *, const char *)>));
 XMLPUBFUN void XMLCALL
-    initGenericErrorDefaultFunc	(xmlGenericErrorFunc *handler);
+    initGenericErrorDefaultFunc	(void ((*handler)(void *, const char *)) : itype(_Ptr<void (void *, const char *)>));
 
 XMLPUBFUN void XMLCALL
-    xmlSetStructuredErrorFunc	(void *ctx,
-				 xmlStructuredErrorFunc handler);
+    xmlSetStructuredErrorFunc	(void *ctx, xmlStructuredErrorFunc handler : itype(_Ptr<void (void *, xmlErrorPtr)>));
 /*
  * Default message routines used by SAX and Valid context for error
  * and warning reporting.
  */
 XMLPUBFUN void XMLCDECL
-    xmlParserError		(void *ctx,
-				 const char *msg,
-				 ...) LIBXML_ATTR_FORMAT(2,3);
+    xmlParserError		(void *ctx, const char *msg : itype(_Ptr<const char>), ...) LIBXML_ATTR_FORMAT(2,3);
 XMLPUBFUN void XMLCDECL
-    xmlParserWarning		(void *ctx,
-				 const char *msg,
-				 ...) LIBXML_ATTR_FORMAT(2,3);
+    xmlParserWarning		(void *ctx, const char *msg : itype(_Ptr<const char>), ...) LIBXML_ATTR_FORMAT(2,3);
 XMLPUBFUN void XMLCDECL
-    xmlParserValidityError	(void *ctx,
-				 const char *msg,
-				 ...) LIBXML_ATTR_FORMAT(2,3);
+    xmlParserValidityError	(void *ctx, const char *msg : itype(_Ptr<const char>), ...) LIBXML_ATTR_FORMAT(2,3);
 XMLPUBFUN void XMLCDECL
-    xmlParserValidityWarning	(void *ctx,
-				 const char *msg,
-				 ...) LIBXML_ATTR_FORMAT(2,3);
+    xmlParserValidityWarning	(void *ctx, const char *msg : itype(_Ptr<const char>), ...) LIBXML_ATTR_FORMAT(2,3);
 XMLPUBFUN void XMLCALL
-    xmlParserPrintFileInfo	(xmlParserInputPtr input);
+    xmlParserPrintFileInfo	(xmlParserInputPtr input : itype(_Ptr<xmlParserInput>));
 XMLPUBFUN void XMLCALL
-    xmlParserPrintFileContext	(xmlParserInputPtr input);
+    xmlParserPrintFileContext	(xmlParserInputPtr input : itype(_Ptr<xmlParserInput>));
 
 /*
  * Extended error information routines
  */
-XMLPUBFUN xmlErrorPtr XMLCALL
-    xmlGetLastError		(void);
+XMLPUBFUN xmlErrorPtr xmlGetLastError(void) : itype(_Ptr<xmlError>);
 XMLPUBFUN void XMLCALL
     xmlResetLastError		(void);
-XMLPUBFUN xmlErrorPtr XMLCALL
-    xmlCtxtGetLastError		(void *ctx);
+XMLPUBFUN xmlErrorPtr xmlCtxtGetLastError(void *ctx) : itype(_Ptr<xmlError>);
 XMLPUBFUN void XMLCALL
     xmlCtxtResetLastError	(void *ctx);
 XMLPUBFUN void XMLCALL
-    xmlResetError		(xmlErrorPtr err);
+    xmlResetError		(xmlErrorPtr err : itype(_Ptr<xmlError>));
 XMLPUBFUN int XMLCALL
-    xmlCopyError		(xmlErrorPtr from,
-				 xmlErrorPtr to);
+    xmlCopyError		(xmlErrorPtr from : itype(_Ptr<xmlError>), xmlErrorPtr to : itype(_Ptr<xmlError>));
 
 #ifdef IN_LIBXML
 /*

@@ -36,23 +36,21 @@ typedef xmlRMutex *xmlRMutexPtr;
 #ifdef __cplusplus
 extern "C" {
 #endif
-XMLPUBFUN xmlMutexPtr XMLCALL
-			xmlNewMutex	(void);
+XMLPUBFUN xmlMutexPtr xmlNewMutex(void) : itype(_Ptr<xmlMutex>);
 XMLPUBFUN void XMLCALL
-			xmlMutexLock	(xmlMutexPtr tok);
+			xmlMutexLock	(xmlMutexPtr tok : itype(_Ptr<xmlMutex>));
 XMLPUBFUN void XMLCALL
-			xmlMutexUnlock	(xmlMutexPtr tok);
+			xmlMutexUnlock	(xmlMutexPtr tok : itype(_Ptr<xmlMutex>));
 XMLPUBFUN void XMLCALL
-			xmlFreeMutex	(xmlMutexPtr tok);
+			xmlFreeMutex	(xmlMutexPtr tok : itype(_Ptr<xmlMutex>));
 
-XMLPUBFUN xmlRMutexPtr XMLCALL
-			xmlNewRMutex	(void);
+XMLPUBFUN xmlRMutexPtr xmlNewRMutex(void) : itype(_Ptr<xmlRMutex>);
 XMLPUBFUN void XMLCALL
-			xmlRMutexLock	(xmlRMutexPtr tok);
+			xmlRMutexLock	(xmlRMutexPtr tok : itype(_Ptr<xmlRMutex>));
 XMLPUBFUN void XMLCALL
-			xmlRMutexUnlock	(xmlRMutexPtr tok);
+			xmlRMutexUnlock	(xmlRMutexPtr tok : itype(_Ptr<xmlRMutex>));
 XMLPUBFUN void XMLCALL
-			xmlFreeRMutex	(xmlRMutexPtr tok);
+			xmlFreeRMutex	(xmlRMutexPtr tok : itype(_Ptr<xmlRMutex>));
 
 /*
  * Library wide APIs.
@@ -69,8 +67,7 @@ XMLPUBFUN int XMLCALL
 			xmlIsMainThread	(void);
 XMLPUBFUN void XMLCALL
 			xmlCleanupThreads(void);
-XMLPUBFUN xmlGlobalStatePtr XMLCALL
-			xmlGetGlobalState(void);
+XMLPUBFUN xmlGlobalStatePtr xmlGetGlobalState(void) : itype(_Ptr<xmlGlobalState>);
 
 #ifdef HAVE_PTHREAD_H
 #elif defined(HAVE_WIN32_THREADS) && !defined(HAVE_COMPILER_TLS) && (!defined(LIBXML_STATIC) || defined(LIBXML_STATIC_FOR_DLL))

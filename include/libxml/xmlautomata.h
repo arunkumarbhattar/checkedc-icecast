@@ -40,101 +40,32 @@ typedef xmlAutomataState *xmlAutomataStatePtr;
 /*
  * Building API
  */
-XMLPUBFUN xmlAutomataPtr XMLCALL
-		    xmlNewAutomata		(void);
+XMLPUBFUN xmlAutomataPtr xmlNewAutomata(void) : itype(_Ptr<xmlAutomata>);
 XMLPUBFUN void XMLCALL
-		    xmlFreeAutomata		(xmlAutomataPtr am);
+		    xmlFreeAutomata		(xmlAutomataPtr am : itype(_Ptr<xmlAutomata>));
 
-XMLPUBFUN xmlAutomataStatePtr XMLCALL
-		    xmlAutomataGetInitState	(xmlAutomataPtr am);
+XMLPUBFUN xmlAutomataStatePtr xmlAutomataGetInitState(xmlAutomataPtr am : itype(_Ptr<xmlAutomata>)) : itype(_Ptr<xmlAutomataState>);
 XMLPUBFUN int XMLCALL
-		    xmlAutomataSetFinalState	(xmlAutomataPtr am,
-						 xmlAutomataStatePtr state);
-XMLPUBFUN xmlAutomataStatePtr XMLCALL
-		    xmlAutomataNewState		(xmlAutomataPtr am);
-XMLPUBFUN xmlAutomataStatePtr XMLCALL
-		    xmlAutomataNewTransition	(xmlAutomataPtr am,
-						 xmlAutomataStatePtr from,
-						 xmlAutomataStatePtr to,
-						 const xmlChar *token,
-						 void *data);
-XMLPUBFUN xmlAutomataStatePtr XMLCALL
-		    xmlAutomataNewTransition2	(xmlAutomataPtr am,
-						 xmlAutomataStatePtr from,
-						 xmlAutomataStatePtr to,
-						 const xmlChar *token,
-						 const xmlChar *token2,
-						 void *data);
-XMLPUBFUN xmlAutomataStatePtr XMLCALL
-                    xmlAutomataNewNegTrans	(xmlAutomataPtr am,
-						 xmlAutomataStatePtr from,
-						 xmlAutomataStatePtr to,
-						 const xmlChar *token,
-						 const xmlChar *token2,
-						 void *data);
+		    xmlAutomataSetFinalState	(xmlAutomataPtr am : itype(_Ptr<xmlAutomata>), xmlAutomataStatePtr state : itype(_Ptr<xmlAutomataState>));
+XMLPUBFUN xmlAutomataStatePtr xmlAutomataNewState(xmlAutomataPtr am : itype(_Ptr<xmlAutomata>)) : itype(_Ptr<xmlAutomataState>);
+XMLPUBFUN xmlAutomataStatePtr xmlAutomataNewTransition(xmlAutomataPtr am : itype(_Ptr<xmlAutomata>), xmlAutomataStatePtr from : itype(_Ptr<xmlAutomataState>), xmlAutomataStatePtr to : itype(_Ptr<xmlAutomataState>), const xmlChar *token : itype(_Ptr<const xmlChar>), void *data) : itype(_Ptr<xmlAutomataState>);
+XMLPUBFUN xmlAutomataStatePtr xmlAutomataNewTransition2(xmlAutomataPtr am : itype(_Ptr<xmlAutomata>), xmlAutomataStatePtr from : itype(_Ptr<xmlAutomataState>), xmlAutomataStatePtr to : itype(_Ptr<xmlAutomataState>), const xmlChar *token : itype(_Ptr<const xmlChar>), const xmlChar *token2 : itype(_Ptr<const xmlChar>), void *data) : itype(_Ptr<xmlAutomataState>);
+XMLPUBFUN xmlAutomataStatePtr xmlAutomataNewNegTrans(xmlAutomataPtr am : itype(_Ptr<xmlAutomata>), xmlAutomataStatePtr from : itype(_Ptr<xmlAutomataState>), xmlAutomataStatePtr to : itype(_Ptr<xmlAutomataState>), const xmlChar *token : itype(_Ptr<const xmlChar>), const xmlChar *token2 : itype(_Ptr<const xmlChar>), void *data) : itype(_Ptr<xmlAutomataState>);
 
-XMLPUBFUN xmlAutomataStatePtr XMLCALL
-		    xmlAutomataNewCountTrans	(xmlAutomataPtr am,
-						 xmlAutomataStatePtr from,
-						 xmlAutomataStatePtr to,
-						 const xmlChar *token,
-						 int min,
-						 int max,
-						 void *data);
-XMLPUBFUN xmlAutomataStatePtr XMLCALL
-		    xmlAutomataNewCountTrans2	(xmlAutomataPtr am,
-						 xmlAutomataStatePtr from,
-						 xmlAutomataStatePtr to,
-						 const xmlChar *token,
-						 const xmlChar *token2,
-						 int min,
-						 int max,
-						 void *data);
-XMLPUBFUN xmlAutomataStatePtr XMLCALL
-		    xmlAutomataNewOnceTrans	(xmlAutomataPtr am,
-						 xmlAutomataStatePtr from,
-						 xmlAutomataStatePtr to,
-						 const xmlChar *token,
-						 int min,
-						 int max,
-						 void *data);
-XMLPUBFUN xmlAutomataStatePtr XMLCALL
-		    xmlAutomataNewOnceTrans2	(xmlAutomataPtr am,
-						 xmlAutomataStatePtr from,
-						 xmlAutomataStatePtr to,
-						 const xmlChar *token,
-						 const xmlChar *token2,
-						 int min,
-						 int max,
-						 void *data);
-XMLPUBFUN xmlAutomataStatePtr XMLCALL
-		    xmlAutomataNewAllTrans	(xmlAutomataPtr am,
-						 xmlAutomataStatePtr from,
-						 xmlAutomataStatePtr to,
-						 int lax);
-XMLPUBFUN xmlAutomataStatePtr XMLCALL
-		    xmlAutomataNewEpsilon	(xmlAutomataPtr am,
-						 xmlAutomataStatePtr from,
-						 xmlAutomataStatePtr to);
-XMLPUBFUN xmlAutomataStatePtr XMLCALL
-		    xmlAutomataNewCountedTrans	(xmlAutomataPtr am,
-						 xmlAutomataStatePtr from,
-						 xmlAutomataStatePtr to,
-						 int counter);
-XMLPUBFUN xmlAutomataStatePtr XMLCALL
-		    xmlAutomataNewCounterTrans	(xmlAutomataPtr am,
-						 xmlAutomataStatePtr from,
-						 xmlAutomataStatePtr to,
-						 int counter);
+XMLPUBFUN xmlAutomataStatePtr xmlAutomataNewCountTrans(xmlAutomataPtr am : itype(_Ptr<xmlAutomata>), xmlAutomataStatePtr from : itype(_Ptr<xmlAutomataState>), xmlAutomataStatePtr to : itype(_Ptr<xmlAutomataState>), const xmlChar *token : itype(_Ptr<const xmlChar>), int min, int max, void *data) : itype(_Ptr<xmlAutomataState>);
+XMLPUBFUN xmlAutomataStatePtr xmlAutomataNewCountTrans2(xmlAutomataPtr am : itype(_Ptr<xmlAutomata>), xmlAutomataStatePtr from : itype(_Ptr<xmlAutomataState>), xmlAutomataStatePtr to : itype(_Ptr<xmlAutomataState>), const xmlChar *token : itype(_Ptr<const xmlChar>), const xmlChar *token2 : itype(_Ptr<const xmlChar>), int min, int max, void *data) : itype(_Ptr<xmlAutomataState>);
+XMLPUBFUN xmlAutomataStatePtr xmlAutomataNewOnceTrans(xmlAutomataPtr am : itype(_Ptr<xmlAutomata>), xmlAutomataStatePtr from : itype(_Ptr<xmlAutomataState>), xmlAutomataStatePtr to : itype(_Ptr<xmlAutomataState>), const xmlChar *token : itype(_Ptr<const xmlChar>), int min, int max, void *data) : itype(_Ptr<xmlAutomataState>);
+XMLPUBFUN xmlAutomataStatePtr xmlAutomataNewOnceTrans2(xmlAutomataPtr am : itype(_Ptr<xmlAutomata>), xmlAutomataStatePtr from : itype(_Ptr<xmlAutomataState>), xmlAutomataStatePtr to : itype(_Ptr<xmlAutomataState>), const xmlChar *token : itype(_Ptr<const xmlChar>), const xmlChar *token2 : itype(_Ptr<const xmlChar>), int min, int max, void *data) : itype(_Ptr<xmlAutomataState>);
+XMLPUBFUN xmlAutomataStatePtr xmlAutomataNewAllTrans(xmlAutomataPtr am : itype(_Ptr<xmlAutomata>), xmlAutomataStatePtr from : itype(_Ptr<xmlAutomataState>), xmlAutomataStatePtr to : itype(_Ptr<xmlAutomataState>), int lax) : itype(_Ptr<xmlAutomataState>);
+XMLPUBFUN xmlAutomataStatePtr xmlAutomataNewEpsilon(xmlAutomataPtr am : itype(_Ptr<xmlAutomata>), xmlAutomataStatePtr from : itype(_Ptr<xmlAutomataState>), xmlAutomataStatePtr to : itype(_Ptr<xmlAutomataState>)) : itype(_Ptr<xmlAutomataState>);
+XMLPUBFUN xmlAutomataStatePtr xmlAutomataNewCountedTrans(xmlAutomataPtr am : itype(_Ptr<xmlAutomata>), xmlAutomataStatePtr from : itype(_Ptr<xmlAutomataState>), xmlAutomataStatePtr to : itype(_Ptr<xmlAutomataState>), int counter) : itype(_Ptr<xmlAutomataState>);
+XMLPUBFUN xmlAutomataStatePtr xmlAutomataNewCounterTrans(xmlAutomataPtr am : itype(_Ptr<xmlAutomata>), xmlAutomataStatePtr from : itype(_Ptr<xmlAutomataState>), xmlAutomataStatePtr to : itype(_Ptr<xmlAutomataState>), int counter) : itype(_Ptr<xmlAutomataState>);
 XMLPUBFUN int XMLCALL
-		    xmlAutomataNewCounter	(xmlAutomataPtr am,
-						 int min,
-						 int max);
+		    xmlAutomataNewCounter	(xmlAutomataPtr am : itype(_Ptr<xmlAutomata>), int min, int max);
 
-XMLPUBFUN xmlRegexpPtr XMLCALL
-		    xmlAutomataCompile		(xmlAutomataPtr am);
+XMLPUBFUN xmlRegexpPtr xmlAutomataCompile(xmlAutomataPtr am : itype(_Ptr<xmlAutomata>)) : itype(_Ptr<xmlRegexp>);
 XMLPUBFUN int XMLCALL
-		    xmlAutomataIsDeterminist	(xmlAutomataPtr am);
+		    xmlAutomataIsDeterminist	(xmlAutomataPtr am : itype(_Ptr<xmlAutomata>));
 
 #ifdef __cplusplus
 }

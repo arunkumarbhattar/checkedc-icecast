@@ -132,11 +132,11 @@ typedef int (* xmlCharEncodingOutputFunc)(unsigned char *out, int *outlen,
 /* Size of pivot buffer, same as icu/source/common/ucnv.cpp CHUNK_SIZE */
 #define ICU_PIVOT_BUF_SIZE 1024
 struct _uconv_t {
-  UConverter *uconv; /* for conversion between an encoding and UTF-16 */
-  UConverter *utf8; /* for conversion between UTF-8 and UTF-16 */
-  UChar      pivot_buf[ICU_PIVOT_BUF_SIZE];
-  UChar      *pivot_source;
-  UChar      *pivot_target;
+  UConverter *uconv : itype(_Ptr<UConverter>); /* for conversion between an encoding and UTF-16 */
+  UConverter *utf8 : itype(_Ptr<UConverter>); /* for conversion between UTF-8 and UTF-16 */
+  UChar pivot_buf[1024] : itype(UChar _Checked[ICU_PIVOT_BUF_SIZE]);
+  UChar *pivot_source : itype(_Ptr<UChar>);
+  UChar *pivot_target : itype(_Ptr<UChar>);
 };
 typedef struct _uconv_t uconv_t;
 #endif
@@ -144,16 +144,16 @@ typedef struct _uconv_t uconv_t;
 typedef struct _xmlCharEncodingHandler xmlCharEncodingHandler;
 typedef xmlCharEncodingHandler *xmlCharEncodingHandlerPtr;
 struct _xmlCharEncodingHandler {
-    char                       *name;
-    xmlCharEncodingInputFunc   input;
-    xmlCharEncodingOutputFunc  output;
+    char *name : itype(_Ptr<char>);
+    xmlCharEncodingInputFunc input : itype(_Ptr<int (unsigned char *, int *, const unsigned char *, int *)>);
+    xmlCharEncodingOutputFunc output : itype(_Ptr<int (unsigned char *, int *, const unsigned char *, int *)>);
 #ifdef LIBXML_ICONV_ENABLED
     iconv_t                    iconv_in;
     iconv_t                    iconv_out;
 #endif /* LIBXML_ICONV_ENABLED */
 #ifdef LIBXML_ICU_ENABLED
-    uconv_t                    *uconv_in;
-    uconv_t                    *uconv_out;
+    uconv_t *uconv_in : itype(_Ptr<uconv_t>);
+    uconv_t *uconv_out : itype(_Ptr<uconv_t>);
 #endif /* LIBXML_ICU_ENABLED */
 };
 
@@ -173,71 +173,50 @@ XMLPUBFUN void XMLCALL
 XMLPUBFUN void XMLCALL
 	xmlCleanupCharEncodingHandlers	(void);
 XMLPUBFUN void XMLCALL
-	xmlRegisterCharEncodingHandler	(xmlCharEncodingHandlerPtr handler);
-XMLPUBFUN xmlCharEncodingHandlerPtr XMLCALL
-	xmlGetCharEncodingHandler	(xmlCharEncoding enc);
-XMLPUBFUN xmlCharEncodingHandlerPtr XMLCALL
-	xmlFindCharEncodingHandler	(const char *name);
-XMLPUBFUN xmlCharEncodingHandlerPtr XMLCALL
-	xmlNewCharEncodingHandler	(const char *name,
-					 xmlCharEncodingInputFunc input,
-					 xmlCharEncodingOutputFunc output);
+	xmlRegisterCharEncodingHandler	(xmlCharEncodingHandlerPtr handler : itype(_Ptr<xmlCharEncodingHandler>));
+XMLPUBFUN xmlCharEncodingHandlerPtr xmlGetCharEncodingHandler(xmlCharEncoding enc) : itype(_Ptr<xmlCharEncodingHandler>);
+XMLPUBFUN xmlCharEncodingHandlerPtr xmlFindCharEncodingHandler(const char *name : itype(_Ptr<const char>)) : itype(_Ptr<xmlCharEncodingHandler>);
+XMLPUBFUN xmlCharEncodingHandlerPtr xmlNewCharEncodingHandler(const char *name : itype(_Ptr<const char>), xmlCharEncodingInputFunc input : itype(_Ptr<int (unsigned char *, int *, const unsigned char *, int *)>), xmlCharEncodingOutputFunc output : itype(_Ptr<int (unsigned char *, int *, const unsigned char *, int *)>)) : itype(_Ptr<xmlCharEncodingHandler>);
 
 /*
  * Interfaces for encoding names and aliases.
  */
 XMLPUBFUN int XMLCALL
-	xmlAddEncodingAlias		(const char *name,
-					 const char *alias);
+	xmlAddEncodingAlias		(const char *name : itype(_Ptr<const char>), const char *alias : itype(_Ptr<const char>));
 XMLPUBFUN int XMLCALL
-	xmlDelEncodingAlias		(const char *alias);
-XMLPUBFUN const char * XMLCALL
-	xmlGetEncodingAlias		(const char *alias);
+	xmlDelEncodingAlias		(const char *alias : itype(_Ptr<const char>));
+XMLPUBFUN const char *xmlGetEncodingAlias(const char *alias : itype(_Ptr<const char>)) : itype(_Ptr<const char>);
 XMLPUBFUN void XMLCALL
 	xmlCleanupEncodingAliases	(void);
 XMLPUBFUN xmlCharEncoding XMLCALL
-	xmlParseCharEncoding		(const char *name);
-XMLPUBFUN const char * XMLCALL
-	xmlGetCharEncodingName		(xmlCharEncoding enc);
+	xmlParseCharEncoding		(const char *name : itype(_Ptr<const char>));
+XMLPUBFUN const char *xmlGetCharEncodingName(xmlCharEncoding enc) : itype(_Ptr<const char>);
 
 /*
  * Interfaces directly used by the parsers.
  */
 XMLPUBFUN xmlCharEncoding XMLCALL
-	xmlDetectCharEncoding		(const unsigned char *in,
-					 int len);
+	xmlDetectCharEncoding		(const unsigned char *in : itype(_Ptr<const unsigned char>), int len);
 
 XMLPUBFUN int XMLCALL
-	xmlCharEncOutFunc		(xmlCharEncodingHandler *handler,
-					 xmlBufferPtr out,
-					 xmlBufferPtr in);
+	xmlCharEncOutFunc		(xmlCharEncodingHandler *handler : itype(_Ptr<xmlCharEncodingHandler>), xmlBufferPtr out : itype(_Ptr<xmlBuffer>), xmlBufferPtr in : itype(_Ptr<xmlBuffer>));
 
 XMLPUBFUN int XMLCALL
-	xmlCharEncInFunc		(xmlCharEncodingHandler *handler,
-					 xmlBufferPtr out,
-					 xmlBufferPtr in);
+	xmlCharEncInFunc		(xmlCharEncodingHandler *handler : itype(_Ptr<xmlCharEncodingHandler>), xmlBufferPtr out : itype(_Ptr<xmlBuffer>), xmlBufferPtr in : itype(_Ptr<xmlBuffer>));
 XMLPUBFUN int XMLCALL
-	xmlCharEncFirstLine		(xmlCharEncodingHandler *handler,
-					 xmlBufferPtr out,
-					 xmlBufferPtr in);
+	xmlCharEncFirstLine		(xmlCharEncodingHandler *handler : itype(_Ptr<xmlCharEncodingHandler>), xmlBufferPtr out : itype(_Ptr<xmlBuffer>), xmlBufferPtr in : itype(_Ptr<xmlBuffer>));
 XMLPUBFUN int XMLCALL
-	xmlCharEncCloseFunc		(xmlCharEncodingHandler *handler);
+	xmlCharEncCloseFunc		(xmlCharEncodingHandler *handler : itype(_Ptr<xmlCharEncodingHandler>));
 
 /*
  * Export a few useful functions
  */
 #ifdef LIBXML_OUTPUT_ENABLED
 XMLPUBFUN int XMLCALL
-	UTF8Toisolat1			(unsigned char *out,
-					 int *outlen,
-					 const unsigned char *in,
-					 int *inlen);
+	UTF8Toisolat1			(unsigned char *out : itype(_Ptr<unsigned char>), int *outlen : itype(_Ptr<int>), const unsigned char *in : itype(_Ptr<const unsigned char>), int *inlen : itype(_Ptr<int>));
 #endif /* LIBXML_OUTPUT_ENABLED */
 XMLPUBFUN int XMLCALL
-	isolat1ToUTF8			(unsigned char *out,
-					 int *outlen,
-					 const unsigned char *in,
-					 int *inlen);
+	isolat1ToUTF8			(unsigned char *out : itype(_Ptr<unsigned char>), int *outlen : itype(_Ptr<int>), const unsigned char *in : itype(_Ptr<const unsigned char>), int *inlen : itype(_Ptr<int>));
 #ifdef __cplusplus
 }
 #endif
