@@ -261,9 +261,10 @@ static void _catch_signals(void)
 }
 
 
-_For_any(In,Out)
-thread_type *thread_create_c(char *name, _Ptr< _Ptr<Out> (_Ptr<In>)> start_routine,
-        _Ptr<In> arg, int detached, int line, char *file)
+_Itype_for_any(In,Out)
+thread_type *thread_create_c(char *name : itype(_Nt_array_ptr<char>), start_fn start_routine : itype(_Ptr< _Ptr<Out> (_Ptr<In>)>), 
+    void *arg : itype(_Ptr<In>),
+    int detached, int line, char *file : itype(_Nt_array_ptr<char>)) : itype(_Ptr<thread_type>)
 {
     int ok = 1;
     thread_type *thread = NULL;
