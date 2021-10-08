@@ -68,6 +68,14 @@ typedef struct _client_tag
 
 } client_t;
 
+_Itype_for_any(T)
+void client_set_format(client_t *client : itype(_Ptr<client_t>), void *format_data : itype(_Ptr<T>));
+
+_Itype_for_any(T) 
+  void* client_get_format(client_t *client : itype(_Ptr<client_t>)) : itype(_Ptr<T>);
+
+void client_free_format(client_t *client : itype(_Ptr<client_t>));
+
 int client_create (client_t **c_ptr : itype(_Ptr<_Ptr<client_t>>), connection_t *con : itype(_Ptr<connection_t>), http_parser_t *parser : itype(_Ptr<http_parser_t>));
 void client_destroy(_Ptr<client_t> client);
 void client_send_100(client_t *client : itype(_Ptr<client_t>));

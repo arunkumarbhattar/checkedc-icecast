@@ -681,7 +681,7 @@ static int format_mp3_create_client_data(source_t *source, client_t *client)
         ptr += bytes;
     }
 
-    client->format_data = client_mp3;
+    client_set_format<mp3_client_data>(client, client_mp3);
     client->free_client_data = free_mp3_client_data;
     metadata = httpp_getvar(client->parser, "icy-metadata");
     if (metadata && atoi(metadata))
@@ -713,8 +713,7 @@ static int format_mp3_create_client_data(source_t *source, client_t *client)
 
 static void free_mp3_client_data (client_t *client)
 {
-    free (client->format_data);
-    client->format_data = NULL;
+  client_free_format(client);
 }
 
 

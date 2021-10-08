@@ -221,7 +221,8 @@ static int ebml_create_client_data (source_t *source, client_t *client)
     {
         ebml_client_data->header = ebml_source_state->header;
         refbuf_addref (ebml_client_data->header);
-        client->format_data = ebml_client_data;
+        client_set_format(client, ebml_client_data);
+
         client->free_client_data = ebml_free_client_data;
         ret = 0;
     }
@@ -234,11 +235,10 @@ static int ebml_create_client_data (source_t *source, client_t *client)
 static void ebml_free_client_data (client_t *client)
 {
 
-    ebml_client_data_t *ebml_client_data = client->format_data;
+    ebml_client_data_t *ebml_client_data = client_get_format<ebml_client_data_t>(client->format_data);
 
     refbuf_release (ebml_client_data->header);
-    free (client->format_data);
-    client->format_data = NULL;
+    client_free_format(client);
 }
 
 

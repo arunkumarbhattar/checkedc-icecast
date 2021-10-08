@@ -125,6 +125,19 @@ void client_destroy(_Ptr<client_t> client)
     free(client);
 }
 
+void client_free_format(client_t *client) { 
+  free(client->format_data); 
+  client->format_data = NULL;
+}
+
+void client_set_format(client_t *client, void *format_data) { 
+  client->format_data = format_data;
+}
+
+void *client_get_format(client_t *client) { 
+  return client->format_data;
+}
+
 /* return -1 for failed, 0 for authenticated, 1 for pending
  */
 int client_check_source_auth (client_t *client, const char *mount)
