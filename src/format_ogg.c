@@ -72,6 +72,10 @@ struct ogg_client
     int headers_sent;
 };
 
+_Itype_for_any(T)
+void set_specific(ogg_codec_t *codec : itype(_Ptr<ogg_codec_t>), void *spec : itype(_Ptr<T>)) { 
+  codec->specific = spec;
+}
 
 refbuf_t *make_refbuf_with_page (ogg_page *page)
 {

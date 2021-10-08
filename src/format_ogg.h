@@ -60,6 +60,9 @@ typedef struct ogg_codec_tag
     void ((*codec_free)(ogg_state_t *ogg_info, struct ogg_codec_tag *codec)) : itype(_Ptr<void (_Ptr<ogg_state_t> ogg_info, _Ptr<struct ogg_codec_tag> codec)>);
 } ogg_codec_t;
 
+_Itype_for_any(T)
+void set_specific(ogg_codec_t *codec : itype(_Ptr<ogg_codec_t>), void *spec : itype(_Ptr<T>));
+
 
 refbuf_t *make_refbuf_with_page(ogg_page *page) : itype(_Ptr<refbuf_t>);
 void format_ogg_attach_header (ogg_state_t *ogg_info : itype(_Ptr<ogg_state_t>), ogg_page *page);

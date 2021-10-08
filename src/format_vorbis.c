@@ -384,7 +384,7 @@ ogg_codec_t *initial_vorbis_page (format_plugin_t *plugin, ogg_page *page)
         return NULL;
     }
     ICECAST_LOG_INFO("seen initial vorbis header");
-    codec->specific = vorbis;
+    set_specific<vorbis_codec_t>(codec, vorbis);
     codec->codec_free = vorbis_codec_free;
     codec->headers = 1;
     codec->name = "Vorbis";
