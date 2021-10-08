@@ -219,7 +219,7 @@ ogg_codec_t *initial_kate_page (format_plugin_t *plugin, ogg_page *page)
 #endif
 
     ICECAST_LOG_INFO("seen initial kate header");
-    codec->specific = kate_codec;
+    set_specific<kate_codec_t>(codec, kate_codec);
     codec->process_page = process_kate_page;
     codec->codec_free = kate_codec_free;
     codec->headers = 1;
