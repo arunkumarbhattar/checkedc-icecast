@@ -44,14 +44,14 @@ typedef struct ebml_client_data_st ebml_client_data_t;
 
 struct ebml_client_data_st {
 
-    refbuf_t *header;
+    refbuf_t *header : itype(_Ptr<refbuf_t>);
     int header_pos;
 
 };
 
 struct ebml_st {
 
-    char *cluster_id;
+    char *cluster_id : itype(_Array_ptr<char>) byte_count(4);
     int cluster_start;
     
     int position;
@@ -66,26 +66,26 @@ struct ebml_st {
 
 };
 
-static void ebml_free_plugin (format_plugin_t *plugin);
-static refbuf_t *ebml_get_buffer (source_t *source);
-static int  ebml_write_buf_to_client (client_t *client);
-static void  ebml_write_buf_to_file (source_t *source, refbuf_t *refbuf);
-static int  ebml_create_client_data (source_t *source, client_t *client);
-static void ebml_free_client_data (client_t *client);
+static void ebml_free_plugin (_Ptr<format_plugin_t> plugin);
+static _Ptr<refbuf_t> ebml_get_buffer(_Ptr<source_t> source);
+static int  ebml_write_buf_to_client (_Ptr<client_t> client);
+static void  ebml_write_buf_to_file (_Ptr<source_t> source, _Ptr<refbuf_t> refbuf);
+static int  ebml_create_client_data (_Ptr<source_t> source, _Ptr<client_t> client);
+static void ebml_free_client_data (_Ptr<client_t> client);
 
-static ebml_t *ebml_create();
-static void ebml_destroy(ebml_t *ebml);
-static int ebml_read_space(ebml_t *ebml);
-static int ebml_read(ebml_t *ebml, char *buffer, int len);
-static int ebml_last_was_sync(ebml_t *ebml);
-static char *ebml_write_buffer(ebml_t *ebml, int len);
-static int ebml_wrote(ebml_t *ebml, int len);
+static _Ptr<ebml_t> ebml_create(void);
+static void ebml_destroy(_Ptr<ebml_t> ebml);
+static int ebml_read_space(_Ptr<ebml_t> ebml);
+static int ebml_read(_Ptr<ebml_t> ebml, char *buffer : itype(_Array_ptr<char>) count(0), int len);
+static int ebml_last_was_sync(_Ptr<ebml_t> ebml);
+static char *ebml_write_buffer(_Ptr<ebml_t> ebml, int len) : itype(_Array_ptr<char>) byte_count(len);
+static int ebml_wrote(_Ptr<ebml_t> ebml, int len);
 
-int format_ebml_get_plugin (source_t *source)
+int format_ebml_get_plugin (source_t *source : itype(_Ptr<source_t>))
 {
 
-    ebml_source_state_t *ebml_source_state = calloc(1, sizeof(ebml_source_state_t));
-    format_plugin_t *plugin = calloc(1, sizeof(format_plugin_t));
+    _Ptr<ebml_source_state_t> ebml_source_state = calloc<ebml_source_state_t>(1, sizeof(ebml_source_state_t));
+    _Ptr<format_plugin_t> plugin = calloc<format_plugin_t>(1, sizeof(format_plugin_t));
 
     plugin->get_buffer = ebml_get_buffer;
     plugin->write_buf_to_client = ebml_write_buf_to_client;
@@ -104,19 +104,19 @@ int format_ebml_get_plugin (source_t *source)
     return 0;
 }
 
-static void ebml_free_plugin (format_plugin_t *plugin)
+static void ebml_free_plugin (_Ptr<format_plugin_t> plugin)
 {
 
-    ebml_source_state_t *ebml_source_state = plugin->_state;
+    _Ptr<ebml_source_state_t> ebml_source_state = plugin->_state;
 
     refbuf_release (ebml_source_state->header);
     ebml_destroy(ebml_source_state->ebml);
-    free (ebml_source_state);
-    free (plugin);
+    free<ebml_source_state_t> (ebml_source_state);
+    free<format_plugin_t> (plugin);
 
 }
 
-static int send_ebml_header (client_t *client)
+static int send_ebml_header (_Ptr<client_t> client)
 {
 
     ebml_client_data_t *ebml_client_data = client->format_data;
@@ -127,7 +127,7 @@ static int send_ebml_header (client_t *client)
     {
         len = ebml_client_data->header->len - ebml_client_data->header_pos;
     }
-    ret = client_send_bytes (client, 
+    ret = client_send_bytes<char> (client, 
                              ebml_client_data->header->data + ebml_client_data->header_pos,
                              len);
 
@@ -140,7 +140,7 @@ static int send_ebml_header (client_t *client)
 
 }
 
-static int ebml_write_buf_to_client (client_t *client)
+static int ebml_write_buf_to_client (_Ptr<client_t> client)
 {
 
     ebml_client_data_t *ebml_client_data = client->format_data;
@@ -150,21 +150,21 @@ static int ebml_write_buf_to_client (client_t *client)
         return send_ebml_header (client);
     }
     else
-    {
+    _Checked {
         client->write_to_client = format_generic_write_to_client;
         return client->write_to_client(client);
     }
 
 }
 
-static refbuf_t *ebml_get_buffer (source_t *source)
+static _Ptr<refbuf_t> ebml_get_buffer(_Ptr<source_t> source)
 {
 
-    ebml_source_state_t *ebml_source_state = source->format->_state;
-    format_plugin_t *format = source->format;
-    char *data = NULL;
+    _Ptr<ebml_source_state_t> ebml_source_state = source->format->_state;
+    _Ptr<format_plugin_t> format = source->format;
+    _Array_ptr<char> data : byte_count(4096) = NULL;
     int bytes = 0;
-    refbuf_t *refbuf;
+    _Ptr<refbuf_t> refbuf = ((void *)0);
     int ret;
 
     while (1)
@@ -209,11 +209,11 @@ static refbuf_t *ebml_get_buffer (source_t *source)
     }
 }
 
-static int ebml_create_client_data (source_t *source, client_t *client)
+static int ebml_create_client_data (_Ptr<source_t> source, _Ptr<client_t> client)
 {
 
-    ebml_client_data_t *ebml_client_data = calloc(1, sizeof(ebml_client_data_t));
-    ebml_source_state_t *ebml_source_state = source->format->_state;
+    _Ptr<ebml_client_data_t> ebml_client_data = calloc<ebml_client_data_t>(1, sizeof(ebml_client_data_t));
+    _Ptr<ebml_source_state_t> ebml_source_state = source->format->_state;
 
     int ret = -1;
 
@@ -221,7 +221,7 @@ static int ebml_create_client_data (source_t *source, client_t *client)
     {
         ebml_client_data->header = ebml_source_state->header;
         refbuf_addref (ebml_client_data->header);
-        client_set_format(client, ebml_client_data);
+        client_set_format<ebml_client_data_t>(client, ebml_client_data);
 
         client->free_client_data = ebml_free_client_data;
         ret = 0;
@@ -232,17 +232,17 @@ static int ebml_create_client_data (source_t *source, client_t *client)
 }
 
 
-static void ebml_free_client_data (client_t *client)
+static void ebml_free_client_data (_Ptr<client_t> client)
 {
 
-    ebml_client_data_t *ebml_client_data = client_get_format<ebml_client_data_t>(client->format_data);
+    _Ptr<ebml_client_data_t> ebml_client_data = client_get_format<ebml_client_data_t>(_Assume_bounds_cast<_Ptr<client_t>>(client->format_data));
 
     refbuf_release (ebml_client_data->header);
     client_free_format(client);
 }
 
 
-static void ebml_write_buf_to_file_fail (source_t *source)
+static void ebml_write_buf_to_file_fail (_Ptr<source_t> source)
 {
     ICECAST_LOG_WARN("Write to dump file failed, disabling");
     fclose (source->dumpfile);
@@ -250,10 +250,10 @@ static void ebml_write_buf_to_file_fail (source_t *source)
 }
 
 
-static void ebml_write_buf_to_file (source_t *source, refbuf_t *refbuf)
+static void ebml_write_buf_to_file (_Ptr<source_t> source, _Ptr<refbuf_t> refbuf)
 {
 
-    ebml_source_state_t *ebml_source_state = source->format->_state;
+    _Ptr<ebml_source_state_t> ebml_source_state = source->format->_state;
 
     if (ebml_source_state->file_headers_written == 0)
     {
@@ -275,24 +275,24 @@ static void ebml_write_buf_to_file (source_t *source, refbuf_t *refbuf)
 
 /* internal ebml parsing */
 
-static void ebml_destroy(ebml_t *ebml)
+static void ebml_destroy(_Ptr<ebml_t> ebml)
 {
 
-    free(ebml->header);
-    free(ebml->input_buffer);
-    free(ebml->buffer);
-    free(ebml);
+    free<unsigned char>(ebml->header);
+    free<unsigned char>(ebml->input_buffer);
+    free<unsigned char>(ebml->buffer);
+    free<ebml_t>(ebml);
 
 }
 
-static ebml_t *ebml_create()
+static _Ptr<ebml_t> ebml_create(void)
 {
 
-    ebml_t *ebml = calloc(1, sizeof(ebml_t));
+    _Ptr<ebml_t> ebml = calloc<ebml_t>(1, sizeof(ebml_t));
 
-    ebml->header = calloc(1, EBML_HEADER_MAX_SIZE);
-    ebml->buffer = calloc(1, EBML_SLICE_SIZE * 4);
-    ebml->input_buffer = calloc(1, EBML_SLICE_SIZE);
+    ebml->header = calloc<unsigned char>(1, EBML_HEADER_MAX_SIZE);
+    ebml->buffer = calloc<unsigned char>(1, EBML_SLICE_SIZE * 4);
+    ebml->input_buffer = calloc<unsigned char>(1, EBML_SLICE_SIZE);
 
     ebml->cluster_id = "\x1F\x43\xB6\x75";
 
@@ -302,7 +302,7 @@ static ebml_t *ebml_create()
 
 }
 
-static int ebml_read_space(ebml_t *ebml)
+static int ebml_read_space(_Ptr<ebml_t> ebml)
 {
 
     int read_space;
@@ -326,7 +326,7 @@ static int ebml_read_space(ebml_t *ebml)
 
 }
 
-static int ebml_read(ebml_t *ebml, char *buffer, int len)
+static int ebml_read(_Ptr<ebml_t> ebml, char *buffer : itype(_Array_ptr<char>) count(0), int len)
 {
 
     int read_space;
@@ -384,7 +384,7 @@ static int ebml_read(ebml_t *ebml, char *buffer, int len)
 
 }
 
-static int ebml_last_was_sync(ebml_t *ebml)
+static int ebml_last_was_sync(_Ptr<ebml_t> ebml)
 {
 
     if (ebml->cluster_start == 0)
@@ -403,7 +403,7 @@ static int ebml_last_was_sync(ebml_t *ebml)
 
 }
 
-static char *ebml_write_buffer(ebml_t *ebml, int len)
+static char *ebml_write_buffer(_Ptr<ebml_t> ebml, int len) : itype(_Array_ptr<char>) byte_count(len)
 {
 
     return (char *)ebml->input_buffer;
@@ -411,7 +411,7 @@ static char *ebml_write_buffer(ebml_t *ebml, int len)
 }
 
 
-static int ebml_wrote(ebml_t *ebml, int len)
+static int ebml_wrote(_Ptr<ebml_t> ebml, int len)
 {
 
     int b;
@@ -430,12 +430,12 @@ static int ebml_wrote(ebml_t *ebml, int len)
                    ebml->header_size, ebml->header_position, len);
         }
         
-        memcpy(ebml->header + ebml->header_position, ebml->input_buffer, len);
+        memcpy<unsigned char>(ebml->header + ebml->header_position, ebml->input_buffer, len);
         ebml->header_position += len;
     }
     else
     {
-        memcpy(ebml->buffer + ebml->position, ebml->input_buffer, len);
+        memcpy<unsigned char>(ebml->buffer + ebml->position, ebml->input_buffer, len);
     }
     
     for (b = 0; b < len - 4; b++)
@@ -450,7 +450,7 @@ static int ebml_wrote(ebml_t *ebml, int len)
             if (ebml->header_size == 0)
             {
                 ebml->header_size = ebml->header_position - len + b;
-                memcpy(ebml->buffer, ebml->input_buffer + b, len - b);
+                memcpy<unsigned char>(ebml->buffer, ebml->input_buffer + b, len - b);
                 ebml->position = len - b;
                 ebml->cluster_start = -1;
                 return len;
