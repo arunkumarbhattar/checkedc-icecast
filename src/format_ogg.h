@@ -65,7 +65,7 @@ void set_specific(ogg_codec_t *codec : itype(_Ptr<ogg_codec_t>), void *spec : it
 
 
 refbuf_t *make_refbuf_with_page(ogg_page *page : itype(_Ptr<ogg_page>)) : itype(_Ptr<refbuf_t>);
-void format_ogg_attach_header (ogg_state_t *ogg_info : itype(_Ptr<ogg_state_t>), ogg_page *page);
+void format_ogg_attach_header (ogg_state_t *ogg_info : itype(_Ptr<ogg_state_t>), ogg_page *page : itype(_Ptr<ogg_page>));
 void format_ogg_free_headers (ogg_state_t *ogg_info : itype(_Ptr<ogg_state_t>));
 int format_ogg_get_plugin (source_t *source : itype(_Ptr<source_t>));
 

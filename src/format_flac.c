@@ -32,19 +32,19 @@ typedef struct source_tag source_t;
 #include "logging.h"
 
 
-static void flac_codec_free (ogg_state_t *ogg_info, ogg_codec_t *codec)
+static void flac_codec_free (_Ptr<ogg_state_t> ogg_info, _Ptr<ogg_codec_t> codec)
 {
     ICECAST_LOG_DEBUG("freeing FLAC codec");
     stats_event (ogg_info->mount, "FLAC_version", NULL);
     ogg_stream_clear (&codec->os);
-    free (codec);
+    free<ogg_codec_t> (codec);
 }
 
 
 /* Here, we just verify the page is ok and then add it to the queue */
-static refbuf_t *process_flac_page (ogg_state_t *ogg_info, ogg_codec_t *codec, ogg_page *page)
+static _Ptr<refbuf_t> process_flac_page(_Ptr<ogg_state_t> ogg_info, _Ptr<ogg_codec_t> codec, _Ptr<ogg_page> page)
 {
-    refbuf_t * refbuf;
+    _Ptr<refbuf_t> refbuf = ((void *)0);
 
     if (codec->headers)
     {
@@ -82,10 +82,10 @@ static refbuf_t *process_flac_page (ogg_state_t *ogg_info, ogg_codec_t *codec, o
 
 /* Check for flac header in logical stream */
 
-ogg_codec_t *initial_flac_page (format_plugin_t *plugin, ogg_page *page)
+ogg_codec_t *initial_flac_page(format_plugin_t *plugin : itype(_Ptr<format_plugin_t>), ogg_page *page : itype(_Ptr<ogg_page>)) : itype(_Ptr<ogg_codec_t>)
 {
-    ogg_state_t *ogg_info = plugin->_state;
-    ogg_codec_t *codec = calloc (1, sizeof (ogg_codec_t));
+    _Ptr<ogg_state_t> ogg_info = plugin->_state;
+    _Ptr<ogg_codec_t> codec = calloc<ogg_codec_t> (1, sizeof (ogg_codec_t));
     ogg_packet packet;
 
     ogg_stream_init (&codec->os, ogg_page_serialno (page));
@@ -110,7 +110,9 @@ ogg_codec_t *initial_flac_page (format_plugin_t *plugin, ogg_page *page)
 
         parse += 4;
         stats_event_args (ogg_info->mount, "FLAC_version", "%d.%d",  parse[0], parse[1]);
+        _Checked {
         codec->process_page = process_flac_page;
+        }
         codec->codec_free = flac_codec_free;
         codec->headers = 1;
         codec->name = "FLAC";
@@ -120,7 +122,7 @@ ogg_codec_t *initial_flac_page (format_plugin_t *plugin, ogg_page *page)
     } while (0);
 
     ogg_stream_clear (&codec->os);
-    free (codec);
+    free<ogg_codec_t> (codec);
     return NULL;
 }
 
