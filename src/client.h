@@ -49,7 +49,7 @@ typedef struct _client_tag
     struct auth_tag *auth : itype(_Ptr<struct auth_tag>);
 
     /* Client username, if authenticated */
-    char *username;
+    char *username : itype(_Nt_array_ptr<char>);
 
     /* Client password, if authenticated */
     char *password : itype(_Nt_array_ptr<char>);

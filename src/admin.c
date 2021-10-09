@@ -110,7 +110,7 @@
 #define DEFAULT_TRANSFORMED_REQUEST ""
 #define BUILDM3U_RAW_REQUEST "buildm3u"
 
-int admin_get_command(const char *command)
+int admin_get_command(const char *command : itype(_Nt_array_ptr<const char>))
 {
     if(!strcmp(command, FALLBACK_RAW_REQUEST))
         return COMMAND_RAW_FALLBACK;
@@ -170,37 +170,30 @@ int admin_get_command(const char *command)
         return COMMAND_ERROR;
 }
 
-static void command_fallback(client_t *client, source_t *source, int response);
-static void command_metadata(client_t *client, source_t *source, int response);
-static void command_shoutcast_metadata(client_t *client, source_t *source);
-static void command_show_listeners(client_t *client, source_t *source,
-        int response);
-static void command_move_clients(client_t *client, source_t *source,
-        int response);
-static void command_stats(client_t *client, const char *mount, int response);
-static void command_list_mounts(client_t *client, int response);
-static void command_kill_client(client_t *client, source_t *source,
-        int response);
-static void command_manageauth(client_t *client, source_t *source,
-        int response);
-static void command_buildm3u(client_t *client, const char *mount);
-static void command_kill_source(client_t *client, source_t *source,
-        int response);
-static void command_updatemetadata(client_t *client, source_t *source,
-        int response);
-static void admin_handle_mount_request(client_t *client, source_t *source,
-        int command);
-static void admin_handle_general_request(client_t *client, int command);
+static void command_fallback(_Ptr<client_t> client, _Ptr<source_t> source, int response);
+static void command_metadata(_Ptr<client_t> client, _Ptr<source_t> source, int response);
+static void command_shoutcast_metadata(_Ptr<client_t> client, _Ptr<source_t> source);
+static void command_show_listeners(_Ptr<client_t> client, _Ptr<source_t> source, int response);
+static void command_move_clients(_Ptr<client_t> client, _Ptr<source_t> source, int response);
+static void command_stats(_Ptr<client_t> client, _Nt_array_ptr<const char> mount, int response);
+static void command_list_mounts(_Ptr<client_t> client, int response);
+static void command_kill_client(_Ptr<client_t> client, _Ptr<source_t> source, int response);
+static void command_manageauth(_Ptr<client_t> client, _Ptr<source_t> source, int response);
+static void command_buildm3u(_Ptr<client_t> client, _Nt_array_ptr<const char> mount);
+static void command_kill_source(_Ptr<client_t> client, _Ptr<source_t> source, int response);
+static void command_updatemetadata(_Ptr<client_t> client, _Ptr<source_t> source, int response);
+static void admin_handle_mount_request(_Ptr<client_t> client, _Ptr<source_t> source, int command);
+static void admin_handle_general_request(_Ptr<client_t> client, int command);
 
 /* build an XML doc containing information about currently running sources.
  * If a mountpoint is passed then that source will not be added to the XML
  * doc even if the source is running */
-xmlDocPtr admin_build_sourcelist (const char *mount)
+xmlDocPtr admin_build_sourcelist (const char *mount : itype(_Nt_array_ptr<const char>))
 {
-    avl_node *node;
-    source_t *source;
-    xmlNodePtr xmlnode, srcnode;
-    xmlDocPtr doc;
+    _Ptr<avl_node> node = ((void *)0);
+    _Ptr<source_t> source = ((void *)0);
+    xmlNodePtr xmlnode = NULL, srcnode = NULL;
+    xmlDocPtr doc = NULL;
     char buf[22];
     time_t now = time(NULL);
 
@@ -209,7 +202,7 @@ xmlDocPtr admin_build_sourcelist (const char *mount)
     xmlDocSetRootElement(doc, xmlnode);
 
     if (mount) {
-        xmlNewTextChild (xmlnode, NULL, XMLSTR("current_source"), XMLSTR(mount));
+        xmlNewTextChild (xmlnode, NULL, XMLSTR("current_source"),(mount));
     }
 
     node = avl_get_first(global.source_tree);
@@ -223,15 +216,15 @@ xmlDocPtr admin_build_sourcelist (const char *mount)
 
         if (source->running || source->on_demand)
         {
-            ice_config_t *config;
-            mount_proxy *mountinfo;
+            _Ptr<ice_config_t> config = ((void *)0);
+            _Ptr<mount_proxy> mountinfo = ((void *)0);
 
             srcnode = xmlNewChild(xmlnode, NULL, XMLSTR("source"), NULL);
-            xmlSetProp(srcnode, XMLSTR("mount"), XMLSTR(source->mount));
+            xmlSetProp(srcnode, XMLSTR("mount"),(source->mount));
 
             xmlNewTextChild(srcnode, NULL, XMLSTR("fallback"), 
                     (source->fallback_mount != NULL)?
-                    XMLSTR(source->fallback_mount):XMLSTR(""));
+                    a(source->fallback_mount):Xa(""));
             snprintf (buf, sizeof(buf), "%lu", source->listeners);
             xmlNewTextChild(srcnode, NULL, XMLSTR("listeners"), XMLSTR(buf));
 
@@ -240,7 +233,7 @@ xmlDocPtr admin_build_sourcelist (const char *mount)
             if (mountinfo && mountinfo->auth)
             {
                 xmlNewTextChild(srcnode, NULL, XMLSTR("authenticator"),
-                        XMLSTR(mountinfo->auth->type));
+                        a(mountinfo->auth->type));
             }
             config_release_config();
 
@@ -253,7 +246,7 @@ xmlDocPtr admin_build_sourcelist (const char *mount)
                     xmlNewTextChild (srcnode, NULL, XMLSTR("Connected"), XMLSTR(buf));
                 }
                 xmlNewTextChild (srcnode, NULL, XMLSTR("content-type"), 
-                        XMLSTR(source->format->contenttype));
+                        a(source->format->contenttype));
             }
         }
         node = avl_get_next(node);
@@ -261,8 +254,7 @@ xmlDocPtr admin_build_sourcelist (const char *mount)
     return(doc);
 }
 
-void admin_send_response (xmlDocPtr doc, client_t *client,
-        int response, const char *xslt_template)
+void admin_send_response (xmlDocPtr doc : itype(_Ptr<xmlDoc>), client_t *client : itype(_Ptr<client_t>), int response, const char *xslt_template : itype(_Nt_array_ptr<const char>) byte_count(8))
 {
     if (response == RAW)
     {
@@ -287,16 +279,14 @@ void admin_send_response (xmlDocPtr doc, client_t *client,
         if (ret == -1) {
             ICECAST_LOG_ERROR("Dropping client as we can not build response headers.");
             client_send_500(client, "Header generation failed.");
-            xmlFree(buff);
+            xmlFreea(buff);
             return;
         } else if (buf_len < (len + ret + 64)) {
-            void *new_data;
             buf_len = ret + len + 64;
-            new_data = realloc(client->refbuf->data, buf_len);
+            _Nt_array_ptr<char> new_data : count(buf_len) = (_Nt_array_ptr<char>) realloc<char>(client->refbuf->data, buf_len);
             if (new_data) {
                 ICECAST_LOG_DEBUG("Client buffer reallocation succeeded.");
-                client->refbuf->data = new_data;
-                client->refbuf->len = buf_len;
+                client->refbuf->data = new_data, client->refbuf->len = buf_len;
                 ret = util_http_build_header(client->refbuf->data, buf_len, 0,
                                              0, 200, NULL,
                                              "text/xml", "utf-8",
@@ -316,9 +306,10 @@ void admin_send_response (xmlDocPtr doc, client_t *client,
         }
 
         /* FIXME: in this section we hope no function will ever return -1 */
-	ret += snprintf (client->refbuf->data + ret, buf_len - ret, "Content-Length: %d\r\n\r\n%s", xmlStrlen(buff), buff);
+	      ret += snprintf (client->refbuf->data + ret, buf_len - ret, "Content-Length: %d\r\n\r\n%s", xmlStrlen(buff), buff);
 
-        client->refbuf->len = ret;
+        client->refbuf->data = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(client->refbuf->data, count(ret)),  client->refbuf->len = ret;
+        
         xmlFree(buff);
         client->respcode = 200;
         fserve_add_client (client, NULL);
@@ -327,25 +318,27 @@ void admin_send_response (xmlDocPtr doc, client_t *client,
     {
         char *fullpath_xslt_template;
         int fullpath_xslt_template_len;
-        ice_config_t *config = config_get_config();
+        _Ptr<ice_config_t> config = config_get_config();
 
         fullpath_xslt_template_len = strlen (config->adminroot_dir) + 
             strlen (xslt_template) + 2;
-        fullpath_xslt_template = malloc(fullpath_xslt_template_len);
+        fullpath_xslt_template = malloc<char>(fullpath_xslt_template_len);
         snprintf(fullpath_xslt_template, fullpath_xslt_template_len, "%s%s%s",
             config->adminroot_dir, PATH_SEPARATOR, xslt_template);
         config_release_config();
 
         ICECAST_LOG_DEBUG("Sending XSLT (%s)", fullpath_xslt_template);
-        xslt_transform(doc, fullpath_xslt_template, client);
-        free(fullpath_xslt_template);
+        xslt_transform(doc, _Assume_bounds_cast<_Nt_array_ptr<const char>>(fullpath_xslt_template, byte_count(0)), client);
+        free<char>(fullpath_xslt_template);
     }
 }
 
 
-void admin_handle_request(client_t *client, const char *uri)
+void admin_handle_request(client_t *client : itype(_Ptr<client_t>), const char *uri : itype(_Nt_array_ptr<const char>) count(0))
 {
-    const char *mount, *command_string;
+    _Nt_array_ptr<const char> mount = ((void *)0);
+_Nt_array_ptr<const char> command_string = ((void *)0);
+
     int command;
 
     ICECAST_LOG_DEBUG("Admin request (%s)", uri);
@@ -375,10 +368,10 @@ void admin_handle_request(client_t *client, const char *uri)
 
     if (command == COMMAND_SHOUTCAST_METADATA_UPDATE) {
 
-        ice_config_t *config;
+        _Ptr<ice_config_t> config = ((void *)0);
         const char *sc_mount;
-        const char *pass = httpp_get_query_param (client->parser, "pass");
-        listener_t *listener;
+        _Nt_array_ptr<const char> pass = (_Nt_array_ptr<char>) httpp_get_query_param (client->parser, "pass");
+        _Ptr<listener_t> listener = ((void *)0);
 
         if (pass == NULL)
         {
@@ -393,17 +386,17 @@ void admin_handle_request(client_t *client, const char *uri)
         if (listener && listener->shoutcast_mount)
             sc_mount = listener->shoutcast_mount;
 
-        httpp_set_query_param (client->parser, "mount", sc_mount);
+        httpp_set_query_param (client->parser, "mount", _Assume_bounds_cast<_Nt_array_ptr<const char>>(sc_mount, byte_count(0)));
         httpp_setvar (client->parser, HTTPP_VAR_PROTOCOL, "ICY");
         httpp_setvar (client->parser, HTTPP_VAR_ICYPASSWORD, pass);
         config_release_config ();
         global_unlock();
     }
 
-    mount = httpp_get_query_param(client->parser, "mount");
+    mount = (_Nt_array_ptr<char>) httpp_get_query_param(client->parser, "mount");
 
     if(mount != NULL) {
-        source_t *source;
+        _Ptr<source_t> source = ((void *)0);
 
         /* this request does not require auth but can apply to files on webroot */
         if (command == COMMAND_BUILDM3U)
@@ -489,7 +482,7 @@ void admin_handle_request(client_t *client, const char *uri)
     }
 }
 
-static void admin_handle_general_request(client_t *client, int command)
+static void admin_handle_general_request(_Ptr<client_t> client, int command)
 {
     switch(command) {
         case COMMAND_RAW_STATS:
@@ -523,12 +516,11 @@ static void admin_handle_general_request(client_t *client, int command)
     }
 }
 
-static void admin_handle_mount_request(client_t *client, source_t *source, 
-        int command)
+static void admin_handle_mount_request(_Ptr<client_t> client, _Ptr<source_t> source, int command)
 {
     switch(command) {
         case COMMAND_RAW_STATS:
-            command_stats(client, source->mount, RAW);
+            command_stats(client, _Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), RAW);
             break;
         case COMMAND_RAW_FALLBACK:
             command_fallback(client, source, RAW);
@@ -555,7 +547,7 @@ static void admin_handle_mount_request(client_t *client, source_t *source,
             command_kill_source(client, source, RAW);
             break;
         case COMMAND_TRANSFORMED_STATS:
-            command_stats(client, source->mount, TRANSFORMED);
+            command_stats(client, _Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), TRANSFORMED);
             break;
         case COMMAND_TRANSFORMED_FALLBACK:
             command_fallback(client, source, RAW);
@@ -593,16 +585,16 @@ static void admin_handle_mount_request(client_t *client, source_t *source,
 
 #define COMMAND_REQUIRE(client,name,var) \
     do { \
-        (var) = httpp_get_query_param((client)->parser, (name)); \
+        (var) = (_Nt_array_ptr<char>) httpp_get_query_param((client)->parser, (name)); \
         if((var) == NULL) { \
             client_send_400((client), "Missing parameter"); \
             return; \
         } \
     } while(0);
 #define COMMAND_OPTIONAL(client,name,var) \
-    (var) = httpp_get_query_param((client)->parser, (name))
+    (var) = (_Nt_array_ptr<char>) httpp_get_query_param((client)->parser, (name))
 
-static void html_success(client_t *client, char *message)
+static void html_success(_Ptr<client_t> client, _Nt_array_ptr<char> message)
 {
     ssize_t ret;
 
@@ -622,18 +614,17 @@ static void html_success(client_t *client, char *message)
 	     "<body><p>%s</p></body></html>", message);
 
     client->respcode = 200;
-    client->refbuf->len = strlen (client->refbuf->data);
+    refbuf_widen(client->refbuf);
     fserve_add_client (client, NULL);
 }
 
 
-static void command_move_clients(client_t *client, source_t *source,
-    int response)
+static void command_move_clients(_Ptr<client_t> client, _Ptr<source_t> source, int response)
 {
-    const char *dest_source;
-    source_t *dest;
-    xmlDocPtr doc;
-    xmlNodePtr node;
+    _Nt_array_ptr<const char> dest_source = ((void *)0);
+    _Ptr<source_t> dest = ((void *)0);
+    xmlDocPtr doc = NULL;
+    xmlNodePtr node = NULL;
     char buf[255];
     int parameters_passed = 0;
 
@@ -689,21 +680,20 @@ static void command_move_clients(client_t *client, source_t *source,
     xmlFreeDoc(doc);
 }
 
-static void command_show_listeners(client_t *client, source_t *source,
-    int response)
+static void command_show_listeners(_Ptr<client_t> client, _Ptr<source_t> source, int response)
 {
-    xmlDocPtr doc;
-    xmlNodePtr node, srcnode, listenernode;
-    avl_node *client_node;
-    client_t *current;
+    xmlDocPtr doc = NULL;
+    xmlNodePtr node = NULL, srcnode = NULL, listenernode = NULL;
+    _Ptr<avl_node> client_node = ((void *)0);
+    _Ptr<client_t> current = ((void *)0);
     char buf[22];
-    const char *userAgent = NULL;
+    _Nt_array_ptr<const char> userAgent = NULL;
     time_t now = time(NULL);
 
     doc = xmlNewDoc (XMLSTR("1.0"));
     node = xmlNewDocNode(doc, NULL, XMLSTR("icestats"), NULL);
     srcnode = xmlNewChild(node, NULL, XMLSTR("source"), NULL);
-    xmlSetProp(srcnode, XMLSTR("mount"), XMLSTR(source->mount));
+    xmlSetProp(srcnode, XMLSTR("mount"),(source->mount));
     xmlDocSetRootElement(doc, node);
 
     memset(buf, '\000', sizeof(buf));
@@ -716,8 +706,8 @@ static void command_show_listeners(client_t *client, source_t *source,
     while(client_node) {
         current = avl_get<client_t>(client_node);
         listenernode = xmlNewChild(srcnode, NULL, XMLSTR("listener"), NULL);
-        xmlNewTextChild(listenernode, NULL, XMLSTR("IP"), XMLSTR(current->con->ip));
-        userAgent = httpp_getvar(current->parser, "user-agent");
+        xmlNewTextChild(listenernode, NULL, XMLSTR("IP"),(current->con->ip));
+        userAgent = (_Nt_array_ptr<char>) httpp_getvar(current->parser, "user-agent");
         if (userAgent) {
             xmlNewTextChild(listenernode, NULL, XMLSTR("UserAgent"), XMLSTR(userAgent));
         }
@@ -742,11 +732,11 @@ static void command_show_listeners(client_t *client, source_t *source,
     xmlFreeDoc(doc);
 }
 
-static void command_buildm3u(client_t *client,  const char *mount)
+static void command_buildm3u(_Ptr<client_t> client, _Nt_array_ptr<const char> mount)
 {
-    const char *username = NULL;
-    const char *password = NULL;
-    ice_config_t *config;
+    _Nt_array_ptr<const char> username = NULL;
+    _Nt_array_ptr<const char> password = NULL;
+    _Ptr<ice_config_t> config = ((void *)0);
     ssize_t ret;
 
     COMMAND_REQUIRE(client, "username", username);
@@ -777,22 +767,21 @@ static void command_buildm3u(client_t *client,  const char *mount)
     config_release_config();
 
     client->respcode = 200;
-    client->refbuf->len = strlen (client->refbuf->data);
+    refbuf_widen(client->refbuf);
     fserve_add_client (client, NULL);
 }
 
 
-static void command_manageauth(client_t *client, source_t *source,
-    int response)
+static void command_manageauth(_Ptr<client_t> client, _Ptr<source_t> source, int response)
 {
-    xmlDocPtr doc;
-    xmlNodePtr node, srcnode, msgnode;
-    const char *action = NULL;
-    const char *username = NULL;
-    char *message = NULL;
+    xmlDocPtr doc = NULL;
+    xmlNodePtr node = NULL, srcnode = NULL, msgnode = NULL;
+    _Nt_array_ptr<const char> action = NULL;
+    _Nt_array_ptr<const char> username = NULL;
+    _Nt_array_ptr<char> message = NULL;
     int ret = AUTH_OK;
-    ice_config_t *config = config_get_config ();
-    mount_proxy *mountinfo = config_find_mount (config, source->mount, MOUNT_TYPE_NORMAL);
+    _Ptr<ice_config_t> config = config_get_config ();
+    _Ptr<mount_proxy> mountinfo = config_find_mount (config, source->mount, MOUNT_TYPE_NORMAL);
 
     do
     {
@@ -809,7 +798,7 @@ static void command_manageauth(client_t *client, source_t *source,
 
         if (!strcmp(action, "add"))
         {
-            const char *password = NULL;
+            _Nt_array_ptr<const char> password = NULL;
             COMMAND_OPTIONAL (client, "password", password);
 
             if (username == NULL || password == NULL)
@@ -817,15 +806,17 @@ static void command_manageauth(client_t *client, source_t *source,
                 ICECAST_LOG_WARN("manage auth request add for %s but no user/pass", source->mount);
                 break;
             }
+            _Checked {
             ret = mountinfo->auth->adduser(mountinfo->auth, username, password);
+            }
             if (ret == AUTH_FAILED) {
-                message = strdup("User add failed - check the icecast error log");
+                message = (_Nt_array_ptr<char>) strdup("User add failed - check the icecast error log");
             }
             if (ret == AUTH_USERADDED) {
-                message = strdup("User added");
+                message = (_Nt_array_ptr<char>)strdup("User added");
             }
             if (ret == AUTH_USEREXISTS) {
-                message = strdup("User already exists - not added");
+                message = (_Nt_array_ptr<char>)strdup("User already exists - not added");
             }
         }
         if (!strcmp(action, "delete"))
@@ -835,12 +826,14 @@ static void command_manageauth(client_t *client, source_t *source,
                 ICECAST_LOG_WARN("manage auth request delete for %s but no username", source->mount);
                 break;
             }
+            _Checked {
             ret = mountinfo->auth->deleteuser(mountinfo->auth, username);
+            }
             if (ret == AUTH_FAILED) {
-                message = strdup("User delete failed - check the icecast error log");
+                message = (_Nt_array_ptr<char>)strdup("User delete failed - check the icecast error log");
             }
             if (ret == AUTH_USERDELETED) {
-                message = strdup("User deleted");
+                message = (_Nt_array_ptr<char>)strdup("User deleted");
             }
         }
 
@@ -856,14 +849,15 @@ static void command_manageauth(client_t *client, source_t *source,
 
         xmlDocSetRootElement(doc, node);
 
-        if (mountinfo && mountinfo->auth && mountinfo->auth->listuser)
+        if (mountinfo && mountinfo->auth && mountinfo->auth->listuser) _Checked {
             mountinfo->auth->listuser (mountinfo->auth, srcnode);
+        }
 
         config_release_config ();
 
         admin_send_response(doc, client, response, 
                 MANAGEAUTH_TRANSFORMED_REQUEST);
-        free (message);
+        free<char> (message);
         xmlFreeDoc(doc);
         return;
     } while (0);
@@ -872,11 +866,10 @@ static void command_manageauth(client_t *client, source_t *source,
     client_send_400 (client, "missing parameter");
 }
 
-static void command_kill_source(client_t *client, source_t *source,
-    int response)
+static void command_kill_source(_Ptr<client_t> client, _Ptr<source_t> source, int response)
 {
-    xmlDocPtr doc;
-    xmlNodePtr node;
+    xmlDocPtr doc =NULL;
+    xmlNodePtr node = NULL;
 
     doc = xmlNewDoc (XMLSTR("1.0"));
     node = xmlNewDocNode(doc, NULL, XMLSTR("iceresponse"), NULL);
@@ -891,14 +884,13 @@ static void command_kill_source(client_t *client, source_t *source,
     xmlFreeDoc(doc);
 }
 
-static void command_kill_client(client_t *client, source_t *source,
-    int response)
+static void command_kill_client(_Ptr<client_t> client, _Ptr<source_t> source, int response)
 {
-    const char *idtext;
+    _Nt_array_ptr<const char> idtext = ((void *)0);
     int id;
-    client_t *listener;
-    xmlDocPtr doc;
-    xmlNodePtr node;
+    _Ptr<client_t> listener = ((void *)0);
+    xmlDocPtr doc = NULL;
+    xmlNodePtr node = NULL;
     char buf[50] = "";
 
     COMMAND_REQUIRE(client, "id", idtext);
@@ -935,10 +927,9 @@ static void command_kill_client(client_t *client, source_t *source,
     xmlFreeDoc(doc);
 }
 
-static void command_fallback(client_t *client, source_t *source,
-    int response)
+static void command_fallback(_Ptr<client_t> client, _Ptr<source_t> source, int response)
 {
-    const char *fallback;
+    _Nt_array_ptr<const char> fallback = ((void *)0);
     char *old;
 
     ICECAST_LOG_DEBUG("Got fallback request");
@@ -947,19 +938,22 @@ static void command_fallback(client_t *client, source_t *source,
 
     old = source->fallback_mount;
     source->fallback_mount = strdup(fallback);
-    free(old);
+    free<char>(old);
 
     html_success(client, "Fallback configured");
 }
 
-static void command_metadata(client_t *client, source_t *source,
-    int response)
+static void command_metadata(_Ptr<client_t> client, _Ptr<source_t> source, int response)
 {
-    const char *action;
-    const char *song, *title, *artist, *charset;
-    format_plugin_t *plugin;
-    xmlDocPtr doc;
-    xmlNodePtr node;
+    _Nt_array_ptr<const char> action = ((void *)0);
+    _Nt_array_ptr<const char> song = ((void *)0);
+_Nt_array_ptr<const char> title = ((void *)0);
+_Nt_array_ptr<const char> artist = ((void *)0);
+_Nt_array_ptr<const char> charset = ((void *)0);
+
+    _Ptr<format_plugin_t> plugin = ((void *)0);
+    xmlDocPtr doc = NULL;
+    xmlNodePtr node = NULL;
     int same_ip = 1;
 
     doc = xmlNewDoc (XMLSTR("1.0"));
@@ -993,21 +987,27 @@ static void command_metadata(client_t *client, source_t *source,
     {
         if (song)
         {
+          _Checked { 
             plugin->set_tag (plugin, "song", song, charset);
+          }
             ICECAST_LOG_INFO("Metadata on mountpoint %s changed to \"%s\"", source->mount, song);
         }
         else
         {
             if (artist && title)
             {
+              _Checked {
                 plugin->set_tag (plugin, "title", title, charset);
                 plugin->set_tag (plugin, "artist", artist, charset);
+              }
                 ICECAST_LOG_INFO("Metadata on mountpoint %s changed to \"%s - %s\"",
                         source->mount, artist, title);
             }
         }
         /* updates are now done, let them be pushed into the stream */
+        _Checked {
         plugin->set_tag (plugin, NULL, NULL, NULL);
+        }
     }
     else
     {
@@ -1027,10 +1027,10 @@ static void command_metadata(client_t *client, source_t *source,
     xmlFreeDoc(doc);
 }
 
-static void command_shoutcast_metadata(client_t *client, source_t *source)
+static void command_shoutcast_metadata(_Ptr<client_t> client, _Ptr<source_t> source)
 {
-    const char *action;
-    const char *value;
+    _Nt_array_ptr<const char> action = ((void *)0);
+    _Nt_array_ptr<const char> value = ((void *)0);
     int same_ip = 1;
 
     ICECAST_LOG_DEBUG("Got shoutcast metadata update request");
@@ -1049,8 +1049,10 @@ static void command_shoutcast_metadata(client_t *client, source_t *source)
 
     if (same_ip && source->format && source->format->set_tag)
     {
+      _Checked {
         source->format->set_tag (source->format, "title", value, NULL);
         source->format->set_tag (source->format, NULL, NULL, NULL);
+      }
 
         ICECAST_LOG_DEBUG("Metadata on mountpoint %s changed to \"%s\"", 
                 source->mount, value);
@@ -1062,8 +1064,8 @@ static void command_shoutcast_metadata(client_t *client, source_t *source)
     }
 }
 
-static void command_stats(client_t *client, const char *mount, int response) {
-    xmlDocPtr doc;
+static void command_stats(_Ptr<client_t> client, _Nt_array_ptr<const char> mount, int response) {
+    xmlDocPtr doc = NULL;
 
     ICECAST_LOG_DEBUG("Stats request, sending xml stats");
 
@@ -1073,7 +1075,7 @@ static void command_stats(client_t *client, const char *mount, int response) {
     return;
 }
 
-static void command_list_mounts(client_t *client, int response)
+static void command_list_mounts(_Ptr<client_t> client, int response)
 {
     ICECAST_LOG_DEBUG("List mounts request");
 
@@ -1090,7 +1092,7 @@ static void command_list_mounts(client_t *client, int response)
             return;
         }
 
-        client->refbuf->len = strlen (client->refbuf->data);
+        refbuf_wien(client->refbuf);
         client->respcode = 200;
 
         client->refbuf->next = stats_get_streams ();
@@ -1098,7 +1100,7 @@ static void command_list_mounts(client_t *client, int response)
     }
     else
     {
-        xmlDocPtr doc;
+        xmlDocPtr doc = NULL;
         avl_tree_rlock (global.source_tree);
         doc = admin_build_sourcelist(NULL);
         avl_tree_unlock (global.source_tree);
@@ -1109,11 +1111,10 @@ static void command_list_mounts(client_t *client, int response)
     }
 }
 
-static void command_updatemetadata(client_t *client, source_t *source,
-    int response)
+static void command_updatemetadata(_Ptr<client_t> client, _Ptr<source_t> source, int response)
 {
-    xmlDocPtr doc;
-    xmlNodePtr node, srcnode;
+    xmlDocPtr doc = NULL;
+    xmlNodePtr node = NULL, srcnode = NULL;
 
     doc = xmlNewDoc (XMLSTR("1.0"));
     node = xmlNewDocNode (doc, NULL, XMLSTR("icestats"), NULL);

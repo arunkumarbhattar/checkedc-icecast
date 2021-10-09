@@ -780,7 +780,13 @@ XMLPUBFUN xmlNodePtr xmlDocCopyNode(xmlNodePtr node : itype(_Ptr<xmlNode>), xmlD
 XMLPUBFUN xmlNodePtr xmlDocCopyNodeList(xmlDocPtr doc : itype(_Ptr<xmlDoc>), xmlNodePtr node : itype(_Ptr<xmlNode>)) : itype(_Ptr<xmlNode>);
 XMLPUBFUN xmlNodePtr xmlCopyNodeList(xmlNodePtr node : itype(_Ptr<xmlNode>)) : itype(_Ptr<xmlNode>);
 #ifdef LIBXML_TREE_ENABLED
-XMLPUBFUN xmlNodePtr xmlNewTextChild(xmlNodePtr parent : itype(_Ptr<xmlNode>), xmlNsPtr ns : itype(_Ptr<xmlNs>), const xmlChar *name : itype(_Ptr<const xmlChar>), const xmlChar *content : itype(_Ptr<const xmlChar>)) : itype(_Ptr<xmlNode>);
+
+XMLPUBFUN xmlNodePtr xmlNewTextChild(xmlNodePtr parent : itype(_Ptr<xmlNode>), 
+    xmlNsPtr ns : itype(_Ptr<xmlNs>), 
+    const xmlChar *name : itype(_Nt_array_ptr<const xmlChar>), 
+    const xmlChar *content : itype(_Nt_array_ptr<const xmlChar>)) : itype(_Ptr<xmlNode>);
+
+
 XMLPUBFUN xmlNodePtr xmlNewDocRawNode(xmlDocPtr doc : itype(_Ptr<xmlDoc>), xmlNsPtr ns : itype(_Ptr<xmlNs>), const xmlChar *name : itype(_Ptr<const xmlChar>), const xmlChar *content : itype(_Ptr<const xmlChar>)) : itype(_Ptr<xmlNode>);
 XMLPUBFUN xmlNodePtr xmlNewDocFragment(xmlDocPtr doc : itype(_Ptr<xmlDoc>)) : itype(_Ptr<xmlNode>);
 #endif /* LIBXML_TREE_ENABLED */
@@ -854,7 +860,9 @@ XMLPUBFUN xmlNsPtr xmlCopyNamespaceList(xmlNsPtr cur : itype(_Ptr<xmlNs>)) : ity
  */
 #if defined(LIBXML_TREE_ENABLED) || defined(LIBXML_XINCLUDE_ENABLED) || \
     defined(LIBXML_SCHEMAS_ENABLED) || defined(LIBXML_HTML_ENABLED)
-XMLPUBFUN xmlAttrPtr xmlSetProp(xmlNodePtr node : itype(_Ptr<xmlNode>), const xmlChar *name : itype(_Ptr<const xmlChar>), const xmlChar *value : itype(_Ptr<const xmlChar>)) : itype(_Ptr<xmlAttr>);
+XMLPUBFUN xmlAttrPtr xmlSetProp(xmlNodePtr node : itype(_Ptr<xmlNode>), 
+    const xmlChar *name : itype(_Nt_array_ptr<const xmlChar>), 
+    const xmlChar *value : itype(_Nt_array_ptr<const xmlChar>)) : itype(_Ptr<xmlAttr>);
 XMLPUBFUN xmlAttrPtr xmlSetNsProp(xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNsPtr ns : itype(_Ptr<xmlNs>), const xmlChar *name : itype(_Ptr<const xmlChar>), const xmlChar *value : itype(_Ptr<const xmlChar>)) : itype(_Ptr<xmlAttr>);
 #endif /* defined(LIBXML_TREE_ENABLED) || defined(LIBXML_XINCLUDE_ENABLED) || \
 	  defined(LIBXML_SCHEMAS_ENABLED) || defined(LIBXML_HTML_ENABLED) */
