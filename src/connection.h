@@ -27,7 +27,7 @@
 
 struct _client_tag;
 struct source_tag;
-//struct ice_config_tag;
+struct ice_config_tag;
 
 //typedef int (*send_fn)(struct connection_tag *, void *const, size_t);
 

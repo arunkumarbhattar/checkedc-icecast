@@ -155,7 +155,7 @@ void slave_shutdown(void)
 /* Actually open the connection and do some http parsing, handle any 302
  * responses within here.
  */
-static client_t *open_relay_connection (relay_server *relay)
+static _Ptr<client_t> open_relay_connection (relay_server *relay)
 {
     int redirects = 0;
     char *server_id = NULL;
@@ -267,7 +267,7 @@ static client_t *open_relay_connection (relay_server *relay)
         }
         else
         {
-            client_t *client = NULL;
+            _Ptr<client_t> client = NULL;
 
             if (httpp_getvar (parser, HTTPP_VAR_ERROR_MESSAGE))
             {
@@ -317,7 +317,7 @@ static void *start_relay_stream (void *arg)
 {
     relay_server *relay = arg;
     source_t *src = relay->source;
-    client_t *client;
+    _Ptr<client_t> client = NULL;
 
     ICECAST_LOG_INFO("Starting relayed source at mountpoint \"%s\"", relay->localmount);
     do
@@ -570,7 +570,7 @@ update_relays (relay_server **relay_list, relay_server *new_relay_list)
 static void relay_check_streams (relay_server *to_start : itype(_Ptr<relay_server>),
         relay_server *to_free : itype(_Ptr<relay_server>), int skip_timer)
 {
-    relay_server *relay;
+    _Ptr<relay_server> relay = NULL;
 
     while (to_free)
     {

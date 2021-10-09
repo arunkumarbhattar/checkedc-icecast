@@ -839,7 +839,9 @@ int connection_complete_source (source_t *source : itype(_Ptr<struct source_tag>
     _Ptr<ice_config_t> config = ((void *)0);
 
     global_lock ();
+    _Unchecked {
     ICECAST_LOG_DEBUG("sources count is %d", global.sources);
+    }
 
     config = config_get_config();
     if (global.sources < config->source_limit)
@@ -850,7 +852,7 @@ int connection_complete_source (source_t *source : itype(_Ptr<struct source_tag>
         format_type_t format_type;
 
         /* setup format handler */
-        contenttype =  httpp_getvar(source->parser, "content-type");
+        contenttype = (_Nt_array_ptr<const char>) httpp_getvar(source->parser, "content-type");
         if (contenttype != NULL)
         {
             format_type = format_get_type (contenttype);
@@ -863,7 +865,9 @@ int connection_complete_source (source_t *source : itype(_Ptr<struct source_tag>
                     client_send_403 (source->client, "Content-type not supported");
                     source->client = NULL;
                 }
+                _Unchecked { 
                 ICECAST_LOG_WARN("Content-type \"%s\" not supported, dropping source", contenttype);
+                }
                 return -1;
             }
         } else if (source->parser->req_type == httpp_req_put) {
@@ -873,12 +877,16 @@ int connection_complete_source (source_t *source : itype(_Ptr<struct source_tag>
                 client_send_403 (source->client, "No Content-type given");
                 source->client = NULL;
             }
+            _Unchecked { 
             ICECAST_LOG_ERROR("Content-type not given in PUT request, dropping source");
+            }
             return -1;
         } else {
+          _Unchecked {
             ICECAST_LOG_ERROR("No content-type header, falling back to backwards compatibility mode "
                     "for icecast 1.x relays. Assuming content is mp3. This behaviour is deprecated "
                     "and the source client will NOT work with future Icecast versions!");
+          }
             format_type = FORMAT_TYPE_GENERIC;
         }
 
@@ -891,12 +899,14 @@ int connection_complete_source (source_t *source : itype(_Ptr<struct source_tag>
                 client_send_403 (source->client, "internal format allocation problem");
                 source->client = NULL;
             }
+            _Unchecked {
             ICECAST_LOG_WARN("plugin format failed for \"%s\"", source->mount);
+            }
             return -1;
         }
 
 	/* For PUT support we check for 100-continue and send back a 100 to stay in spec */
-	expectcontinue = httpp_getvar (source->parser, "expect");
+	expectcontinue = (_Nt_array_ptr<const char>)httpp_getvar (source->parser, "expect");
 	if (expectcontinue != NULL)
 	{
 #ifdef HAVE_STRCASESTR
@@ -945,7 +955,7 @@ static int _check_pass_http(_Ptr<http_parser_t> parser, _Nt_array_ptr<const char
 {
     /* This will look something like "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==" */
     _Nt_array_ptr<const char> header = NULL;
-      header = httpp_getvar(parser, "authorization");
+      header = (_Nt_array_ptr<const char>)httpp_getvar(parser, "authorization");
     _Nt_array_ptr<char> userpass = ((void *)0);
 _Nt_array_ptr<char> tmp = ((void *)0);
 
@@ -988,7 +998,7 @@ static int _check_pass_icy(_Ptr<http_parser_t> parser, _Nt_array_ptr<const char>
 {
     _Nt_array_ptr<const char> password = ((void *)0);
 
-    password = httpp_getvar(parser, HTTPP_VAR_ICYPASSWORD);
+    password = (_Nt_array_ptr<const char>)httpp_getvar(parser, HTTPP_VAR_ICYPASSWORD);
     if(!password)
         return 0;
 
@@ -1002,7 +1012,7 @@ static int _check_pass_ice(_Ptr<http_parser_t> parser, _Nt_array_ptr<const char>
 {
     _Nt_array_ptr<const char> password : byte_count(0) = ((void *)0);
 
-    password = httpp_getvar(parser, "ice-password");
+    password = (_Nt_array_ptr<const char>)httpp_getvar(parser, "ice-password");
     if(!password)
         password = "";
 
@@ -1025,7 +1035,7 @@ int connection_check_admin_pass(http_parser_t *parser : itype(_Ptr<http_parser_t
         return 0;
     }
 
-    protocol = httpp_getvar (parser, HTTPP_VAR_PROTOCOL);
+    protocol = (_Nt_array_ptr<const char>)httpp_getvar (parser, HTTPP_VAR_PROTOCOL);
     if (protocol && strcmp (protocol, "ICY") == 0)
         ret = _check_pass_icy (parser, _Assume_bounds_cast<_Nt_array_ptr<const char>>(pass, byte_count(0)));
     else 
@@ -1064,7 +1074,7 @@ int connection_check_pass (http_parser_t *parser : itype(_Ptr<http_parser_t>), c
         return -1;
     }
 
-    protocol = httpp_getvar(parser, HTTPP_VAR_PROTOCOL);
+    protocol = (_Nt_array_ptr<const char>)httpp_getvar(parser, HTTPP_VAR_PROTOCOL);
     if(protocol != NULL && !strcmp(protocol, "ICY")) {
         ret = _check_pass_icy(parser, pass);
     }
@@ -1159,7 +1169,7 @@ void source_startup (client_t *client : itype(_Ptr<client_t>), const char *uri :
 }
 
 
-static void _handle_stats_request (_Ptr<client_t> client, _Ptr<char> uri)
+static void _handle_stats_request (_Ptr<client_t> client, _Nt_array_ptr<char> uri)
 {
     stats_event_inc(NULL, "stats_connections");
 
@@ -1251,7 +1261,7 @@ static void _handle_shoutcast_compatible (_Ptr<client_queue_t> node)
     {
         _Nt_array_ptr<char> source_password = ((void *)0);
         _Nt_array_ptr<char> ptr = ((void *)0);
-        _Array_ptr<char> headers = ((void *)0);
+        _Nt_array_ptr<char> headers = ((void *)0);
 
         _Ptr<mount_proxy> mountinfo = config_find_mount (config, shoutcast_mount, MOUNT_TYPE_NORMAL);
 
@@ -1267,17 +1277,17 @@ static void _handle_shoutcast_compatible (_Ptr<client_queue_t> node)
         config_release_config();
 
         /* Get rid of trailing \r\n or \n after password */
-        ptr = strstr (client->refbuf->data, "\r\r\n");
+        ptr = (_Nt_array_ptr<const char>)strstr (client->refbuf->data, "\r\r\n");
         if (ptr)
             headers = ptr+3;
         else
         {
-            ptr = strstr (client->refbuf->data, "\r\n");
+            ptr = (_Nt_array_ptr<const char>)strstr (client->refbuf->data, "\r\n");
             if (ptr)
                 headers = ptr+2;
             else
             {
-                ptr = strstr (client->refbuf->data, "\n");
+                ptr = (_Nt_array_ptr<const char>)strstr (client->refbuf->data, "\n");
                 if (ptr)
                     headers = ptr+1;
             }
@@ -1403,7 +1413,7 @@ static void _handle_connection(void)
                     memmove (ptr, ptr + node->stream_offset, client->refbuf->len);
                 }
 
-                rawuri = httpp_getvar(parser, HTTPP_VAR_URI);
+                rawuri = (_Nt_array_ptr<const char>)httpp_getvar(parser, HTTPP_VAR_URI);
 
                 /* assign a port-based shoutcast mountpoint if required */
                 if (node->shoutcast_mount && strcmp (rawuri, "/admin.cgi") == 0)
@@ -1419,7 +1429,7 @@ static void _handle_connection(void)
                     continue;
                 }
 
-                uri = util_normalise_uri(rawuri);
+                uri = (_Nt_array_ptr<const char>)util_normalise_uri(rawuri);
 
                 if (uri == NULL)
                 {
@@ -1495,7 +1505,9 @@ _Ptr<_Ptr<listener_t>> prev = ((void *)0);
     global.serversock = calloc<int> (config->listen_sock_count, sizeof (sock_t));
 
     listener = config->listen_sock; 
+    _Checked { 
     prev = &config->listen_sock;
+    }
     while (listener)
     {
         int successful = 0;
@@ -1534,7 +1546,9 @@ _Ptr<_Ptr<listener_t>> prev = ((void *)0);
             ICECAST_LOG_INFO("listener socket on port %d address %s", listener->port, listener->bind_address);
         else
             ICECAST_LOG_INFO("listener socket on port %d", listener->port);
+        _Checked {
         prev = &listener->next;
+        }
         listener = listener->next;
     }
     global.server_sockets = count;

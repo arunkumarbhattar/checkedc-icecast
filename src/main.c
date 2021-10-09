@@ -307,7 +307,7 @@ static int _start_listening(void)
 /* bind the socket and start listening */
 static int _server_proc_init(void)
 {
-    ice_config_t *config = config_get_config_unlocked();
+    _Ptr<ice_config_t> config = config_get_config_unlocked();
 
     if (connection_setup_sockets (config) < 1)
         return 0;
