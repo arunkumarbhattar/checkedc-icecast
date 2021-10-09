@@ -52,10 +52,10 @@
 #define snprintf _snprintf
 #endif
 
-static int format_prepare_headers (source_t *source, client_t *client);
+static int format_prepare_headers (_Ptr<source_t> source, _Ptr<client_t> client);
 
 
-format_type_t format_get_type (const char *contenttype)
+format_type_t format_get_type (const char *contenttype : itype(_Nt_array_ptr<const char>))
 {
     if(strcmp(contenttype, "application/x-ogg") == 0)
         return FORMAT_TYPE_OGG; /* Backwards compatibility */
@@ -83,7 +83,7 @@ format_type_t format_get_type (const char *contenttype)
         return FORMAT_TYPE_GENERIC;
 }
 
-int format_get_plugin(format_type_t type, source_t *source)
+int format_get_plugin(format_type_t type, source_t *source : itype(_Ptr<struct source_tag>))
 {
     int ret = -1;
 
@@ -111,9 +111,9 @@ int format_get_plugin(format_type_t type, source_t *source)
 /* clients need to be start from somewhere in the queue so we will look for
  * a refbuf which has been previously marked as a sync point. 
  */
-static void find_client_start (source_t *source, client_t *client)
+static void find_client_start (_Ptr<source_t> source, _Ptr<client_t> client)
 {
-    refbuf_t *refbuf = source->burst_point;
+    _Ptr<refbuf_t> refbuf = source->burst_point;
 
     /* we only want to attempt a burst at connection time, not midstream
      * however streams like theora may not have the most recent page marked as
@@ -147,9 +147,9 @@ static void find_client_start (source_t *source, client_t *client)
 }
 
 
-static int get_file_data (FILE *intro, client_t *client)
+static int get_file_data (_Ptr<FILE> intro, _Ptr<client_t> client)
 {
-    refbuf_t *refbuf = client->refbuf;
+    _Ptr<refbuf_t> refbuf = client->refbuf;
     size_t bytes;
 
     if (intro == NULL || fseek (intro, client->intro_offset, SEEK_SET) < 0)
@@ -158,7 +158,7 @@ static int get_file_data (FILE *intro, client_t *client)
     if (bytes == 0)
         return 0;
 
-    refbuf->len = (unsigned int)bytes;
+    refbuf->data = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(refbuf->data, count(bytes)), refbuf->len = (unsigned int)bytes;
     return 1;
 }
 
@@ -169,7 +169,7 @@ static int get_file_data (FILE *intro, client_t *client)
  */
 int format_check_file_buffer (_Ptr<struct source_tag> source, _Ptr<client_t> client) 
 {
-    refbuf_t *refbuf = client->refbuf;
+    _Ptr<refbuf_t> refbuf = client->refbuf;
 
     if (refbuf == NULL)
     {
@@ -212,9 +212,9 @@ int format_check_file_buffer (_Ptr<struct source_tag> source, _Ptr<client_t> cli
 /* call this to verify that the HTTP data has been sent and if so setup
  * callbacks to the appropriate format functions
  */
-int format_check_http_buffer (source_t *source, _Ptr<client_t> client)
+int format_check_http_buffer (source_t *source : itype(_Ptr<struct source_tag>), _Ptr<client_t> client)
 {
-    refbuf_t *refbuf = client->refbuf;
+    _Ptr<refbuf_t> refbuf = client->refbuf;
 
     if (refbuf == NULL)
         return -1;
@@ -240,21 +240,21 @@ int format_check_http_buffer (source_t *source, _Ptr<client_t> client)
         client->write_to_client = source->format->write_buf_to_client;
         client->check_buffer = format_check_file_buffer;
         client->intro_offset = 0;
-        client->pos = refbuf->len = 4096;
+        refbuf->data = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(refbuf->data, count(4096)), client->pos = refbuf->len = 4096;
         return -1;
     }
     return 0;
 }
 
 
-int format_generic_write_to_client (client_t *client)
+int format_generic_write_to_client (client_t *client : itype(_Ptr<client_t>))
 {
-    refbuf_t *refbuf = client->refbuf;
+    _Ptr<refbuf_t> refbuf = client->refbuf;
     int ret;
-    const char *buf = refbuf->data + client->pos;
     unsigned int len = refbuf->len - client->pos;
+    _Array_ptr<const char> buf : count(len) = refbuf->data + client->pos;
 
-    ret = client_send_bytes (client, buf, len);
+    ret = client_send_bytes<const char> (client, buf, len);
 
     if (ret > 0)
         client->pos += ret;
@@ -267,9 +267,9 @@ int format_generic_write_to_client (client_t *client)
  * the next buffer in the queue if there is no more left to be written from 
  * the existing buffer.
  */
-int format_advance_queue (source_t *source, _Ptr<client_t> client)
+int format_advance_queue (_Ptr<source_t> source, _Ptr<client_t> client)
 {
-    refbuf_t *refbuf = client->refbuf;
+    _Ptr<refbuf_t> refbuf = client->refbuf;
 
     if (refbuf == NULL)
         return -1;
@@ -287,30 +287,33 @@ int format_advance_queue (source_t *source, _Ptr<client_t> client)
 }
 
 
-static int format_prepare_headers (source_t *source, client_t *client)
+static int format_prepare_headers (_Ptr<source_t> source, _Ptr<client_t> client)
 {
     unsigned remaining;
-    char *ptr;
     int bytes;
     int bitrate_filtered = 0;
-    avl_node *node;
+    _Ptr<avl_node> node = ((void *)0);
 
     remaining = client->refbuf->len;
-    ptr = client->refbuf->data;
+    _Nt_array_ptr<char> ptr : count(client->refbuf->len) = client->refbuf->data;
     client->respcode = 200;
 
-    bytes = util_http_build_header(ptr, remaining, 0, 0, 200, NULL, source->format->contenttype, NULL, NULL, source);
+    bytes = util_http_build_header(_Assume_bounds_cast<_Nt_array_ptr<char>>(ptr, byte_count(0)), remaining, 0, 0, 200, NULL, source->format->contenttype, NULL, NULL, source);
     if (bytes <= 0) {
         ICECAST_LOG_ERROR("Dropping client as we can not build response headers.");
         client_send_500(client, "Header generation failed.");
         return -1;
     } else if ((bytes + 1024) >= remaining) { /* we don't know yet how much to follow but want at least 1kB free space */
-        void *new_ptr = realloc(ptr, bytes + 1024);
+      int length = bytes + 1024;
+        _Nt_array_ptr<char> new_ptr : count(length) = (_Nt_array_ptr<char>) realloc<char>(ptr, bytes + 1024);
         if (new_ptr) {
             ICECAST_LOG_DEBUG("Client buffer reallocation succeeded.");
             client->refbuf->data = ptr = new_ptr;
-            client->refbuf->len = remaining = bytes + 1024;
-            bytes = util_http_build_header(ptr, remaining, 0, 0, 200, NULL, source->format->contenttype, NULL, NULL, source);
+            client->refbuf->data = 
+              _Dynamic_bounds_cast<_Nt_array_ptr<char>>(client->refbuf->data, count(bytes + 1024)),
+                ptr = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(ptr, count(bytes + 1024)),
+                client->refbuf->len = remaining = bytes + 1024;
+            bytes = util_http_build_header(_Assume_bounds_cast<_Nt_array_ptr<char>>(ptr, byte_count(0)), remaining, 0, 0, 200, NULL, source->format->contenttype, NULL, NULL, source);
             if (bytes <= 0 || bytes >= remaining) {
                 ICECAST_LOG_ERROR("Dropping client as we can not build response headers.");
                 client_send_500(client, "Header generation failed.");
@@ -332,16 +335,16 @@ static int format_prepare_headers (source_t *source, client_t *client)
     while (node)
     {
         int next = 1;
-        http_var_t *var = avl_get<http_var_t>(node);
+        _Ptr<http_var_t> var = avl_get<http_var_t>(node);
         bytes = 0;
         if (!strcasecmp(var->name, "ice-audio-info"))
         {
             /* convert ice-audio-info to icy-br */
-            char *brfield = NULL;
+            _Nt_array_ptr<char> brfield = NULL;
             unsigned int bitrate;
 
             if (bitrate_filtered == 0)
-                brfield = strstr(var->value, "bitrate=");
+                brfield = ((_Nt_array_ptr<char> )strstr(var->value, "bitrate="));
             if (brfield && sscanf (brfield, "bitrate=%u", &bitrate))
             {           
                 bytes = snprintf (ptr, remaining, "icy-br:%u\r\n", bitrate);
@@ -359,8 +362,8 @@ static int format_prepare_headers (source_t *source, client_t *client)
             {
 		if (!strcasecmp(var->name, "ice-name"))
 		{
-		    ice_config_t *config;
-		    mount_proxy *mountinfo;
+		    _Ptr<ice_config_t> config = ((void *)0);
+		    _Ptr<mount_proxy> mountinfo = ((void *)0);
 
 		    config = config_get_config();
 		    mountinfo = config_find_mount (config, source->mount, MOUNT_TYPE_NORMAL);
@@ -416,13 +419,18 @@ static int format_prepare_headers (source_t *source, client_t *client)
     ptr += bytes;
 
     client->refbuf->len -= remaining;
-    if (source->format->create_client_data)
-        if (source->format->create_client_data (source, client) < 0) {
+    if (source->format->create_client_data) {
+      int result;
+      _Checked { 
+          result = source->format->create_client_data(source, client);
+      }
+        if (result) {
             ICECAST_LOG_ERROR("Client format header generation failed. "
                 "(Likely not enough or wrong source data) Dropping client.");
             client->respcode = 500;
             return -1;
         }
+    }
     return 0;
 }
 
