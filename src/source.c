@@ -72,21 +72,21 @@ mutex_t move_clients_mutex;
 /* avl tree helper */
 static int _compare_clients(void *compare_arg, void *a, void *b);
 static int _free_client(void *key);
-static void _parse_audio_info (source_t *source, const char *s);
-static void source_shutdown (source_t *source);
+static void _parse_audio_info (_Ptr<source_t> source, _Nt_array_ptr<const char> s);
+static void source_shutdown (_Ptr<source_t> source);
 #ifdef _WIN32
 #define source_run_script(x,y)  ICECAST_LOG_WARN("on [dis]connect scripts disabled");
 #else
-static void source_run_script (char *command, char *mountpoint);
+static void source_run_script (char *command : itype(_Nt_array_ptr<char>), _Ptr<char> mountpoint);
 #endif
 
 /* Allocate a new source with the stated mountpoint, if one already
  * exists with that mountpoint in the global source tree then return
  * NULL.
  */
-_Ptr<source_t> source_reserve (const char *mount)
+_Ptr<source_t> source_reserve (const char *mount : itype(_Nt_array_ptr<const char>))
 {
-    source_t *src = NULL;
+    _Ptr<source_t> src = NULL;
 
     if(mount[0] != '/')
         ICECAST_LOG_WARN("Source at \"%s\" does not start with '/', clients will be "
@@ -102,19 +102,19 @@ _Ptr<source_t> source_reserve (const char *mount)
             break;
         }
 
-        src = calloc (1, sizeof(source_t));
+        src = calloc<source_t> (1, sizeof(source_t));
         if (src == NULL)
             break;
 
-        src->client_tree = avl_tree_new(_compare_clients, NULL);
-        src->pending_tree = avl_tree_new(_compare_clients, NULL);
+        src->client_tree = avl_tree_new<void>(_compare_clients, NULL);
+        src->pending_tree = avl_tree_new<void>(_compare_clients, NULL);
 
         /* make duplicates for strings or similar */
         src->mount = strdup (mount);
         src->max_listeners = -1;
         thread_mutex_create(&src->lock);
 
-        avl_insert (global.source_tree, src);
+        avl_insert<source_t> (global.source_tree, src);
 
     } while (0);
 
@@ -126,10 +126,10 @@ _Ptr<source_t> source_reserve (const char *mount)
 /* Find a mount with this raw name - ignoring fallbacks. You should have the
  * global source tree locked to call this.
  */
-source_t *source_find_mount_raw(const char *mount)
+source_t *source_find_mount_raw(const char *mount : itype(_Nt_array_ptr<const char>)) : itype(_Ptr<source_t>)
 {
-    source_t *source;
-    avl_node *node;
+    _Ptr<source_t> source = ((void *)0);
+    _Ptr<avl_node> node = ((void *)0);
     int cmp;
 
     if (!mount) {
@@ -158,17 +158,17 @@ source_t *source_find_mount_raw(const char *mount)
  * check the fallback, and so on.  Must have a global source lock to call
  * this function.
  */
-source_t *source_find_mount (const char *mount)
+source_t *source_find_mount(const char *mount : itype(_Nt_array_ptr<const char>)) : itype(_Ptr<source_t>)
 {
-    source_t *source = NULL;
-    ice_config_t *config;
-    mount_proxy *mountinfo;
+    _Ptr<source_t> source = NULL;
+    _Ptr<ice_config_t> config = ((void *)0);
+    _Ptr<mount_proxy> mountinfo = ((void *)0);
     int depth = 0;
 
     config = config_get_config();
     while (mount && depth < MAX_FALLBACK_DEPTH)
     {
-        source = source_find_mount_raw(mount);
+        source = source_find_mount_raw(_Assume_bounds_cast<_Nt_array_ptr<const char>>(mount, byte_count(0)));
 
         if (source)
         {
@@ -203,7 +203,7 @@ int source_compare_sources(_Ptr<source_t> arg, _Ptr<source_t> a, _Ptr<source_t> 
 }
 
 
-void source_clear_source (source_t *source)
+void source_clear_source (source_t *source : itype(_Ptr<source_t>))
 {
     int c;
 
@@ -231,13 +231,13 @@ void source_clear_source (source_t *source)
     c=0;
     while (1)
     {
-        avl_node *node = avl_get_first (source->client_tree);
+        _Ptr<avl_node> node = avl_get_first (source->client_tree);
         if (node)
         {
             client_t *client = node->key;
             if (client->respcode == 200)
                 c++; /* only count clients that have had some processing */
-            avl_delete (source->client_tree, client, _free_client);
+            avl_delete<client_t> (source->client_tree, client, _free_client);
             continue;
         }
         break;
@@ -251,7 +251,7 @@ void source_clear_source (source_t *source)
 
     while (avl_get_first (source->pending_tree))
     {
-        avl_delete (source->pending_tree,
+        avl_delete<void> (source->pending_tree,
                 avl_get_first(source->pending_tree)->key, _free_client);
     }
 
@@ -262,7 +262,7 @@ void source_clear_source (source_t *source)
     /* Lets clear out the source queue too */
     while (source->stream_data)
     {
-        refbuf_t *p = source->stream_data;
+        _Ptr<refbuf_t> p = source->stream_data;
         source->stream_data = p->next;
         p->next = NULL;
         /* can be referenced by burst handler as well */
@@ -286,10 +286,10 @@ void source_clear_source (source_t *source)
     util_dict_free (source->audio_info);
     source->audio_info = NULL;
 
-    free(source->fallback_mount);
+    free<char>(source->fallback_mount);
     source->fallback_mount = NULL;
 
-    free(source->dumpfilename);
+    free<char>(source->dumpfilename);
     source->dumpfilename = NULL;
 
     if (source->intro_file)
@@ -308,27 +308,27 @@ void source_free_source (_Ptr<source_t> source)
 {
     ICECAST_LOG_DEBUG("freeing source \"%s\"", source->mount);
     avl_tree_wlock (global.source_tree);
-    avl_delete (global.source_tree, source, NULL);
+    avl_delete<source_t> (global.source_tree, source, NULL);
     avl_tree_unlock (global.source_tree);
 
-    avl_tree_free(source->pending_tree, _free_client);
-    avl_tree_free(source->client_tree, _free_client);
+    avl_tree_free(source->pending_tree, (_free_client));
+    avl_tree_free(source->client_tree, (_free_client));
 
     /* make sure all YP entries have gone */
     yp_remove (source->mount);
 
-    free (source->mount);
-    free (source);
+    free<char> (source->mount);
+    free<source_t> (source);
 
     return;
 }
 
 
-client_t *source_find_client(source_t *source, int id)
+client_t *source_find_client(source_t *source : itype(_Ptr<source_t>), int id) : itype(_Ptr<client_t>)
 {
-    client_t fakeclient;
+    client_t fakeclient = {};
     _Ptr<client_t> result = NULL;
-    connection_t fakecon;
+    connection_t fakecon = {};
 
     fakeclient.con = &fakecon;
     fakeclient.con->id = id;
@@ -350,7 +350,7 @@ client_t *source_find_client(source_t *source, int id)
  * The only lock that should be held when this is called is the
  * source tree lock
  */
-void source_move_clients (source_t *source, source_t *dest)
+void source_move_clients (source_t *source : itype(_Ptr<source_t>), source_t *dest : itype(_Ptr<source_t>))
 {
     unsigned long count = 0;
     if (strcmp (source->mount, dest->mount) == 0)
@@ -397,11 +397,11 @@ void source_move_clients (source_t *source, source_t *dest)
 
         while (1)
         {
-            avl_node *node = avl_get_first (source->pending_tree);
+            _Ptr<avl_node> node = avl_get_first (source->pending_tree);
             if (node == NULL)
                 break;
             client = avl_get<client_t>(node);
-            avl_delete (source->pending_tree, client, NULL);
+            avl_delete<client_t> (source->pending_tree, client, NULL);
 
             /* when switching a client to a different queue, be wary of the 
              * refbuf it's referring to, if it's http headers then we need
@@ -409,24 +409,24 @@ void source_move_clients (source_t *source, source_t *dest)
              */
             if (client->check_buffer != format_check_http_buffer)
             {
-                client_set_queue (client, NULL);
+                client_set_queue (_Assume_bounds_cast<_Ptr<client_t>>(client), NULL);
                 client->check_buffer = format_check_file_buffer;
                 if (source->con == NULL)
                     client->intro_offset = -1;
             }
 
-            avl_insert (dest->pending_tree, (void *)client);
+            avl_insert<void> (dest->pending_tree, (void *)client);
             count++;
         }
 
         while (1)
         {
-            avl_node *node = avl_get_first (source->client_tree);
+            _Ptr<avl_node> node = avl_get_first (source->client_tree);
             if (node == NULL)
                 break;
 
             client = avl_get<client_t>(node);
-            avl_delete (source->client_tree, client, NULL);
+            avl_delete<client_t> (source->client_tree, client, NULL);
 
             /* when switching a client to a different queue, be wary of the 
              * refbuf it's referring to, if it's http headers then we need
@@ -434,18 +434,18 @@ void source_move_clients (source_t *source, source_t *dest)
              */
             if (client->check_buffer != format_check_http_buffer)
             {
-                client_set_queue (client, NULL);
+                client_set_queue (_Assume_bounds_cast<_Ptr<client_t>>(client), NULL);
                 client->check_buffer = format_check_file_buffer;
                 if (source->con == NULL)
                     client->intro_offset = -1;
             }
-            avl_insert (dest->pending_tree, (void *)client);
+            avl_insert<void> (dest->pending_tree, (void *)client);
             count++;
         }
         ICECAST_LOG_INFO("passing %lu listeners to \"%s\"", count, dest->mount);
 
         source->listeners = 0;
-        stats_event (source->mount, "listeners", "0");
+        stats_event (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "listeners", "0");
 
     } while (0);
 
@@ -465,9 +465,9 @@ void source_move_clients (source_t *source, source_t *dest)
  * and sent back, however NULL is also valid as in the case of a short
  * timeout and there's no data pending.
  */
-static refbuf_t *get_next_buffer (source_t *source)
+static _Ptr<refbuf_t> get_next_buffer(_Ptr<source_t> source)
 {
-    refbuf_t *refbuf = NULL;
+    _Ptr<refbuf_t> refbuf = NULL;
     int delay = 250;
 
     if (source->short_delay)
@@ -487,9 +487,9 @@ static refbuf_t *get_next_buffer (source_t *source)
 
         if (current >= source->client_stats_update)
         {
-            stats_event_args (source->mount, "total_bytes_read",
+            stats_event_args (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "total_bytes_read",
                     "%"PRIu64, source->format->read_bytes);
-            stats_event_args (source->mount, "total_bytes_sent",
+            stats_event_args (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "total_bytes_sent",
                     "%"PRIu64, source->format->sent_bytes);
             source->client_stats_update = current + 5;
         }
@@ -516,7 +516,9 @@ static refbuf_t *get_next_buffer (source_t *source)
             break;
         }
         source->last_read = current;
+        _Checked {
         refbuf = source->format->get_buffer (source);
+        }
         if (source->client->con && source->client->con->error)
         {
             ICECAST_LOG_INFO("End of Stream %s", source->mount);
@@ -536,7 +538,7 @@ static refbuf_t *get_next_buffer (source_t *source)
  * referring to it after writing then drop the client as it's fallen too far
  * behind 
  */ 
-static void send_to_listener (source_t *source, client_t *client, int deletion_expected)
+static void send_to_listener (_Ptr<source_t> source, _Ptr<client_t> client, int deletion_expected)
 {
     int bytes;
     int loop = 10;   /* max number of iterations in one go */
@@ -567,10 +569,12 @@ static void send_to_listener (source_t *source, client_t *client, int deletion_e
 
         loop--;
 
+        _Checked {
         if (client->check_buffer (source, client) < 0)
             break;
 
         bytes = client->write_to_client (client);
+        }
         if (bytes <= 0)
             break;  /* can't write any more */
 
@@ -584,7 +588,7 @@ static void send_to_listener (source_t *source, client_t *client, int deletion_e
     {
         ICECAST_LOG_INFO("Client %lu (%s) has fallen too far behind, removing",
                 client->con->id, client->con->ip);
-        stats_event_inc (source->mount, "slow_listeners");
+        stats_event_inc (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "slow_listeners");
         client->con->error = 1;
     }
 }
@@ -593,12 +597,12 @@ static void send_to_listener (source_t *source, client_t *client, int deletion_e
 /* Open the file for stream dumping.
  * This function should do all processing of the filename.
  */
-static FILE * source_open_dumpfile(const char * filename) {
+static _Ptr<FILE> source_open_dumpfile(_Nt_array_ptr<const char> filename) {
 #ifndef _WIN32
     /* some of the below functions seems not to be standard winapi functions */
-    char buffer[PATH_MAX];
+    char buffer _Nt_checked[PATH_MAX];
     time_t curtime;
-    struct tm *loctime;
+    _Ptr<struct tm> loctime = ((void *)0);
 
     /* Get the current time. */
     curtime = time (NULL);
@@ -616,35 +620,35 @@ static FILE * source_open_dumpfile(const char * filename) {
 /* Perform any initialisation just before the stream data is processed, the header
  * info is processed by now and the format details are setup
  */
-static void source_init (source_t *source)
+static void source_init (_Ptr<source_t> source)
 {
-    ice_config_t *config = config_get_config();
+    _Ptr<ice_config_t> config = config_get_config();
     char *listenurl;
-    const char *str;
+    _Nt_array_ptr<const char> str = ((void *)0);
     int listen_url_size;
-    mount_proxy *mountinfo;
+    _Ptr<mount_proxy> mountinfo = ((void *)0);
 
     /* 6 for max size of port */
     listen_url_size = strlen("http://") + strlen(config->hostname) +
         strlen(":") + 6 + strlen(source->mount) + 1;
 
-    listenurl = malloc (listen_url_size);
+    listenurl = malloc<char> (listen_url_size);
     memset (listenurl, '\000', listen_url_size);
     snprintf (listenurl, listen_url_size, "http://%s:%d%s",
             config->hostname, config->port, source->mount);
     config_release_config();
 
-    str = httpp_getvar(source->parser, "ice-audio-info");
+    str = (_Nt_array_ptr<const char>) httpp_getvar(source->parser, "ice-audio-info");
     source->audio_info = util_dict_new();
     if (str)
     {
         _parse_audio_info (source, str);
-        stats_event (source->mount, "audio_info", str);
+        stats_event (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "audio_info", str);
     }
 
-    stats_event (source->mount, "listenurl", listenurl);
+    stats_event (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "listenurl", listenurl);
 
-    free(listenurl);
+    free<char>(listenurl);
 
     if (source->dumpfilename != NULL)
     {
@@ -662,11 +666,11 @@ static void source_init (source_t *source)
     /* start off the statistics */
     source->listeners = 0;
     stats_event_inc (NULL, "source_total_connections");
-    stats_event (source->mount, "slow_listeners", "0");
-    stats_event_args (source->mount, "listeners", "%lu", source->listeners);
-    stats_event_args (source->mount, "listener_peak", "%lu", source->peak_listeners);
-    stats_event_time (source->mount, "stream_start");
-    stats_event_time_iso8601 (source->mount, "stream_start_iso8601");
+    stats_event (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "slow_listeners", "0");
+    stats_event_args (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "listeners", "%lu", source->listeners);
+    stats_event_args (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "listener_peak", "%lu", source->peak_listeners);
+    stats_event_time (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "stream_start");
+    stats_event_time_iso8601 (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "stream_start_iso8601");
 
     ICECAST_LOG_DEBUG("Source creation complete");
     source->last_read = time (NULL);
@@ -677,8 +681,8 @@ static void source_init (source_t *source)
     if (mountinfo)
     {
         if (mountinfo->on_connect)
-            source_run_script (mountinfo->on_connect, source->mount);
-        auth_stream_start (mountinfo, source->mount);
+            source_run_script (mountinfo->on_connect, _Assume_bounds_cast<_Ptr<char>>(source->mount));
+        auth_stream_start (mountinfo, _Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)));
     }
     config_release_config();
 
@@ -691,7 +695,7 @@ static void source_init (source_t *source)
 
     if (source->fallback_override && source->fallback_mount)
     {
-        source_t *fallback_source;
+        _Ptr<source_t> fallback_source = ((void *)0);
 
         avl_tree_rlock(global.source_tree);
         fallback_source = source_find_mount(source->fallback_mount);
@@ -704,11 +708,11 @@ static void source_init (source_t *source)
 }
 
 
-void source_main (source_t *source)
+void source_main (source_t *source : itype(_Ptr<source_t>))
 {
-    refbuf_t *refbuf;
+    _Ptr<refbuf_t> refbuf = ((void *)0);
     client_t *client;
-    avl_node *client_node;
+    _Ptr<avl_node> client_node = ((void *)0);
 
     source_init (source);
 
@@ -739,7 +743,7 @@ void source_main (source_t *source)
             source->burst_offset += refbuf->len;
             while (source->burst_offset > source->burst_size)
             {
-                refbuf_t *to_release = source->burst_point;
+                _Ptr<refbuf_t> to_release = source->burst_point;
 
                 if (to_release->next)
                 {
@@ -752,8 +756,10 @@ void source_main (source_t *source)
             }
 
             /* save stream to file */
+            _Checked {
             if (source->dumpfile && source->format->write_buf_to_file)
                 source->format->write_buf_to_file (source, refbuf);
+            }
         }
         /* lets see if we have too much data in the queue, but don't remove it until later */
         thread_mutex_lock(&source->lock);
@@ -771,13 +777,13 @@ void source_main (source_t *source)
         while (client_node) {
             client = avl_get<client_t>(client_node);
 
-            send_to_listener (source, client, remove_from_q);
+            send_to_listener (source, _Assume_bounds_cast<_Ptr<client_t>>(client), remove_from_q);
 
             if (client->con->error) {
                 client_node = avl_get_next(client_node);
                 if (client->respcode == 200)
                     stats_event_dec (NULL, "listeners");
-                avl_delete(source->client_tree, (void *)client, _free_client);
+                avl_delete<void>(source->client_tree, (void *)client, (_free_client));
                 source->listeners--;
                 ICECAST_LOG_DEBUG("Client removed");
                 continue;
@@ -799,7 +805,7 @@ void source_main (source_t *source)
                  */
                 client = avl_get<client_t>(client_node);
                 client_node = avl_get_next(client_node);
-                avl_delete(source->pending_tree, (void *)client, _free_client);
+                avl_delete<void>(source->pending_tree, (void *)client, (_free_client));
 
                 ICECAST_LOG_INFO("Client deleted, exceeding maximum listeners for this "
                         "mountpoint (%s).", source->mount);
@@ -807,18 +813,18 @@ void source_main (source_t *source)
             }
             
             /* Otherwise, the client is accepted, add it */
-            avl_insert(source->client_tree, client_node->key);
+            avl_insert<void>(source->client_tree, client_node->key);
 
             source->listeners++;
             ICECAST_LOG_DEBUG("Client added for mountpoint (%s)", source->mount);
-            stats_event_inc(source->mount, "connections");
+            stats_event_inc(_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "connections");
 
             client_node = avl_get_next(client_node);
         }
 
         /** clear pending tree **/
         while (avl_get_first(source->pending_tree)) {
-            avl_delete(source->pending_tree, 
+            avl_delete<void>(source->pending_tree, 
                     avl_get_first(source->pending_tree)->key, 
                     source_remove_client);
         }
@@ -834,9 +840,9 @@ void source_main (source_t *source)
             if (source->listeners > source->peak_listeners)
             {
                 source->peak_listeners = source->listeners;
-                stats_event_args (source->mount, "listener_peak", "%lu", source->peak_listeners);
+                stats_event_args (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "listener_peak", "%lu", source->peak_listeners);
             }
-            stats_event_args (source->mount, "listeners", "%lu", source->listeners);
+            stats_event_args (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "listeners", "%lu", source->listeners);
             if (source->listeners == 0 && source->on_demand)
                 source->running = 0;
         }
@@ -851,7 +857,7 @@ void source_main (source_t *source)
              * increase refcount */
             while (source->stream_data->_count == 1)
             {
-                refbuf_t *to_go = source->stream_data;
+                _Ptr<refbuf_t> to_go = source->stream_data;
 
                 if (to_go->next == NULL || source->burst_point == to_go)
                 {
@@ -874,9 +880,9 @@ void source_main (source_t *source)
 }
 
 
-static void source_shutdown (source_t *source)
+static void source_shutdown (_Ptr<source_t> source)
 {
-    mount_proxy *mountinfo;
+    _Ptr<mount_proxy> mountinfo = ((void *)0);
 
     source->running = 0;
     if (source->con && source->con->ip) {
@@ -889,8 +895,8 @@ static void source_shutdown (source_t *source)
     if (mountinfo)
     {
         if (mountinfo->on_disconnect)
-            source_run_script (mountinfo->on_disconnect, source->mount);
-        auth_stream_end (mountinfo, source->mount);
+            source_run_script (mountinfo->on_disconnect, _Assume_bounds_cast<_Ptr<char>>(source->mount));
+        auth_stream_end (mountinfo, _Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)));
     }
     config_release_config();
 
@@ -899,7 +905,7 @@ static void source_shutdown (source_t *source)
      */
     if (source->fallback_mount)
     {
-        source_t *fallback_source;
+        _Ptr<source_t> fallback_source = ((void *)0);
 
         avl_tree_rlock(global.source_tree);
         fallback_source = source_find_mount (source->fallback_mount);
@@ -911,7 +917,7 @@ static void source_shutdown (source_t *source)
     }
 
     /* delete this sources stats */
-    stats_event(source->mount, NULL, NULL);
+    stats_event(_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), NULL, NULL);
 
     /* we don't remove the source from the tree here, it may be a relay and
        therefore reserved */
@@ -932,8 +938,8 @@ static int _compare_clients(void *compare_arg, void *a, void *b)
     client_t *clienta = (client_t *)a;
     client_t *clientb = (client_t *)b;
 
-    connection_t *cona = clienta->con;
-    connection_t *conb = clientb->con;
+    _Ptr<connection_t> cona = clienta->con;
+    _Ptr<connection_t> conb = clientb->con;
 
     if (cona->id < conb->id) return -1;
     if (cona->id > conb->id) return 1;
@@ -941,7 +947,7 @@ static int _compare_clients(void *compare_arg, void *a, void *b)
     return 0;
 }
 
-int source_remove_client(void *key)
+_Itype_for_any(T) int source_remove_client(void *key : itype(_Ptr<T>))
 {
     return 1;
 }
@@ -952,21 +958,21 @@ static int _free_client(void *key)
 
     /* if no response has been sent then send a 404 */
     if (client->respcode == 0)
-        client_send_404 (client, "Mount unavailable");
+        client_send_404 (_Assume_bounds_cast<_Ptr<client_t>>(client), "Mount unavailable");
     else
-        client_destroy(client);
+        client_destroy(_Assume_bounds_cast<_Ptr<client_t>>(client));
     
     return 1;
 }
 
-static void _parse_audio_info (source_t *source, const char *s)
+static void _parse_audio_info (_Ptr<source_t> source, _Nt_array_ptr<const char> s)
 {
-    const char *start = s;
+    _Nt_array_ptr<const char> start = s;
     unsigned int len;
 
     while (start != NULL && *start != '\0')
     {
-        if ((s = strchr (start, ';')) == NULL)
+        if ((s = ((_Nt_array_ptr<char> )strchr (start, ';'))) == NULL)
             len = strlen (start);
         else
         {
@@ -975,16 +981,18 @@ static void _parse_audio_info (source_t *source, const char *s)
         }
         if (len)
         {
-            char name[100], value[200];
-            char *esc;
+            char name _Nt_checked[100];
+char value _Nt_checked[200];
+
+            _Nt_array_ptr<char> esc = ((void *)0);
 
             sscanf (start, "%99[^=]=%199[^;\r\n]", name, value);
-            esc = util_url_unescape (value);
+            esc = ((_Nt_array_ptr<char> )util_url_unescape (value));
             if (esc)
             {
                 util_dict_set (source->audio_info, name, esc);
-                stats_event (source->mount, name, esc);
-                free (esc);
+                stats_event (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), name, esc);
+                free<char> (esc);
             }
         }
         start = s;
@@ -993,15 +1001,15 @@ static void _parse_audio_info (source_t *source, const char *s)
 
 
 /* Apply the mountinfo details to the source */
-static void source_apply_mount (source_t *source, mount_proxy *mountinfo)
+static void source_apply_mount (_Ptr<source_t> source, _Ptr<mount_proxy> mountinfo)
 {
     const char *str;
     int val;
-    http_parser_t *parser = NULL;
+    _Ptr<http_parser_t> parser = NULL;
 
     ICECAST_LOG_DEBUG("Applying mount information for \"%s\"", source->mount);
     avl_tree_rlock (source->client_tree);
-    stats_event_args (source->mount, "listener_peak", "%lu", source->peak_listeners);
+    stats_event_args (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "listener_peak", "%lu", source->peak_listeners);
 
     if (mountinfo)
     {
@@ -1017,8 +1025,9 @@ static void source_apply_mount (source_t *source, mount_proxy *mountinfo)
         parser = source->client->parser;
 
     /* to be done before possible non-utf8 stats */
-    if (source->format && source->format->apply_settings)
+    if (source->format && source->format->apply_settings) _Checked {
         source->format->apply_settings (source->client, source->format, mountinfo);
+    }
 
     /* public */
     if (mountinfo && mountinfo->yp_public >= 0)
@@ -1026,20 +1035,20 @@ static void source_apply_mount (source_t *source, mount_proxy *mountinfo)
     else
     {
         do {
-            str = httpp_getvar (parser, "ice-public");
+            str = ((const char *)httpp_getvar (parser, "ice-public"));
             if (str) break;
-            str = httpp_getvar (parser, "icy-pub");
+            str = ((const char *)httpp_getvar (parser, "icy-pub"));
             if (str) break;
-            str = httpp_getvar (parser, "x-audiocast-public");
+            str = ((const char *)httpp_getvar (parser, "x-audiocast-public"));
             if (str) break;
             /* handle header from icecast v2 release */
-            str = httpp_getvar (parser, "icy-public");
+            str = ((const char *)httpp_getvar (parser, "icy-public"));
             if (str) break;
             str = "0";
         } while (0);
         val = atoi (str);
     }
-    stats_event_args (source->mount, "public", "%d", val);
+    stats_event_args (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "public", "%d", val);
     if (source->yp_public != val)
     {
         ICECAST_LOG_DEBUG("YP changed to %d", val);
@@ -1052,73 +1061,73 @@ static void source_apply_mount (source_t *source, mount_proxy *mountinfo)
 
     /* stream name */
     if (mountinfo && mountinfo->stream_name)
-        stats_event (source->mount, "server_name", mountinfo->stream_name);
+        stats_event (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "server_name", mountinfo->stream_name);
     else
     {
         do {
-            str = httpp_getvar (parser, "ice-name");
+            str = ((const char *)httpp_getvar (parser, "ice-name"));
             if (str) break;
-            str = httpp_getvar (parser, "icy-name");
+            str = ((const char *)httpp_getvar (parser, "icy-name"));
             if (str) break;
-            str = httpp_getvar (parser, "x-audiocast-name");
+            str = ((const char *)httpp_getvar (parser, "x-audiocast-name"));
             if (str) break;
             str = "Unspecified name";
         } while (0);
         if (source->format)
-            stats_event_conv (source->mount, "server_name", str, source->format->charset);
+            stats_event_conv (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "server_name", str, source->format->charset);
     }
 
     /* stream description */
     if (mountinfo && mountinfo->stream_description)
-        stats_event (source->mount, "server_description", mountinfo->stream_description);
+        stats_event (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "server_description", mountinfo->stream_description);
     else
     {
         do {
-            str = httpp_getvar (parser, "ice-description");
+            str = ((const char *)httpp_getvar (parser, "ice-description"));
             if (str) break;
-            str = httpp_getvar (parser, "icy-description");
+            str = ((const char *)httpp_getvar (parser, "icy-description"));
             if (str) break;
-            str = httpp_getvar (parser, "x-audiocast-description");
+            str = ((const char *)httpp_getvar (parser, "x-audiocast-description"));
             if (str) break;
             str = "Unspecified description";
         } while (0);
         if (source->format)
-            stats_event_conv (source->mount, "server_description", str, source->format->charset);
+            stats_event_conv (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "server_description", str, source->format->charset);
     }
 
     /* stream URL */
     if (mountinfo && mountinfo->stream_url)
-        stats_event (source->mount, "server_url", mountinfo->stream_url);
+        stats_event (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "server_url", mountinfo->stream_url);
     else
     {
         do {
-            str = httpp_getvar (parser, "ice-url");
+            str = ((const char *)httpp_getvar (parser, "ice-url"));
             if (str) break;
-            str = httpp_getvar (parser, "icy-url");
+            str = ((const char *)httpp_getvar (parser, "icy-url"));
             if (str) break;
-            str = httpp_getvar (parser, "x-audiocast-url");
+            str = ((const char *)httpp_getvar (parser, "x-audiocast-url"));
             if (str) break;
         } while (0);
         if (str && source->format)
-            stats_event_conv (source->mount, "server_url", str, source->format->charset);
+            stats_event_conv (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "server_url", str, source->format->charset);
     }
 
     /* stream genre */
     if (mountinfo && mountinfo->stream_genre)
-        stats_event (source->mount, "genre", mountinfo->stream_genre);
+        stats_event (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "genre", mountinfo->stream_genre);
     else
     {
         do {
-            str = httpp_getvar (parser, "ice-genre");
+            str = ((const char *)httpp_getvar (parser, "ice-genre"));
             if (str) break;
-            str = httpp_getvar (parser, "icy-genre");
+            str = ((const char *)httpp_getvar (parser, "icy-genre"));
             if (str) break;
-            str = httpp_getvar (parser, "x-audiocast-genre");
+            str = ((const char *)httpp_getvar (parser, "x-audiocast-genre"));
             if (str) break;
             str = "various";
         } while (0);
         if (source->format)
-            stats_event_conv (source->mount, "genre", str, source->format->charset);
+            stats_event_conv (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "genre", str, source->format->charset);
     }
 
     /* stream bitrate */
@@ -1127,44 +1136,44 @@ static void source_apply_mount (source_t *source, mount_proxy *mountinfo)
     else
     {
         do {
-            str = httpp_getvar (parser, "ice-bitrate");
+            str = ((const char *)httpp_getvar (parser, "ice-bitrate"));
             if (str) break;
-            str = httpp_getvar (parser, "icy-br");
+            str = ((const char *)httpp_getvar (parser, "icy-br"));
             if (str) break;
-            str = httpp_getvar (parser, "x-audiocast-bitrate");
+            str = ((const char *)httpp_getvar (parser, "x-audiocast-bitrate"));
         } while (0);
     }
-    stats_event (source->mount, "bitrate", str);
+    stats_event (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "bitrate", str);
 
     /* handle MIME-type */
     if (mountinfo && mountinfo->type)
-        stats_event (source->mount, "server_type", mountinfo->type);
+        stats_event (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "server_type", mountinfo->type);
     else
         if (source->format)
-            stats_event (source->mount, "server_type", source->format->contenttype);
+            stats_event (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "server_type", source->format->contenttype);
 
     if (mountinfo && mountinfo->subtype)
-        stats_event (source->mount, "subtype", mountinfo->subtype);
+        stats_event (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "subtype", mountinfo->subtype);
 
     if (mountinfo && mountinfo->auth)
-        stats_event (source->mount, "authenticator", mountinfo->auth->type);
+        stats_event (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "authenticator", mountinfo->auth->type);
     else
-        stats_event (source->mount, "authenticator", NULL);
+        stats_event (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "authenticator", NULL);
 
     if (mountinfo && mountinfo->fallback_mount)
     {
         char *mount = source->fallback_mount;
         source->fallback_mount = strdup (mountinfo->fallback_mount);
-        free (mount);
+        free<char> (mount);
     }
     else
         source->fallback_mount = NULL;
 
     if (mountinfo && mountinfo->dumpfile)
     {
-        char *filename = source->dumpfilename;
-        source->dumpfilename = strdup (mountinfo->dumpfile);
-        free (filename);
+        _Nt_array_ptr<char> filename = source->dumpfilename;
+        source->dumpfilename = ((_Nt_array_ptr<char> )strdup (mountinfo->dumpfile));
+        free<char> (filename);
     }
     else
         source->dumpfilename = NULL;
@@ -1176,13 +1185,13 @@ static void source_apply_mount (source_t *source, mount_proxy *mountinfo)
     }
     if (mountinfo && mountinfo->intro_filename)
     {
-        ice_config_t *config = config_get_config_unlocked ();
+        _Ptr<ice_config_t> config = config_get_config_unlocked ();
         unsigned int len  = strlen (config->webroot_dir) +
             strlen (mountinfo->intro_filename) + 2;
-        char *path = malloc (len);
+        char *path = malloc<char> (len);
         if (path)
         {
-            FILE *f;
+            _Ptr<FILE> f = ((void *)0);
             snprintf (path, len, "%s" PATH_SEPARATOR "%s", config->webroot_dir,
                     mountinfo->intro_filename);
 
@@ -1191,7 +1200,7 @@ static void source_apply_mount (source_t *source, mount_proxy *mountinfo)
                 source->intro_file = f;
             else
                 ICECAST_LOG_WARN("Cannot open intro file \"%s\": %s", path, strerror(errno));
-            free (path);
+            free<char> (path);
         }
     }
 
@@ -1215,13 +1224,13 @@ static void source_apply_mount (source_t *source, mount_proxy *mountinfo)
  * mountinfo can be NULL in which case default settings should be taken
  * This function is called by the Slave thread
  */
-void source_update_settings (ice_config_t *config, source_t *source, mount_proxy *mountinfo)
+void source_update_settings (ice_config_t *config : itype(_Ptr<ice_config_t>), source_t *source : itype(_Ptr<source_t>), mount_proxy *mountinfo : itype(_Ptr<mount_proxy>))
 {
     thread_mutex_lock(&source->lock);
     /*  skip if source is a fallback to file */
     if (source->running && source->client == NULL)
     {
-        stats_event_hidden (source->mount, NULL, 1);
+        stats_event_hidden (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), NULL, 1);
         thread_mutex_unlock(&source->lock);
         return;
     }
@@ -1230,7 +1239,7 @@ void source_update_settings (ice_config_t *config, source_t *source, mount_proxy
     source->timeout = config->source_timeout;
     source->burst_size = config->burst_size;
 
-    stats_event_args (source->mount, "listenurl", "http://%s:%d%s",
+    stats_event_args (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "listenurl", "http://%s:%d%s",
             config->hostname, config->port, source->mount);
 
     source_apply_mount (source, mountinfo);
@@ -1248,27 +1257,27 @@ void source_update_settings (ice_config_t *config, source_t *source, mount_proxy
     if (source->on_demand)
     {
         ICECAST_LOG_DEBUG("on_demand set");
-        stats_event (source->mount, "on_demand", "1");
-        stats_event_args (source->mount, "listeners", "%ld", source->listeners);
+        stats_event (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "on_demand", "1");
+        stats_event_args (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "listeners", "%ld", source->listeners);
     }
     else
-        stats_event (source->mount, "on_demand", NULL);
+        stats_event (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "on_demand", NULL);
 
     if (source->hidden)
     {
-        stats_event_hidden (source->mount, NULL, 1);
+        stats_event_hidden (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), NULL, 1);
         ICECAST_LOG_DEBUG("hidden from public");
     }
     else
-        stats_event_hidden (source->mount, NULL, 0);
+        stats_event_hidden (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), NULL, 0);
 
     if (source->max_listeners == -1)
-        stats_event (source->mount, "max_listeners", "unlimited");
+        stats_event (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "max_listeners", "unlimited");
     else
     {
-        char buf [10];
+        char buf _Nt_checked[10];
         snprintf (buf, sizeof (buf), "%ld", source->max_listeners);
-        stats_event (source->mount, "max_listeners", buf);
+        stats_event (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "max_listeners", buf);
     }
     ICECAST_LOG_DEBUG("public set to %d", source->yp_public);
     ICECAST_LOG_DEBUG("max listeners to %ld", source->max_listeners);
@@ -1280,16 +1289,15 @@ void source_update_settings (ice_config_t *config, source_t *source, mount_proxy
 }
 
 
-void *source_client_thread (void *arg)
+_Ptr<void> source_client_thread (_Ptr<source_t> source)
 {
-    source_t *source = arg;
 
     stats_event_inc(NULL, "source_client_connections");
-    stats_event (source->mount, "listeners", "0");
+    stats_event (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "listeners", "0");
 
-    source_main (source);
+    source_main (_Assume_bounds_cast<_Ptr<source_t>>(source));
 
-    source_free_source (source);
+    source_free_source (_Assume_bounds_cast<_Ptr<source_t>>(source));
     slave_update_all_mounts();
 
     return NULL;
@@ -1298,9 +1306,9 @@ void *source_client_thread (void *arg)
 
 void source_client_callback (_Ptr<client_t> client, _Ptr<source_t> arg)
 {
-    const char *agent;
-    source_t *source = arg;
-    refbuf_t *old_data = client->refbuf;
+    _Nt_array_ptr<const char> agent = ((void *)0);
+    _Ptr<source_t> source = arg;
+    _Ptr<refbuf_t> old_data = client->refbuf;
 
     if (client->con->error)
     {
@@ -1314,12 +1322,12 @@ void source_client_callback (_Ptr<client_t> client, _Ptr<source_t> arg)
     client->refbuf = old_data->associated;
     old_data->associated = NULL;
     refbuf_release (old_data);
-    stats_event (source->mount, "source_ip", source->client->con->ip);
-    agent = httpp_getvar (source->client->parser, "user-agent");
+    stats_event (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "source_ip", source->client->con->ip);
+    agent = (_Nt_array_ptr<const char>) httpp_getvar (source->client->parser, "user-agent");
     if (agent)
-        stats_event (source->mount, "user_agent", agent);
+        stats_event (_Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), "user_agent", agent);
 
-    thread_create (void, void, "Source Thread", source_client_thread,
+    thread_create(source_t, void, "Source Thread", source_client_thread,
             source, THREAD_DETACHED);
 }
 
@@ -1352,7 +1360,7 @@ static inline void __setup_empty_script_environment(void) {
     }
 }
 
-static void source_run_script (char *command, char *mountpoint)
+static void source_run_script (char *command : itype(_Nt_array_ptr<char>), _Ptr<char> mountpoint)
 {
     pid_t pid, external_pid;
 
@@ -1374,7 +1382,7 @@ static void source_run_script (char *command, char *mountpoint)
                     ICECAST_LOG_DEBUG("Starting command %s", command);
                     __setup_empty_script_environment();
                     /* consider to add action here as well */
-                    execl(command, command, mountpoint, (char *)NULL);
+                    execl(command, command, mountpoint, (_Ptr<char>)NULL);
                     exit(1);
                 default: /* parent */
                     break;
@@ -1394,13 +1402,13 @@ static void source_run_script (char *command, char *mountpoint)
 static void *source_fallback_file (void *arg)
 {
     char *mount = arg;
-    char *type;
+    _Nt_array_ptr<char> type = ((void *)0);
     char *path;
     unsigned int len;
-    FILE *file = NULL;
-    source_t *source = NULL;
-    ice_config_t *config;
-    http_parser_t *parser;
+    _Ptr<FILE> file = NULL;
+    _Ptr<source_t> source = NULL;
+    _Ptr<ice_config_t> config = ((void *)0);
+    _Ptr<http_parser_t> parser = ((void *)0);
 
     do
     {
@@ -1408,7 +1416,7 @@ static void *source_fallback_file (void *arg)
             break;
         config = config_get_config ();
         len  = strlen (config->webroot_dir) + strlen (mount) + 1;
-        path = malloc (len);
+        path = malloc<char> (len);
         if (path)
             snprintf (path, len, "%s%s", config->webroot_dir, mount);
         config_release_config ();
@@ -1420,22 +1428,22 @@ static void *source_fallback_file (void *arg)
         if (file == NULL)
         {
             ICECAST_LOG_WARN("unable to open file \"%s\"", path);
-            free (path);
+            free<char> (path);
             break;
         }
-        free (path);
-        source = source_reserve (mount);
+        free<char> (path);
+        source = source_reserve (_Assume_bounds_cast<_Nt_array_ptr<const char>>(mount, byte_count(0)));
         if (source == NULL)
         {
             ICECAST_LOG_WARN("mountpoint \"%s\" already reserved", mount);
             break;
         }
         ICECAST_LOG_INFO("mountpoint %s is reserved", mount);
-        type = fserve_content_type (mount);
+        type = (_Nt_array_ptr<const char>) fserve_content_type (_Assume_bounds_cast<_Nt_array_ptr<const char>>(mount, byte_count(0)));
         parser = httpp_create_parser();
         httpp_initialize (parser, NULL);
         httpp_setvar (parser, "content-type", type);
-        free (type);
+        free<char> (type);
 
         source->hidden = 1;
         source->yp_public = 0;
@@ -1443,14 +1451,14 @@ static void *source_fallback_file (void *arg)
         source->parser = parser;
         file = NULL;
 
-        if (connection_complete_source (source, 0) < 0)
+        if (connection_complete_source (_Assume_bounds_cast<_Ptr<struct source_tag>>(source), 0) < 0)
             break;
-        source_client_thread (source);
+        source_client_thread(source);
         httpp_destroy (parser);
     } while (0);
     if (file)
         fclose (file);
-    free (mount);
+    free<char> (mount);
     return NULL;
 }
 
@@ -1460,8 +1468,8 @@ static void *source_fallback_file (void *arg)
  */
 void source_recheck_mounts (int update_all)
 {
-    ice_config_t *config;
-    mount_proxy *mount;
+    _Ptr<ice_config_t> config = ((void *)0);
+    _Ptr<mount_proxy> mount = ((void *)0);
 
     avl_tree_rlock (global.source_tree);
     config = config_get_config();
@@ -1475,35 +1483,35 @@ void source_recheck_mounts (int update_all)
         if (mount->mounttype != MOUNT_TYPE_NORMAL)
 	    continue;
 
-        source_t *source = source_find_mount (mount->mountname);
+        _Ptr<source_t> source = source_find_mount (mount->mountname);
 
         if (source)
         {
-            source = source_find_mount_raw (mount->mountname);
+            source = source_find_mount_raw (_Assume_bounds_cast<_Nt_array_ptr<const char>>(mount->mountname, byte_count(0)));
             if (source)
             {
-                mount_proxy *mountinfo = config_find_mount (config, source->mount, MOUNT_TYPE_NORMAL);
+                _Ptr<mount_proxy> mountinfo = config_find_mount (config, source->mount, MOUNT_TYPE_NORMAL);
                 source_update_settings (config, source, mountinfo);
             }
             else if (update_all)
             {
-                stats_event_hidden (mount->mountname, NULL, mount->hidden);
-                stats_event_args (mount->mountname, "listenurl", "http://%s:%d%s",
+                stats_event_hidden (_Assume_bounds_cast<_Nt_array_ptr<const char>>(mount->mountname, byte_count(0)), NULL, mount->hidden);
+                stats_event_args (_Assume_bounds_cast<_Nt_array_ptr<const char>>(mount->mountname, byte_count(0)), "listenurl", "http://%s:%d%s",
                         config->hostname, config->port, mount->mountname);
-                stats_event (mount->mountname, "listeners", "0");
+                stats_event (_Assume_bounds_cast<_Nt_array_ptr<const char>>(mount->mountname, byte_count(0)), "listeners", "0");
                 if (mount->max_listeners < 0)
-                    stats_event (mount->mountname, "max_listeners", "unlimited");
+                    stats_event (_Assume_bounds_cast<_Nt_array_ptr<const char>>(mount->mountname, byte_count(0)), "max_listeners", "unlimited");
                 else
-                    stats_event_args (mount->mountname, "max_listeners", "%d", mount->max_listeners);
+                    stats_event_args (_Assume_bounds_cast<_Nt_array_ptr<const char>>(mount->mountname, byte_count(0)), "max_listeners", "%d", mount->max_listeners);
             }
         }
         else
-            stats_event (mount->mountname, NULL, NULL);
+            stats_event (_Assume_bounds_cast<_Nt_array_ptr<const char>>(mount->mountname, byte_count(0)), NULL, NULL);
 
         /* check for fallback to file */
         if (global.running == ICECAST_RUNNING && mount->fallback_mount)
         {
-            source_t *fallback = source_find_mount (mount->fallback_mount);
+            _Ptr<source_t> fallback = source_find_mount (mount->fallback_mount);
             if (fallback == NULL)
             {
                 thread_create (void, void, "Fallback file thread", source_fallback_file,

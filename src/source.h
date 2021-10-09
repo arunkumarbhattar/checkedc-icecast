@@ -81,7 +81,7 @@ typedef struct source_tag
 } source_t;
 
 _Ptr<source_t> source_reserve (const char *mount : itype(_Nt_array_ptr<const char>));
-void *source_client_thread (void *arg);
+_Ptr<void> source_client_thread (_Ptr<source_t>);
 void source_startup (client_t *client : itype(_Ptr<client_t>), const char *uri : itype(_Nt_array_ptr<const char>), int auth_style);
 void source_client_callback (_Ptr<client_t> client, _Ptr<source_t> source);
 void source_update_settings (ice_config_t *config : itype(_Ptr<ice_config_t>), source_t *source : itype(_Ptr<source_t>), mount_proxy *mountinfo : itype(_Ptr<mount_proxy>));

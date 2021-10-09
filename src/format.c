@@ -167,7 +167,7 @@ static int get_file_data (FILE *intro, client_t *client)
  * to right place in the queue at end of file else repeat file if queue
  * is not ready yet.
  */
-int format_check_file_buffer (source_t *source, _Ptr<client_t> client)
+int format_check_file_buffer (_Ptr<struct source_tag> source, _Ptr<client_t> client) 
 {
     refbuf_t *refbuf = client->refbuf;
 
