@@ -1296,7 +1296,7 @@ void *source_client_thread (void *arg)
 }
 
 
-void source_client_callback (_Ptr<client_t> client, void *arg)
+void source_client_callback (_Ptr<client_t> client, _Ptr<source_t> arg)
 {
     const char *agent;
     source_t *source = arg;

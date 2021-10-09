@@ -93,16 +93,16 @@ typedef struct client_queue_tag {
 } client_queue_t;
 
 typedef struct _thread_queue_tag {
-    thread_type *thread_id;
-    struct _thread_queue_tag *next;
+    thread_type *thread_id : itype(_Ptr<thread_type>);
+    struct _thread_queue_tag *next : itype(_Ptr<struct _thread_queue_tag>);
 } thread_queue_t;
 
 typedef struct
 {
-    char *filename;
+    char *filename : itype(_Nt_array_ptr<char>);
     time_t file_recheck;
     time_t file_mtime;
-    avl_tree *contents;
+    avl_tree *contents : itype(_Ptr<avl_tree>);
 } cache_file_contents;
 
 static spin_t _connection_lock; // protects _current_id, _con_queue, _con_queue_tail
@@ -126,44 +126,43 @@ rwlock_t _source_shutdown_rwlock;
 static void _handle_connection(void);
 
 typedef struct { 
-  char *str;
+  char *str : itype(_Nt_array_ptr<char>);
 } StringContainer;
 
-static _Ptr<StringContainer> box(char *str) { 
-  _Ptr<StringContainer> b = malloc(sizeof *b); 
+static _Ptr<StringContainer> box(_Nt_array_ptr<char> str) { 
+  _Ptr<StringContainer> b = malloc<StringContainer>(sizeof *b); 
   b->str = str;
   return b;
 }
 
-static int avl_box_insert(avl_tree* t, char *s) { 
+static int avl_box_insert(_Ptr<avl_tree> t, _Nt_array_ptr<char> s) { 
   _Ptr<StringContainer> b = box(s); 
-  return avl_insert(t, b);
+  return avl_insert<StringContainer>(t, b);
 }
 
-static int avl_box_get_by_key(avl_tree *t, char *key, char **result) { 
+static _Nt_array_ptr<char> avl_box_get_by_key(_Ptr<avl_tree> t, _Nt_array_ptr<char> key) { 
   _Ptr<StringContainer> box = malloc<StringContainer>(sizeof(StringContainer)); 
   box->str = key; 
   _Ptr<StringContainer> resultBox = NULL;
 
   int status = avl_get_by_key<StringContainer>(t, box, &resultBox);
-  *result = resultBox->str; 
-  return status;
+  return resultBox->str;
 }
 
 static int compare_ip (void *arg, void *a, void *b)
 {
-    const char *ip = ((const StringContainer *)a)->str;
-    const char *pattern = ((const StringContainer *)b)->str;
+    _Nt_array_ptr<const char> ip = ((const StringContainer *)a)->str;
+    _Nt_array_ptr<const char> pattern = ((const StringContainer *)b)->str;
 
     return strcmp (pattern, ip);
 }
 
 
-static int free_filtered_ip (void*x)
+static int free_filtered_ip(_Ptr<StringContainer> x)
 {
-  StringContainer *b = x; 
-  free(b->str);
-  free(b);
+  _Ptr<StringContainer> b = x; 
+  free<char>(b->str);
+  free<StringContainer>(b);
     return 1;
 }
 
@@ -197,8 +196,8 @@ void connection_shutdown(void)
 #ifdef HAVE_OPENSSL
     SSL_CTX_free (ssl_ctx);
 #endif
-    if (banned_ip.contents)  avl_tree_free (banned_ip.contents, free_filtered_ip);
-    if (allowed_ip.contents) avl_tree_free (allowed_ip.contents, free_filtered_ip);
+    if (banned_ip.contents)  avl_tree_free<StringContainer>(banned_ip.contents, free_filtered_ip);
+    if (allowed_ip.contents) avl_tree_free<StringContainer>(allowed_ip.contents, free_filtered_ip);
  
     thread_cond_destroy(&global.shutdown_cond);
     thread_rwlock_destroy(&_source_shutdown_rwlock);
@@ -316,7 +315,7 @@ static int connection_send_ssl (connection_t *con, const void *buf, size_t len)
 #else
 
 /* SSL not compiled in, so at least log it */
-static void get_ssl_certificate (ice_config_t *config)
+static void get_ssl_certificate (_Ptr<ice_config_t> config)
 {
     ssl_ok = 0;
     ICECAST_LOG_INFO("No SSL capability");
@@ -327,7 +326,7 @@ static void get_ssl_certificate (ice_config_t *config)
 /* handlers (default) for reading and writing a connection_t, no encrpytion
  * used just straight access to the socket
  */
-static int connection_read (connection_t *con, void *buf, size_t len)
+static int connection_read(_Ptr<connection_t> con, _Array_ptr<void> buf : byte_count(len), size_t len)
 {
     int bytes = sock_read_bytes (con->sock, buf, len);
     if (bytes == 0)
@@ -337,7 +336,7 @@ static int connection_read (connection_t *con, void *buf, size_t len)
     return bytes;
 }
 
-static int connection_send (connection_t *con, const void *buf, size_t len)
+static int connection_send(_Ptr<connection_t> con, _Array_ptr<void> buf : byte_count(len), size_t len)
 {
     int bytes = sock_write_bytes (con->sock, buf, len);
     if (bytes < 0)
@@ -354,23 +353,23 @@ static int connection_send (connection_t *con, const void *buf, size_t len)
 /* function to handle the re-populating of the avl tree containing IP addresses
  * for deciding whether a connection of an incoming request is to be dropped.
  */
-static void recheck_ip_file (cache_file_contents *cache)
+static void recheck_ip_file (_Ptr<cache_file_contents> cache)
 {
     time_t now = time(NULL);
     if (now >= cache->file_recheck)
     {
         struct stat file_stat;
-        FILE *file = NULL;
+        _Ptr<FILE> file = NULL;
         int count = 0;
-        avl_tree *new_ips;
-        char line [MAX_LINE_LEN];
+        _Ptr<avl_tree> new_ips = ((void *)0);
+        char line _Nt_checked[MAX_LINE_LEN];
 
         cache->file_recheck = now + 10;
         if (cache->filename == NULL)
         {
             if (cache->contents)
             {
-                avl_tree_free (cache->contents, free_filtered_ip);
+                avl_tree_free<StringContainer>(cache->contents, free_filtered_ip);
                 cache->contents = NULL;
             }
             return;
@@ -392,38 +391,38 @@ static void recheck_ip_file (cache_file_contents *cache)
             return;
         }
 
-        new_ips = avl_tree_new (compare_ip, NULL);
+        new_ips = avl_tree_new<StringContainer>(compare_ip, NULL);
 
         while (get_line (file, line, MAX_LINE_LEN))
         {
-            char *str;
+            _Nt_array_ptr<char> str = ((void *)0);
             if(!line[0] || line[0] == '#')
                 continue;
             count++;
-            str = strdup (line);
+            str = ((_Nt_array_ptr<char> )strdup (line));
             if (str)
                 avl_box_insert (new_ips, str);
         }
         fclose (file);
         ICECAST_LOG_INFO("%d entries read from file \"%s\"", count, cache->filename);
 
-        if (cache->contents) avl_tree_free (cache->contents, free_filtered_ip);
+        if (cache->contents) avl_tree_free<StringContainer>(cache->contents, free_filtered_ip);
         cache->contents = new_ips;
     }
 }
 
 
 /* return 0 if the passed ip address is not to be handled by icecast, non-zero otherwise */
-static int accept_ip_address (char *ip)
+static int accept_ip_address (_Nt_array_ptr<char> ip)
 {
-    char *result;
+    _Nt_array_ptr<char> result = NULL;
 
     recheck_ip_file (&banned_ip);
     recheck_ip_file (&allowed_ip);
 
     if (banned_ip.contents)
     {
-        if (avl_box_get_by_key (banned_ip.contents, ip, &result) == 0)
+        if (avl_box_get_by_key (banned_ip.contents, ip) != NULL)
         {
             ICECAST_LOG_DEBUG("%s is banned", ip);
             return 0;
@@ -431,7 +430,7 @@ static int accept_ip_address (char *ip)
     }
     if (allowed_ip.contents)
     {
-        if (avl_box_get_by_key (allowed_ip.contents, ip, &result) == 0)
+        if (avl_box_get_by_key (allowed_ip.contents, ip) != NULL)
         {
             ICECAST_LOG_DEBUG("%s is allowed", ip);
             return 1;
@@ -446,10 +445,9 @@ static int accept_ip_address (char *ip)
 }
 
 
-connection_t *connection_create (sock_t sock, sock_t serversock, char *ip)
+connection_t *connection_create(sock_t sock, sock_t serversock, char *ip : itype(_Nt_array_ptr<char>)) : itype(_Ptr<connection_t>)
 {
-    connection_t *con;
-    con = (connection_t *)calloc(1, sizeof(connection_t));
+    _Ptr<connection_t> con = calloc<connection_t>(1, sizeof *con);
     if (con)
     {
         con->sock = sock;
@@ -466,7 +464,7 @@ connection_t *connection_create (sock_t sock, sock_t serversock, char *ip)
 
 /* prepare connection for interacting over a SSL connection
  */
-void connection_uses_ssl (connection_t *con)
+void connection_uses_ssl (connection_t *con : itype(_Ptr<connection_t>))
 {
 #ifdef HAVE_OPENSSL
     con->read = connection_read_ssl;
@@ -477,10 +475,13 @@ void connection_uses_ssl (connection_t *con)
 #endif
 }
 
+int poll(struct pollfd *arr : itype(_Array_ptr<struct pollfd>) count(len), nfds_t len, int);
+
+
 static sock_t wait_for_serversock(int timeout)
 {
 #ifdef HAVE_POLL
-    struct pollfd ufds [global.server_sockets];
+    _Array_ptr<struct pollfd> ufds : count(global.server_sockets) = calloc<struct pollfd>(sizeof(struct pollfd), global.server_sockets);
     int i, ret;
 
     for(i=0; i < global.server_sockets; i++) {
@@ -520,7 +521,7 @@ static sock_t wait_for_serversock(int timeout)
                 global.serversock[dst] = global.serversock[i];
             dst++;
         }
-        global.server_sockets = dst;
+        ufds = _Dynamic_bounds_cast<_Array_ptr<struct pollfd>>(ufds, count(dst)), global.server_sockets = dst;
         return SOCK_ERROR;
     }
 #else
@@ -560,7 +561,7 @@ static sock_t wait_for_serversock(int timeout)
 #endif
 }
 
-static connection_t *_accept_connection(int duration)
+static _Ptr<connection_t> _accept_connection(int duration)
 {
     sock_t sock, serversock;
     char *ip;
@@ -570,17 +571,17 @@ static connection_t *_accept_connection(int duration)
         return NULL;
 
     /* malloc enough room for a full IP address (including ipv6) */
-    ip = (char *)malloc(MAX_ADDR_LEN);
+    ip = (char *)malloc<char>(MAX_ADDR_LEN);
 
     sock = sock_accept(serversock, ip, MAX_ADDR_LEN);
     if (sock != SOCK_ERROR)
     {
-        connection_t *con = NULL;
+        _Ptr<connection_t> con = NULL;
         /* Make any IPv4 mapped IPv6 address look like a normal IPv4 address */
         if (strncmp (ip, "::ffff:", 7) == 0)
             memmove (ip, ip+7, strlen (ip+7)+1);
 
-        if (accept_ip_address (ip))
+        if (accept_ip_address (_Assume_bounds_cast<_Nt_array_ptr<char>>(ip, byte_count(0))))
             con = connection_create (sock, serversock, ip);
         if (con)
             return con;
@@ -594,7 +595,7 @@ static connection_t *_accept_connection(int duration)
             thread_sleep (500000);
         }
     }
-    free(ip);
+    free<char>(ip);
     return NULL;
 }
 
@@ -603,11 +604,11 @@ static connection_t *_accept_connection(int duration)
  * has been collected, so we now pass it onto the connection thread for
  * further processing
  */
-static void _add_connection (client_queue_t *node)
+static void _add_connection (_Ptr<client_queue_t> node)
 {
     thread_spin_lock (&_connection_lock);
     *_con_queue_tail = node;
-    _con_queue_tail = (volatile client_queue_t **)&node->next;
+    _con_queue_tail = &node->next;
     thread_spin_unlock (&_connection_lock);
 }
 
@@ -615,15 +616,15 @@ static void _add_connection (client_queue_t *node)
 /* this returns queued clients for the connection thread. headers are
  * already provided, but need to be parsed.
  */
-static client_queue_t *_get_connection(void)
+static _Ptr<client_queue_t> _get_connection(void)
 {
-    client_queue_t *node = NULL;
+    _Ptr<client_queue_t> node = NULL;
 
     thread_spin_lock (&_connection_lock);
 
     if (_con_queue)
     {
-        node = (client_queue_t *)_con_queue;
+        node = (_Ptr<client_queue_t>)_con_queue;
         _con_queue = node->next;
         if (_con_queue == NULL)
             _con_queue_tail = &_con_queue;
@@ -638,30 +639,33 @@ static client_queue_t *_get_connection(void)
 /* run along queue checking for any data that has come in or a timeout */
 static void process_request_queue (void)
 {
-    client_queue_t **node_ref = (client_queue_t **)&_req_queue;
-    ice_config_t *config = config_get_config ();
+    _Ptr<_Ptr<client_queue_t>> node_ref = (_Ptr<_Ptr<client_queue_t>>)&_req_queue;
+    _Ptr<ice_config_t> config = config_get_config ();
     int timeout = config->header_timeout;
     config_release_config();
 
     while (*node_ref)
     {
-        client_queue_t *node = *node_ref;
-        client_t *client = node->client;
+        _Ptr<client_queue_t> node = *node_ref;
+        _Ptr<client_t> client = node->client;
         int len = PER_CLIENT_REFBUF_SIZE - 1 - node->offset;
-        char *buf = client->refbuf->data + node->offset;
+        _Nt_array_ptr<char> buf : count(len) = client->refbuf->data + node->offset;
+        int newLen = 0;
 
         if (len > 0)
         {
             if (client->con->con_time + timeout <= time(NULL))
-                len = 0;
+              newLen = 0;
             else
-                len = client_read_bytes (client, buf, len);
+              newLen = client_read_bytes (client, buf, len);
         }
+
+        buf = _Dynamic_bounds_cast<_Nt_array_ptr<char> > (buf, count(newLen)), len = newLen;
 
         if (len > 0)
         {
             int pass_it = 1;
-            char *ptr;
+            _Array_ptr<char> ptr = ((void *)0);
 
             /* handle \n, \r\n and nsvcap which for some strange reason has
              * EOL as \r\r\n */
@@ -705,7 +709,7 @@ static void process_request_queue (void)
             if (pass_it)
             {
                 if ((client_queue_t **)_req_queue_tail == &(node->next))
-                    _req_queue_tail = (volatile client_queue_t **)node_ref;
+                    _req_queue_tail = node_ref;
                 *node_ref = node->next;
                 node->next = NULL;
                 _add_connection (node);
@@ -717,10 +721,10 @@ static void process_request_queue (void)
             if (len == 0 || client->con->error)
             {
                 if ((client_queue_t **)_req_queue_tail == &node->next)
-                    _req_queue_tail = (volatile client_queue_t **)node_ref;
+                    _req_queue_tail = node_ref;
                 *node_ref = node->next;
                 client_destroy (client);
-                free (node);
+                free<client_queue_t> (node);
                 continue;
             }
         }
@@ -733,17 +737,17 @@ static void process_request_queue (void)
 /* add node to the queue of requests. This is where the clients are when
  * initial http details are read.
  */
-static void _add_request_queue (client_queue_t *node)
+static void _add_request_queue (_Ptr<client_queue_t> node)
 {
     *_req_queue_tail = node;
-    _req_queue_tail = (volatile client_queue_t **)&node->next;
+    _req_queue_tail = &node->next;
 }
 
 
 void connection_accept_loop (void)
 {
-    connection_t *con;
-    ice_config_t *config;
+    _Ptr<connection_t> con = ((void *)0);
+    _Ptr<ice_config_t> config = ((void *)0);
     int duration = 300;
 
     config = config_get_config ();
@@ -756,10 +760,10 @@ void connection_accept_loop (void)
 
         if (con)
         {
-            client_queue_t *node;
-            ice_config_t *config;
-            client_t *client = NULL;
-            listener_t *listener;
+            _Ptr<client_queue_t> node = ((void *)0);
+            _Ptr<ice_config_t> config = ((void *)0);
+            _Ptr<client_t> client = NULL;
+            _Ptr<listener_t> listener = ((void *)0);
 
             global_lock();
             if (client_create (&client, con, NULL) < 0)
@@ -782,7 +786,7 @@ void connection_accept_loop (void)
                 continue;
             }
 
-            node = calloc (1, sizeof (client_queue_t));
+            node = calloc<client_queue_t> (1, sizeof (client_queue_t));
             if (node == NULL)
             {
                 global_unlock();
@@ -830,9 +834,9 @@ void connection_accept_loop (void)
 /* Called when activating a source. Verifies that the source count is not
  * exceeded and applies any initial parameters.
  */
-int connection_complete_source (source_t *source, int response)
+int connection_complete_source (source_t *source : itype(_Ptr<struct source_tag>), int response)
 {
-    ice_config_t *config;
+    _Ptr<ice_config_t> config = ((void *)0);
 
     global_lock ();
     ICECAST_LOG_DEBUG("sources count is %d", global.sources);
@@ -840,13 +844,13 @@ int connection_complete_source (source_t *source, int response)
     config = config_get_config();
     if (global.sources < config->source_limit)
     {
-        const char *contenttype;
-        const char *expectcontinue;
-        mount_proxy *mountinfo;
+        _Nt_array_ptr<const char> contenttype = ((void *)0);
+        _Nt_array_ptr<const char> expectcontinue = ((void *)0);
+        _Ptr<mount_proxy> mountinfo = ((void *)0);
         format_type_t format_type;
 
         /* setup format handler */
-        contenttype = httpp_getvar (source->parser, "content-type");
+        contenttype =  httpp_getvar(source->parser, "content-type");
         if (contenttype != NULL)
         {
             format_type = format_get_type (contenttype);
@@ -937,13 +941,17 @@ int connection_complete_source (source_t *source, int response)
 }
 
 
-static int _check_pass_http(http_parser_t *parser, 
-        const char *correctuser, const char *correctpass)
+static int _check_pass_http(_Ptr<http_parser_t> parser, _Nt_array_ptr<const char> correctuser, _Nt_array_ptr<const char> correctpass)
 {
     /* This will look something like "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==" */
-    const char *header = httpp_getvar(parser, "authorization");
-    char *userpass, *tmp;
-    char *username, *password;
+    _Nt_array_ptr<const char> header = NULL;
+      header = httpp_getvar(parser, "authorization");
+    _Nt_array_ptr<char> userpass = ((void *)0);
+_Nt_array_ptr<char> tmp = ((void *)0);
+
+    _Nt_array_ptr<char> username = ((void *)0);
+_Nt_array_ptr<char> password = ((void *)0);
+
 
     if(header == NULL)
         return 0;
@@ -951,16 +959,16 @@ static int _check_pass_http(http_parser_t *parser,
     if(strncmp(header, "Basic ", 6))
         return 0;
 
-    userpass = util_base64_decode(header+6);
+    userpass = ((_Nt_array_ptr<char> )util_base64_decode(header+6));
     if(userpass == NULL) {
         ICECAST_LOG_WARN("Base64 decode of Authorization header \"%s\" failed",
                 header+6);
         return 0;
     }
 
-    tmp = strchr(userpass, ':');
+    tmp = ((_Nt_array_ptr<char> )strchr(userpass, ':'));
     if(!tmp) {
-        free(userpass);
+        free<char>(userpass);
         return 0;
     }
     *tmp = 0;
@@ -968,17 +976,17 @@ static int _check_pass_http(http_parser_t *parser,
     password = tmp+1;
 
     if(strcmp(username, correctuser) || strcmp(password, correctpass)) {
-        free(userpass);
+        free<char>(userpass);
         return 0;
     }
-    free(userpass);
+    free<char>(userpass);
 
     return 1;
 }
 
-static int _check_pass_icy(http_parser_t *parser, const char *correctpass)
+static int _check_pass_icy(_Ptr<http_parser_t> parser, _Nt_array_ptr<const char> correctpass)
 {
-    const char *password;
+    _Nt_array_ptr<const char> password = ((void *)0);
 
     password = httpp_getvar(parser, HTTPP_VAR_ICYPASSWORD);
     if(!password)
@@ -990,9 +998,9 @@ static int _check_pass_icy(http_parser_t *parser, const char *correctpass)
         return 1;
 }
 
-static int _check_pass_ice(http_parser_t *parser, const char *correctpass)
+static int _check_pass_ice(_Ptr<http_parser_t> parser, _Nt_array_ptr<const char> correctpass)
 {
-    const char *password;
+    _Nt_array_ptr<const char> password : byte_count(0) = ((void *)0);
 
     password = httpp_getvar(parser, "ice-password");
     if(!password)
@@ -1004,13 +1012,13 @@ static int _check_pass_ice(http_parser_t *parser, const char *correctpass)
         return 1;
 }
 
-int connection_check_admin_pass(http_parser_t *parser)
+int connection_check_admin_pass(http_parser_t *parser : itype(_Ptr<http_parser_t>))
 {
     int ret;
-    ice_config_t *config = config_get_config();
+    _Ptr<ice_config_t> config = config_get_config();
     char *pass = config->admin_password;
     char *user = config->admin_username;
-    const char *protocol;
+    _Nt_array_ptr<const char> protocol = ((void *)0);
 
     if(!pass || !user) {
         config_release_config();
@@ -1019,17 +1027,17 @@ int connection_check_admin_pass(http_parser_t *parser)
 
     protocol = httpp_getvar (parser, HTTPP_VAR_PROTOCOL);
     if (protocol && strcmp (protocol, "ICY") == 0)
-        ret = _check_pass_icy (parser, pass);
+        ret = _check_pass_icy (parser, _Assume_bounds_cast<_Nt_array_ptr<const char>>(pass, byte_count(0)));
     else 
-        ret = _check_pass_http (parser, user, pass);
+        ret = _check_pass_http (parser, _Assume_bounds_cast<_Nt_array_ptr<const char>>(user, byte_count(0)), _Assume_bounds_cast<_Nt_array_ptr<const char>>(pass, byte_count(0)));
     config_release_config();
     return ret;
 }
 
-int connection_check_relay_pass(http_parser_t *parser)
+int connection_check_relay_pass(http_parser_t *parser : itype(_Ptr<http_parser_t>))
 {
     int ret;
-    ice_config_t *config = config_get_config();
+    _Ptr<ice_config_t> config = config_get_config();
     char *pass = config->relay_password;
     char *user = config->relay_username;
 
@@ -1038,7 +1046,7 @@ int connection_check_relay_pass(http_parser_t *parser)
         return 0;
     }
 
-    ret = _check_pass_http(parser, user, pass);
+    ret = _check_pass_http(parser, _Assume_bounds_cast<_Nt_array_ptr<const char>>(user, byte_count(0)), _Assume_bounds_cast<_Nt_array_ptr<const char>>(pass, byte_count(0)));
     config_release_config();
     return ret;
 }
@@ -1046,10 +1054,10 @@ int connection_check_relay_pass(http_parser_t *parser)
 
 /* return 0 for failed, 1 for ok
  */
-int connection_check_pass (http_parser_t *parser, const char *user, const char *pass)
+int connection_check_pass (http_parser_t *parser : itype(_Ptr<http_parser_t>), const char *user : itype(_Nt_array_ptr<const char>), const char *pass : itype(_Nt_array_ptr<const char>))
 {
     int ret;
-    const char *protocol;
+    _Nt_array_ptr<const char> protocol = ((void *)0);
 
     if(!pass) {
         ICECAST_LOG_WARN("No source password set, rejecting source");
@@ -1064,7 +1072,7 @@ int connection_check_pass (http_parser_t *parser, const char *user, const char *
         ret = _check_pass_http(parser, user, pass);
         if (!ret)
         {
-            ice_config_t *config = config_get_config_unlocked();
+            _Ptr<ice_config_t> config = config_get_config_unlocked();
             if (config->ice_login)
             {
                 ret = _check_pass_ice(parser, pass);
@@ -1078,7 +1086,7 @@ int connection_check_pass (http_parser_t *parser, const char *user, const char *
 
 
 /* only called for native icecast source clients */
-static void _handle_source_request (client_t *client, const char *uri)
+static void _handle_source_request (_Ptr<client_t> client, _Nt_array_ptr<const char> uri)
 {
     ICECAST_LOG_INFO("Source logging in at mountpoint \"%s\" from %s",
         uri, client->con->ip);
@@ -1106,9 +1114,9 @@ static void _handle_source_request (client_t *client, const char *uri)
 }
 
 
-void source_startup (client_t *client, const char *uri, int auth_style)
+void source_startup (client_t *client : itype(_Ptr<client_t>), const char *uri : itype(_Nt_array_ptr<const char>), int auth_style)
 {
-    source_t *source;
+    _Ptr<source_t> source = NULL;
     source = source_reserve (uri);
 
     if (source)
@@ -1116,10 +1124,10 @@ void source_startup (client_t *client, const char *uri, int auth_style)
         source->client = client;
         source->parser = client->parser;
         source->con = client->con;
-        if (connection_complete_source (source, 1) < 0)
+        if (connection_complete_source (_Assume_bounds_cast<_Ptr<struct source_tag>>(source), 1) < 0)
         {
-            source_clear_source (source);
-            source_free_source (source);
+            source_clear_source (_Assume_bounds_cast<_Ptr<source_t>>(source));
+            source_free_source (_Assume_bounds_cast<_Ptr<source_t>>(source));
             return;
         }
         client->respcode = 200;
@@ -1130,15 +1138,17 @@ void source_startup (client_t *client, const char *uri, int auth_style)
         }
         else
         {
-            refbuf_t *ok = refbuf_new (PER_CLIENT_REFBUF_SIZE);
+            _Ptr<refbuf_t> ok = refbuf_new (PER_CLIENT_REFBUF_SIZE);
             client->respcode = 200;
+            _Unchecked {
             snprintf (ok->data, PER_CLIENT_REFBUF_SIZE,
                     "HTTP/1.0 200 OK\r\n\r\n");
-            ok->len = strlen (ok->data);
+            }
+            ok->len = strlen(ok->data), ok->data = _Assume_bounds_cast<_Nt_array_ptr<char>>(ok->data, count(ok->len)), 
             /* we may have unprocessed data read in, so don't overwrite it */
             ok->associated = client->refbuf;
             client->refbuf = ok;
-            fserve_add_client_callback (client, source_client_callback, source);
+            fserve_add_client_callback<source_t>(client, source_client_callback, source);
         }
     }
     else
@@ -1149,7 +1159,7 @@ void source_startup (client_t *client, const char *uri, int auth_style)
 }
 
 
-static void _handle_stats_request (client_t *client, char *uri)
+static void _handle_stats_request (_Ptr<client_t> client, _Ptr<char> uri)
 {
     stats_event_inc(NULL, "stats_connections");
 
@@ -1161,20 +1171,23 @@ static void _handle_stats_request (client_t *client, char *uri)
     }
 
     client->respcode = 200;
+    _Unchecked {
     snprintf (client->refbuf->data, PER_CLIENT_REFBUF_SIZE,
             "HTTP/1.0 200 OK\r\n\r\n");
-    client->refbuf->len = strlen (client->refbuf->data);
+    }
+    client->refbuf->len = strlen (client->refbuf->data), 
+      client->refbuf->data = _Assume_bounds_cast<_Nt_array_ptr<char>>(client->refbuf->data, count(client->refbuf->len));
     fserve_add_client_callback (client, stats_callback, NULL);
 }
 
-static void _handle_get_request (client_t *client, char *passed_uri)
+static void _handle_get_request (_Ptr<client_t> client, _Nt_array_ptr<char> passed_uri)
 {
     char *serverhost = NULL;
     int serverport = 0;
-    aliases *alias;
-    ice_config_t *config;
-    char *uri = passed_uri;
-    listener_t *listen_sock;
+    _Ptr<aliases> alias = ((void *)0);
+    _Ptr<ice_config_t> config = ((void *)0);
+    _Nt_array_ptr<char> uri = passed_uri;
+    _Ptr<listener_t> listen_sock = ((void *)0);
 
     config = config_get_config();
 
@@ -1199,7 +1212,7 @@ static void _handle_get_request (client_t *client, char *passed_uri)
     /* Handle aliases */
     while(alias) {
         if(strcmp(uri, alias->source) == 0 && (alias->port == -1 || alias->port == serverport) && (alias->bind_address == NULL || (serverhost != NULL && strcmp(alias->bind_address, serverhost) == 0))) {
-            uri = strdup (alias->destination);
+            uri = ((_Nt_array_ptr<char> )strdup (alias->destination));
             ICECAST_LOG_DEBUG("alias has made %s into %s", passed_uri, uri);
             break;
         }
@@ -1213,21 +1226,21 @@ static void _handle_get_request (client_t *client, char *passed_uri)
     if ((strcmp(uri, "/admin.cgi") == 0) ||
         (strncmp(uri, "/admin/", 7) == 0)) {
         admin_handle_request(client, uri);
-        if (uri != passed_uri) free (uri);
+        if (uri != passed_uri) free<char> (uri);
         return;
     }
     auth_add_listener (uri, client);
-    if (uri != passed_uri) free (uri);
+    if (uri != passed_uri) free<char> (uri);
 }
 
-static void _handle_shoutcast_compatible (client_queue_t *node)
+static void _handle_shoutcast_compatible (_Ptr<client_queue_t> node)
 {
     char *http_compliant;
     int http_compliant_len = 0;
-    http_parser_t *parser;
-    ice_config_t *config = config_get_config ();
+    _Ptr<http_parser_t> parser = ((void *)0);
+    _Ptr<ice_config_t> config = config_get_config ();
     char *shoutcast_mount;
-    client_t *client = node->client;
+    _Ptr<client_t> client = node->client;
 
     if (node->shoutcast_mount)
         shoutcast_mount = node->shoutcast_mount;
@@ -1236,15 +1249,18 @@ static void _handle_shoutcast_compatible (client_queue_t *node)
 
     if (node->shoutcast == 1)
     {
-        char *source_password, *ptr, *headers;
-        mount_proxy *mountinfo = config_find_mount (config, shoutcast_mount, MOUNT_TYPE_NORMAL);
+        _Nt_array_ptr<char> source_password = ((void *)0);
+        _Nt_array_ptr<char> ptr = ((void *)0);
+        _Array_ptr<char> headers = ((void *)0);
+
+        _Ptr<mount_proxy> mountinfo = config_find_mount (config, shoutcast_mount, MOUNT_TYPE_NORMAL);
 
         if (mountinfo && mountinfo->password)
-            source_password = strdup (mountinfo->password);
+            source_password = ((_Nt_array_ptr<char> )strdup (mountinfo->password));
         else
         {
             if (config->source_password) 
-                source_password = strdup (config->source_password);
+                source_password = ((_Nt_array_ptr<char> )strdup (config->source_password));
             else
                 source_password = NULL;
         }
@@ -1270,33 +1286,36 @@ static void _handle_shoutcast_compatible (client_queue_t *node)
         if (ptr == NULL)
         {
             client_destroy (client);
-            free (source_password);
-            free (node->shoutcast_mount);
-            free (node);
+            free<char> (source_password);
+            free<char> (node->shoutcast_mount);
+            free<client_queue_t> (node);
             return;
         }
-        *ptr = '\0';
+        int len = strlen(ptr);
+        if (ptr[0] != '\0') { 
+          *ptr = '\0';
+        }
 
         if (source_password && strcmp (client->refbuf->data, source_password) == 0)
         {
             client->respcode = 200;
             /* send this non-blocking but if there is only a partial write
              * then leave to header timeout */
-            client_send_bytes(client, "OK2\r\nicy-caps:11\r\n\r\n", 20); /* TODO: Replace Magic Number! */
+            client_send_bytes<char>(client, "OK2\r\nicy-caps:11\r\n\r\n", 20); /* TODO: Replace Magic Number! */
             node->offset -= (headers - client->refbuf->data);
             memmove (client->refbuf->data, headers, node->offset+1);
             node->shoutcast = 2;
             /* we've checked the password, now send it back for reading headers */
             _add_request_queue (node);
-            free (source_password);
+            free<char> (source_password);
             return;
         }
         else
             ICECAST_LOG_INFO("password does not match \"%s\"", client->refbuf->data);
         client_destroy (client);
-        free (source_password);
-        free (node->shoutcast_mount);
-        free (node);
+        free<char> (source_password);
+        free<char> (node->shoutcast_mount);
+        free<client_queue_t> (node);
         return;
     }
     /* actually make a copy as we are dropping the config lock */
@@ -1306,33 +1325,35 @@ static void _handle_shoutcast_compatible (client_queue_t *node)
        that was passed in via the non-HTTP style protocol above. This
        means we can use some of our existing code to handle this case */
     http_compliant_len = 20 + strlen (shoutcast_mount) + node->offset;
-    http_compliant = (char *)calloc(1, http_compliant_len);
+    http_compliant = (char *)calloc<char>(1, http_compliant_len);
     snprintf (http_compliant, http_compliant_len,
             "SOURCE %s HTTP/1.0\r\n%s", shoutcast_mount, client->refbuf->data);
     parser = httpp_create_parser();
     httpp_initialize(parser, NULL);
-    if (httpp_parse (parser, http_compliant, strlen(http_compliant)))
+    if (httpp_parse (parser, _Assume_bounds_cast<_Array_ptr<const char>>(http_compliant, byte_count(0)), strlen(http_compliant)))
     {
         /* we may have more than just headers, so prepare for it */
         if (node->stream_offset == node->offset)
-            client->refbuf->len = 0;
+            client->refbuf->len = 0, client->refbuf->data = _Assume_bounds_cast<_Nt_array_ptr<const char>>(client->refbuf->data, count(0));
         else
         {
-            char *ptr = client->refbuf->data;
-            client->refbuf->len = node->offset - node->stream_offset;
+            int ptrlen = client->refbuf->len;
+            _Array_ptr<char> ptr : count(ptrlen) = client->refbuf->data;
+            client->refbuf->len = node->offset - node->stream_offset, 
+              client->refbuf->data = _Assume_bounds_cast<_Nt_array_ptr<const char>>(client->refbuf->data, count(client->refbuf->len));
             memmove (ptr, ptr + node->stream_offset, client->refbuf->len);
         }
         client->parser = parser;
-        source_startup (client, shoutcast_mount, SHOUTCAST_SOURCE_AUTH);
+        source_startup (client, _Assume_bounds_cast<_Nt_array_ptr<const char>>(shoutcast_mount, byte_count(0)), SHOUTCAST_SOURCE_AUTH);
     }
     else {
         httpp_destroy (parser);
         client_destroy (client);
     }
-    free (http_compliant);
-    free (shoutcast_mount);
-    free (node->shoutcast_mount);
-    free (node);
+    free<char> (http_compliant);
+    free<char> (shoutcast_mount);
+    free<char> (node->shoutcast_mount);
+    free<client_queue_t> (node);
     return;
 }
 
@@ -1343,16 +1364,16 @@ static void _handle_shoutcast_compatible (client_queue_t *node)
  */
 static void _handle_connection(void)
 {
-    http_parser_t *parser;
-    const char *rawuri;
-    client_queue_t *node;
+    _Ptr<http_parser_t> parser = ((void *)0);
+    _Nt_array_ptr<const char> rawuri = ((void *)0);
+    _Ptr<client_queue_t> node = ((void *)0);
 
     while (1)
     {
         node = _get_connection();
         if (node)
         {
-            client_t *client = node->client;
+            _Ptr<client_t> client = node->client;
 
             /* Check for special shoutcast compatability processing */
             if (node->shoutcast)
@@ -1367,15 +1388,18 @@ static void _handle_connection(void)
             client->parser = parser;
             if (httpp_parse (parser, client->refbuf->data, node->offset))
             {
-                char *uri;
+                _Nt_array_ptr<char> uri = ((void *)0);
 
                 /* we may have more than just headers, so prepare for it */
                 if (node->stream_offset == node->offset)
-                    client->refbuf->len = 0;
+                    client->refbuf->len = 0,
+                      client->refbuf->data = _Assume_bounds_cast<_Nt_array_ptr<char>>(client->refbuf->data, count(0));
                 else
                 {
-                    char *ptr = client->refbuf->data;
-                    client->refbuf->len = node->offset - node->stream_offset;
+                    int ptrlen = client->refbuf->len;
+                    _Array_ptr<char> ptr : count(ptrlen) = client->refbuf->data;
+                    client->refbuf->len = node->offset - node->stream_offset, 
+                      client->refbuf->data = _Assume_bounds_cast<_Nt_array_ptr<char>>(client->refbuf->data, count(client->refbuf->len));
                     memmove (ptr, ptr + node->stream_offset, client->refbuf->len);
                 }
 
@@ -1383,10 +1407,10 @@ static void _handle_connection(void)
 
                 /* assign a port-based shoutcast mountpoint if required */
                 if (node->shoutcast_mount && strcmp (rawuri, "/admin.cgi") == 0)
-                    httpp_set_query_param (client->parser, "mount", node->shoutcast_mount);
+                    httpp_set_query_param (client->parser, "mount", _Assume_bounds_cast<_Nt_array_ptr<const char>>(node->shoutcast_mount, byte_count(0)));
 
-                free (node->shoutcast_mount);
-                free (node);
+                free<char> (node->shoutcast_mount);
+                free<client_queue_t> (node);
 
                 if (strcmp("ICE",  httpp_getvar(parser, HTTPP_VAR_PROTOCOL)) &&
                     strcmp("HTTP", httpp_getvar(parser, HTTPP_VAR_PROTOCOL))) {
@@ -1417,11 +1441,11 @@ static void _handle_connection(void)
                     client_send_400 (client, "unknown request");
                 }
 
-                free(uri);
+                free<char>(uri);
             } 
             else
             {
-                free (node);
+                free<client_queue_t> (node);
                 ICECAST_LOG_ERROR("HTTP request parsing failed");
                 client_destroy (client);
             }
@@ -1433,14 +1457,17 @@ static void _handle_connection(void)
 
 
 /* called when listening thread is not checking for incoming connections */
-int connection_setup_sockets (ice_config_t *config)
+
+int connection_setup_sockets (_Ptr<struct ice_config_tag> config)
 {
     int count = 0;
-    listener_t *listener, **prev;
+    _Ptr<listener_t> listener = ((void *)0);
+_Ptr<_Ptr<listener_t>> prev = ((void *)0);
 
-    free (banned_ip.filename);
+
+    free<char> (banned_ip.filename);
     banned_ip.filename = NULL;
-    free (allowed_ip.filename);
+    free<char> (allowed_ip.filename);
     allowed_ip.filename = NULL;
 
     global_lock();
@@ -1448,7 +1475,7 @@ int connection_setup_sockets (ice_config_t *config)
     {
         for (; count < global.server_sockets; count++)
             sock_close (global.serversock [count]);
-        free (global.serversock);
+        free<int> (global.serversock);
         global.serversock = NULL;
     }
     if (config == NULL)
@@ -1459,13 +1486,13 @@ int connection_setup_sockets (ice_config_t *config)
 
     /* setup the banned/allowed IP filenames from the xml */
     if (config->banfile)
-        banned_ip.filename = strdup (config->banfile);
+        banned_ip.filename = ((_Nt_array_ptr<char> )strdup (config->banfile));
 
     if (config->allowfile)
-        allowed_ip.filename = strdup (config->allowfile);
+        allowed_ip.filename = ((_Nt_array_ptr<char> )strdup (config->allowfile));
 
     count = 0;
-    global.serversock = calloc (config->listen_sock_count, sizeof (sock_t));
+    global.serversock = calloc<int> (config->listen_sock_count, sizeof (sock_t));
 
     listener = config->listen_sock; 
     prev = &config->listen_sock;
@@ -1475,7 +1502,7 @@ int connection_setup_sockets (ice_config_t *config)
 
         do
         {
-            sock_t sock = sock_get_server_socket (listener->port, listener->bind_address);
+            sock_t sock = sock_get_server_socket (listener->port, _Assume_bounds_cast<_Nt_array_ptr<const char>>(listener->bind_address, byte_count(0)));
             if (sock == SOCK_ERROR)
                 break;
             if (sock_listen (sock, ICECAST_LISTEN_QUEUE) == SOCK_ERROR)
@@ -1520,13 +1547,13 @@ int connection_setup_sockets (ice_config_t *config)
 }
 
 
-void connection_close(connection_t *con)
+void connection_close(connection_t *con : itype(_Ptr<connection_t>))
 {
     sock_close(con->sock);
-    if (con->ip) free(con->ip);
-    if (con->host) free(con->host);
+    if (con->ip) free<char>(con->ip);
+    if (con->host) free<char>(con->host);
 #ifdef HAVE_OPENSSL
     if (con->ssl) { SSL_shutdown (con->ssl); SSL_free (con->ssl); }
 #endif
-    free(con);
+    free<connection_t>(con);
 }

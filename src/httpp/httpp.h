@@ -64,7 +64,11 @@ int httpp_parse_icy(http_parser_t *parser : itype(_Ptr<http_parser_t>), const ch
 int httpp_parse_response(http_parser_t *parser : itype(_Ptr<http_parser_t>), const char *http_data : itype(_Array_ptr<const char>) count(4095), unsigned long len, const char *uri : itype(_Nt_array_ptr<const char>));
 void httpp_setvar(http_parser_t *parser : itype(_Ptr<http_parser_t>), const char *name : itype(_Nt_array_ptr<const char>), const char *value : itype(_Nt_array_ptr<const char>));
 void httpp_deletevar(http_parser_t *parser : itype(_Ptr<http_parser_t>), const char *name : itype(_Nt_array_ptr<const char>));
+
 const char *httpp_getvar(http_parser_t *parser : itype(_Ptr<http_parser_t>), const char *name : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<const char>);
+
+
+
 void httpp_set_query_param(http_parser_t *parser : itype(_Ptr<http_parser_t>), const char *name : itype(_Nt_array_ptr<const char>), const char *value : itype(_Nt_array_ptr<const char>));
 const char *httpp_get_query_param(http_parser_t *parser : itype(_Ptr<http_parser_t>), const char *name : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<const char>);
 void httpp_destroy(http_parser_t *parser : itype(_Ptr<http_parser_t>));

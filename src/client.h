@@ -85,7 +85,7 @@ void client_send_403(client_t *client : itype(_Ptr<client_t>), const char *messa
 void client_send_400(client_t *client : itype(_Ptr<client_t>), const char *message : itype(_Nt_array_ptr<const char>) count(0));
 void client_send_500(client_t *client : itype(_Ptr<client_t>), const char *message : itype(_Nt_array_ptr<const char>) count(20));
 _Itype_for_any(T) int client_send_bytes(client_t *client : itype(_Ptr<client_t>), const void *buf : itype(_Array_ptr<T>) byte_count(len), unsigned len);
-int client_read_bytes (client_t *client : itype(_Ptr<client_t>), void *buf, unsigned len);
+int client_read_bytes (client_t *client : itype(_Ptr<client_t>), void *buf : itype(_Array_ptr<void>) byte_count(len), unsigned len);
 void client_set_queue (_Ptr<client_t> client, refbuf_t *refbuf : itype(_Ptr<refbuf_t>));
 int client_check_source_auth (client_t *client : itype(_Ptr<client_t>), const char *mount : itype(_Nt_array_ptr<const char>));
 void client_send_error(client_t *client : itype(_Ptr<client_t>), int status, int plain, const char *message : itype(_Nt_array_ptr<const char>) count(0));

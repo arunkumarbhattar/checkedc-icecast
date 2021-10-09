@@ -27,7 +27,9 @@
 
 struct _client_tag;
 struct source_tag;
-struct ice_config_tag;
+//struct ice_config_tag;
+
+//typedef int (*send_fn)(struct connection_tag *, void *const, size_t);
 
 typedef struct connection_tag
 {
@@ -44,7 +46,13 @@ typedef struct connection_tag
 #ifdef HAVE_OPENSSL
     SSL *ssl;   /* SSL handler */
 #endif
-    int ((*send)(struct connection_tag *handle, void *const  buf : byte_count(len), size_t len)) : itype(_Ptr<int (_Ptr<struct connection_tag> handle, const _Array_ptr<void> buf : byte_count(len), size_t len)>);
+//_Itype_for_any(T) static int connection_send(_Ptr<connection_t> con, _Array_ptr<T> buf : byte_count(len), size_t len)
+
+    int ((*send)(struct connection_tag *handle, void *const  buf, size_t len)) 
+      : itype(_Ptr<int (_Ptr<struct connection_tag> handle, const _Array_ptr<void> buf : byte_count(len), size_t len)>);
+
+
+
     int ((*read)(struct connection_tag *handle, void *buf : byte_count(len), size_t len)) : itype(_Ptr<int (_Ptr<struct connection_tag> handle, _Array_ptr<void> buf : byte_count(len), size_t len)>);
 
     char *ip;
@@ -55,7 +63,7 @@ typedef struct connection_tag
 void connection_initialize(void);
 void connection_shutdown(void);
 void connection_accept_loop(void);
-int  connection_setup_sockets (struct ice_config_tag *config : itype(_Ptr<struct ice_config_tag>));
+int  connection_setup_sockets (_Ptr<struct ice_config_tag>);
 void connection_close(connection_t *con : itype(_Ptr<connection_t>));
 connection_t *connection_create(sock_t sock, sock_t serversock, char *ip : itype(_Nt_array_ptr<char>)) : itype(_Ptr<connection_t>);
 int connection_complete_source (struct source_tag *source : itype(_Ptr<struct source_tag>), int response);

@@ -240,6 +240,6 @@ ice_config_t *config_grab_config(void) : itype(_Array_ptr<ice_config_t>);
 void config_release_config(void);
 
 /* To be used ONLY in one-time startup code */
-ice_config_t *config_get_config_unlocked(void) : itype(_Array_ptr<ice_config_t>);
+ice_config_t *config_get_config_unlocked(void) : itype(_Ptr<ice_config_t>);
 
 #endif  /* __CFGFILE_H__ */
