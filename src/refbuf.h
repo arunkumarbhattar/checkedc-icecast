@@ -29,6 +29,8 @@ typedef struct _refbuf_tag
 
 } refbuf_t;
 
+void refbuf_widen(_Ptr<refbuf_t> r);
+
 void refbuf_initialize(void);
 void refbuf_shutdown(void);
 

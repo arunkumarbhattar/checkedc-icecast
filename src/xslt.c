@@ -57,10 +57,10 @@
 #include "logging.h"
 
 typedef struct {
-    char              *filename;
+    char *filename : itype(_Nt_array_ptr<char>);
     time_t             last_modified;
     time_t             cache_age;
-    xsltStylesheetPtr  stylesheet;
+    xsltStylesheetPtr stylesheet : itype(_Ptr<xsltStylesheet>);
 } stylesheet_cache_t;
 
 #ifndef HAVE_XSLTSAVERESULTTOSTRING
@@ -92,7 +92,7 @@ int xsltSaveResultToString(xmlChar **doc_txt_ptr, int * doc_txt_len, xmlDocPtr r
 /* Keep it small... */
 #define CACHESIZE 3
 
-static stylesheet_cache_t cache[CACHESIZE];
+static stylesheet_cache_t cache _Checked[CACHESIZE];
 static mutex_t xsltlock;
 
 void xslt_initialize(void)
@@ -110,7 +110,7 @@ void xslt_shutdown(void) {
 
     for(i=0; i < CACHESIZE; i++) {
         if(cache[i].filename)
-            free(cache[i].filename);
+            free<char>(cache[i].filename);
         if(cache[i].stylesheet)
             xsltFreeStylesheet(cache[i].stylesheet);
     }
@@ -131,12 +131,12 @@ static int evict_cache_entry(void) {
     }
 
     xsltFreeStylesheet(cache[oldest].stylesheet);
-    free(cache[oldest].filename);
+    free<char>(cache[oldest].filename);
 
     return oldest;
 }
 
-static xsltStylesheetPtr xslt_get_stylesheet(const char *fn) {
+static xsltStylesheetPtr xslt_get_stylesheet(const char *fn : itype(_Nt_array_ptr<const char>)) {
     int i;
     int empty = -1;
     struct stat file;
@@ -161,7 +161,7 @@ static xsltStylesheetPtr xslt_get_stylesheet(const char *fn) {
                     xsltFreeStylesheet(cache[i].stylesheet);
 
                     cache[i].last_modified = file.st_mtime;
-                    cache[i].stylesheet = xsltParseStylesheetFile (XMLSTR(fn));
+                    cache[i].stylesheet = xsltParseStylesheetFile ((fn));
                     cache[i].cache_age = time(NULL);
                 }
                 ICECAST_LOG_DEBUG("Using cached sheet %i", i);
@@ -178,16 +178,16 @@ static xsltStylesheetPtr xslt_get_stylesheet(const char *fn) {
         i = evict_cache_entry();
 
     cache[i].last_modified = file.st_mtime;
-    cache[i].filename = strdup(fn);
-    cache[i].stylesheet = xsltParseStylesheetFile (XMLSTR(fn));
+    cache[i].filename = ((_Nt_array_ptr<char> )strdup(fn));
+    cache[i].stylesheet = xsltParseStylesheetFile ((fn));
     cache[i].cache_age = time(NULL);
     return cache[i].stylesheet;
 }
 
-void xslt_transform(xmlDocPtr doc, const char *xslfilename, client_t *client)
+void xslt_transform(xmlDocPtr doc : itype(_Ptr<xmlDoc>), const char *xslfilename : itype(_Nt_array_ptr<const char>), client_t *client : itype(_Ptr<client_t>))
 {
-    xmlDocPtr    res;
-    xsltStylesheetPtr cur;
+    xmlDocPtr    res = NULL;
+    xsltStylesheetPtr cur = ((void *)0);
     xmlChar *string;
     int len, problem = 0;
     const char *mediatype = NULL;
@@ -236,7 +236,7 @@ void xslt_transform(xmlDocPtr doc, const char *xslfilename, client_t *client)
     {
         ssize_t ret;
         int failed = 0;
-        refbuf_t *refbuf;
+        _Ptr<refbuf_t> refbuf = ((void *)0);
         size_t full_len = strlen (mediatype) + len + 1024;
         if (full_len < 4096)
             full_len = 4096;
@@ -244,20 +244,18 @@ void xslt_transform(xmlDocPtr doc, const char *xslfilename, client_t *client)
 
         if (string == NULL)
             string = xmlCharStrdup ("");
-        ret = util_http_build_header(refbuf->data, full_len, 0, 0, 200, NULL, mediatype, charset, NULL, NULL);
+        ret = util_http_build_header(refbuf->data, full_len, 0, 0, 200, NULL, _Assume_bounds_cast<_Nt_array_ptr<const char>>(mediatype, byte_count(0)), _Assume_bounds_cast<_Nt_array_ptr<const char>>(charset, count(5)), NULL, NULL);
         if (ret == -1) {
             ICECAST_LOG_ERROR("Dropping client as we can not build response headers.");
             client_send_500(client, "Header generation failed.");
         } else {
             if ( full_len < (ret + len + 64) ) {
-                void *new_data;
                 full_len = ret + len + 64;
-                new_data = realloc(refbuf->data, full_len);
+                _Nt_array_ptr<char> new_data : count(full_len) = ((_Nt_array_ptr<char>)realloc<char>(refbuf->data, full_len));
                 if (new_data) {
                     ICECAST_LOG_DEBUG("Client buffer reallocation succeeded.");
-                    refbuf->data = new_data;
-                    refbuf->len = full_len;
-                    ret = util_http_build_header(refbuf->data, full_len, 0, 0, 200, NULL, mediatype, charset, NULL, NULL);
+                    refbuf->data = new_data, refbuf->len = full_len;
+                    ret = util_http_build_header(refbuf->data, full_len, 0, 0, 200, NULL, _Assume_bounds_cast<_Nt_array_ptr<const char>>(mediatype, byte_count(0)), _Assume_bounds_cast<_Nt_array_ptr<const char>>(charset, count(5)), NULL, NULL);
                     if (ret == -1) {
                         ICECAST_LOG_ERROR("Dropping client as we can not build response headers.");
                         client_send_500(client, "Header generation failed.");
@@ -276,11 +274,11 @@ void xslt_transform(xmlDocPtr doc, const char *xslfilename, client_t *client)
                 client->respcode = 200;
                 client_set_queue (client, NULL);
                 client->refbuf = refbuf;
-                refbuf->len = strlen (refbuf->data);
+                refbuf_widen(client->refbuf);
                 fserve_add_client (client, NULL);
             }
         }
-        xmlFree (string);
+        xmlFree(string);
     }
     else
     {

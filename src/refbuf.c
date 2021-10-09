@@ -39,6 +39,11 @@ void refbuf_shutdown(void)
 {
 }
 
+void refbuf_widen(_Ptr<refbuf_t> r) { 
+  int len = strlen(r->data);
+  r->data = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(r->data, count(len)), r->len = len;
+}
+
 refbuf_t *refbuf_new(unsigned int size) : itype(_Ptr<refbuf_t>)
 {
     _Ptr<refbuf_t> refbuf = ((void *)0);
