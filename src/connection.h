@@ -63,7 +63,7 @@ typedef struct connection_tag
 void connection_initialize(void);
 void connection_shutdown(void);
 void connection_accept_loop(void);
-int  connection_setup_sockets (_Ptr<struct ice_config_tag>);
+int connection_setup_sockets (_Ptr<struct ice_config_tag> config);
 void connection_close(connection_t *con : itype(_Ptr<connection_t>));
 connection_t *connection_create(sock_t sock, sock_t serversock, char *ip : itype(_Nt_array_ptr<char>)) : itype(_Ptr<connection_t>);
 int connection_complete_source (struct source_tag *source : itype(_Ptr<struct source_tag>), int response);
