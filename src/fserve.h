@@ -26,7 +26,7 @@ typedef struct _fserve_t
     int ready;
     void ((*callback)(client_t *, void *)) : itype(_Ptr<void (_Ptr<client_t>, void *)>);
     void *arg;
-    struct _fserve_t *next : itype(_Ptr<struct _fserve_t>);
+    _Ptr<struct _fserve_t> next;
 } fserve_t;
 
 void fserve_initialize(void);
