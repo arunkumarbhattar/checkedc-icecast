@@ -1086,7 +1086,7 @@ _Ptr<refbuf_t> cur = start;
     }
     thread_mutex_unlock (&_stats_mutex);
     int newLen = STREAMLIST_BLKSIZE - remaining;
-    cur->data = _Assume_bounds_cast<_Nt_array_ptr<char>>(cur->data, count(newLen)), cur->len = newLen;
+    cur->len = newLen;
     return start;
 }
 

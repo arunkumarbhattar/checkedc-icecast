@@ -54,10 +54,11 @@ refbuf_t *refbuf_new(unsigned int size) : itype(_Ptr<refbuf_t>)
     refbuf->data = NULL;
     if (size)
     {
-      _Array_ptr<char> raw : count(size) = calloc<char>(sizeof(char), size); 
+      _Array_ptr<char> raw : count(sizeof(char) * size) = calloc<char>(sizeof(char), size); 
       raw[size-1] = '\0';
       _Unchecked { 
-        refbuf->data = _Assume_bounds_cast<_Nt_array_ptr<char>>(raw, count(size - 1)), refbuf->len = size;
+        refbuf->len = size;
+        refbuf->data = _Assume_bounds_cast<_Nt_array_ptr<char>>(raw, count(sizeof(char) * (size - 1))), refbuf->total_length = size;
       }
         if (refbuf->data == NULL)
             abort();

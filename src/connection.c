@@ -776,7 +776,8 @@ void connection_accept_loop (void)
             }
 
             /* setup client for reading incoming http */
-            client->refbuf->data [PER_CLIENT_REFBUF_SIZE-1] = '\000';
+            // I don't think this is needed and it's a bad smell bounds wise
+            //client->refbuf->data [PER_CLIENT_REFBUF_SIZE-1] = '\000';
 
             if (sock_set_blocking (client->con->sock, 0) || sock_set_nodelay (client->con->sock))
             {
@@ -1344,11 +1345,11 @@ static void _handle_shoutcast_compatible (_Ptr<client_queue_t> node)
     {
         /* we may have more than just headers, so prepare for it */
         if (node->stream_offset == node->offset)
-            client->refbuf->len = 0, client->refbuf->data = _Assume_bounds_cast<_Nt_array_ptr<const char>>(client->refbuf->data, count(0));
+            client->refbuf->len = 0;
         else
         {
             int ptrlen = client->refbuf->len;
-            _Array_ptr<char> ptr : count(ptrlen) = client->refbuf->data;
+            _Array_ptr<char> ptr : count(ptrlen) = _Dynamic_bounds_cast<_Array_ptr<char>>(client->refbuf->data, count(ptrlen));
             client->refbuf->len = node->offset - node->stream_offset, 
               client->refbuf->data = _Assume_bounds_cast<_Nt_array_ptr<const char>>(client->refbuf->data, count(client->refbuf->len));
             memmove (ptr, ptr + node->stream_offset, client->refbuf->len);
@@ -1402,12 +1403,11 @@ static void _handle_connection(void)
 
                 /* we may have more than just headers, so prepare for it */
                 if (node->stream_offset == node->offset)
-                    client->refbuf->len = 0,
-                      client->refbuf->data = _Assume_bounds_cast<_Nt_array_ptr<char>>(client->refbuf->data, count(0));
+                    client->refbuf->len = 0;
                 else
                 {
                     int ptrlen = client->refbuf->len;
-                    _Array_ptr<char> ptr : count(ptrlen) = client->refbuf->data;
+                    _Array_ptr<char> ptr : count(ptrlen) = _Dynamic_bounds_cast<_Array_ptr<char>>(client->refbuf->data, count(ptrlen));
                     client->refbuf->len = node->offset - node->stream_offset, 
                       client->refbuf->data = _Assume_bounds_cast<_Nt_array_ptr<char>>(client->refbuf->data, count(client->refbuf->len));
                     memmove (ptr, ptr + node->stream_offset, client->refbuf->len);
