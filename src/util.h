@@ -22,6 +22,8 @@
 
 #define MAX_LINE_LEN 512
 
+  void xmlSafeFree(_Nt_array_ptr<char>); 
+
 int util_timed_wait_for_fd(sock_t fd, int timeout);
 int util_read_header(sock_t sock, char *buff : itype(_Array_ptr<char>) count(4095), unsigned long len, int entire);
 int util_check_valid_extension(const char *uri : itype(_Nt_array_ptr<const char>));

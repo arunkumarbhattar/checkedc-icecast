@@ -51,6 +51,12 @@
 
 #include "logging.h"
 
+  void xmlSafeFree(_Nt_array_ptr<char> p) { 
+    xmlFree((void*) p); 
+  }
+
+
+
 /* Abstract out an interface to use either poll or select depending on which
  * is available (poll is preferred) to watch a single fd.
  *

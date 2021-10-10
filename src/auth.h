@@ -85,7 +85,7 @@ auth_client **tailp : itype(_Ptr<_Ptr<auth_client>>);
     int pending_count;
 
     void *state;
-    char *type;
+    _Nt_array_ptr<char> type;
 } auth_t;
 
 void auth_add_listener (const char *mount : itype(_Nt_array_ptr<const char>), client_t *client : itype(_Ptr<client_t>));

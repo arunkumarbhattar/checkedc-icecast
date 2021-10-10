@@ -233,7 +233,7 @@ xmlDocPtr admin_build_sourcelist (const char *mount : itype(_Nt_array_ptr<const 
             if (mountinfo && mountinfo->auth)
             {
                 xmlNewTextChild(srcnode, NULL, XMLSTR("authenticator"),
-                        (mountinfo->auth->type));
+                        XMLSTR(mountinfo->auth->type));
             }
             config_release_config();
 

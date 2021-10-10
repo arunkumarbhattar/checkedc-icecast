@@ -37,6 +37,7 @@
 #include "logging.h"
 #define CATMODULE "auth"
 
+#pragma CHECKED_SCOPE on
 
 static void auth_postprocess_source (_Ptr<auth_client> auth_user);
 
@@ -151,7 +152,7 @@ void auth_release (auth_t *authenticator : itype(_Ptr<auth_t>))
 
     if (authenticator->free)
         authenticator->free (authenticator);
-    xmlFree ((authenticator->type));
+    xmlSafeFree(authenticator->type);
     thread_mutex_unlock (&authenticator->lock);
     thread_mutex_destroy (&authenticator->lock);
     if (authenticator->mount)
@@ -423,8 +424,7 @@ static int add_listener_to_source (_Ptr<source_t> source, _Ptr<client_t> client)
     _Checked {
     client->check_buffer = format_check_http_buffer;
     }
-    client->refbuf->data = _Assume_bounds_cast<_Nt_array_ptr<char>>(client->refbuf->data, count(PER_CLIENT_REFBUF_SIZE)),
-      client->refbuf->len = PER_CLIENT_REFBUF_SIZE;
+    client->refbuf->len = PER_CLIENT_REFBUF_SIZE;
     memset (client->refbuf->data, 0, PER_CLIENT_REFBUF_SIZE);
 
     /* lets add the client to the active list */
@@ -643,7 +643,7 @@ static int get_authenticator (_Ptr<auth_t> auth, _Ptr<config_options_t> options)
     while (options)
     {
         if (strcmp (options->name, "allow_duplicate_users") == 0)
-            auth->allow_duplicate_users = atoi ((char*)options->value);
+            auth->allow_duplicate_users = atoi (options->value);
         options = options->next;
     }
     return 0;
@@ -669,16 +669,16 @@ _Ptr<_Ptr<config_options_t>> next_option = &options;
         if (xmlStrcmp (current->name, XMLSTR("option")) == 0)
         {
             _Ptr<config_options_t> opt = calloc<config_options_t> (1, sizeof (config_options_t));
-            opt->name = (char *)xmlGetProp (current, XMLSTR("name"));
+            opt->name = (_Nt_array_ptr<char>) xmlGetProp (current, XMLSTR("name"));
             if (opt->name == NULL)
             {
                 free<config_options_t>(opt);
                 continue;
             }
-            opt->value = (char *)xmlGetProp (current, XMLSTR("value"));
+            opt->value = (_Nt_array_ptr<char>)xmlGetProp (current, XMLSTR("value"));
             if (opt->value == NULL)
             {
-                xmlFree(opt->name);
+                xmlSafeFree(opt->name);
                 free<config_options_t> (opt);
                 continue;
             }
@@ -691,10 +691,10 @@ _Ptr<_Ptr<config_options_t>> next_option = &options;
             if (xmlStrcmp (current->name, XMLSTR("text")) != 0)
                 ICECAST_LOG_WARN("unknown auth setting (%s)", current->name);
     }
-    auth->type = (char*)xmlGetProp (node, XMLSTR("type"));
+    auth->type = (_Nt_array_ptr<char>) xmlGetProp (node, XMLSTR("type"));
     if (get_authenticator (auth, options) < 0)
     {
-        xmlFree (auth->type);
+        xmlSafeFree (auth->type);
         free<auth_t> (auth);
         auth = NULL;
     }
@@ -711,8 +711,8 @@ _Ptr<_Ptr<config_options_t>> next_option = &options;
     {
         _Ptr<config_options_t> opt = options;
         options = opt->next;
-        xmlFree (opt->name);
-        xmlFree (opt->value);
+        xmlSafeFree (opt->name);
+        xmlSafeFree (opt->value);
         free<config_options_t> (opt);
     }
     return auth;

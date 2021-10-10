@@ -867,7 +867,7 @@ XMLPUBFUN xmlAttrPtr xmlSetNsProp(xmlNodePtr node : itype(_Ptr<xmlNode>), xmlNsP
 #endif /* defined(LIBXML_TREE_ENABLED) || defined(LIBXML_XINCLUDE_ENABLED) || \
 	  defined(LIBXML_SCHEMAS_ENABLED) || defined(LIBXML_HTML_ENABLED) */
 XMLPUBFUN xmlChar *xmlGetNoNsProp(const xmlNode *node : itype(_Ptr<const xmlNode>), const xmlChar *name : itype(_Ptr<const xmlChar>)) : itype(_Ptr<xmlChar>);
-XMLPUBFUN xmlChar *xmlGetProp(const xmlNode *node : itype(_Ptr<const xmlNode>), const xmlChar *name : itype(_Ptr<const xmlChar>)) : itype(_Ptr<xmlChar>);
+XMLPUBFUN xmlChar *xmlGetProp(const xmlNode *node : itype(_Ptr<const xmlNode>), const xmlChar *name : itype(_Ptr<const xmlChar>)) : itype(_Nt_array_ptr<xmlChar>);
 XMLPUBFUN xmlAttrPtr xmlHasProp(const xmlNode *node : itype(_Ptr<const xmlNode>), const xmlChar *name : itype(_Ptr<const xmlChar>)) : itype(_Ptr<xmlAttr>);
 XMLPUBFUN xmlAttrPtr xmlHasNsProp(const xmlNode *node : itype(_Ptr<const xmlNode>), const xmlChar *name : itype(_Ptr<const xmlChar>), const xmlChar *nameSpace : itype(_Ptr<const xmlChar>)) : itype(_Ptr<xmlAttr>);
 XMLPUBFUN xmlChar *xmlGetNsProp(const xmlNode *node : itype(_Ptr<const xmlNode>), const xmlChar *name : itype(_Ptr<const xmlChar>), const xmlChar *nameSpace : itype(_Ptr<const xmlChar>)) : itype(_Ptr<xmlChar>);
