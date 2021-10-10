@@ -40,9 +40,9 @@ typedef struct {
 /* ogg_page is used to encapsulate the data in one Ogg bitstream page *****/
 
 typedef struct {
-  unsigned char *header;
+  unsigned char *header : itype(_Array_ptr<unsigned char>) count(header_len);
   long header_len;
-  unsigned char *body;
+  unsigned char *body : itype(_Array_ptr<unsigned char>) count(body_len);
   long body_len;
 } ogg_page;
 

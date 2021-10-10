@@ -189,7 +189,7 @@ char *p;
             if (p)
             {
                 memcpy<char> (p, metadata+13, len);
-                logging_playlist (source->mount, _Assume_bounds_cast<_Ptr<const char>>(p), source->listeners);
+                logging_playlist (source->mount, p, source->listeners);
                 stats_event_conv (source->mount, "title", p, source->format->charset);
                 yp_touch (source->mount);
                 free<char> (p);

@@ -53,6 +53,8 @@
 #define CATMODULE "format-ogg"
 #include "logging.h"
 
+#pragma CHECKED_SCOPE on
+
 struct _ogg_state_tag;
 
 static void format_ogg_free_plugin (_Ptr<format_plugin_t> plugin);
@@ -73,20 +75,24 @@ struct ogg_client
 };
 
 _Itype_for_any(T) void set_specific(ogg_codec_t *codec : itype(_Ptr<ogg_codec_t>), void *spec : itype(_Ptr<T>)) {
+  _Unchecked {
   codec->specific = spec;
+  }
 }
 
 _Itype_for_any(T)
 void* get_specific(ogg_codec_t *codec : itype(_Ptr<ogg_codec_t>)) : itype(_Ptr<T>) { 
+  _Unchecked {
   return codec->specific;
+  }
 }
 
 refbuf_t *make_refbuf_with_page(ogg_page *page : itype(_Ptr<ogg_page>)) : itype(_Ptr<refbuf_t>)
 {
     _Ptr<refbuf_t> refbuf = refbuf_new (page->header_len + page->body_len);
 
-    memcpy (refbuf->data, page->header, page->header_len);
-    memcpy (refbuf->data+page->header_len, page->body, page->body_len);
+    memcpy<unsigned char>((_Array_ptr<unsigned char>)refbuf->data, page->header, page->header_len);
+    memcpy<unsigned char>((_Array_ptr<unsigned char>)refbuf->data+page->header_len, page->body, page->body_len);
     return refbuf;
 }
 
@@ -187,7 +193,7 @@ int format_ogg_get_plugin (source_t *source : itype(_Ptr<source_t>))
 
     ogg_sync_init (&state->oy);
 
-    plugin->_state = state;
+    plugin->_state = (_Array_ptr<void>) state;
     source->format = plugin;
     state->mount = source->mount;
     state->bos_end = &state->header_pages;
@@ -198,7 +204,7 @@ int format_ogg_get_plugin (source_t *source : itype(_Ptr<source_t>))
 
 static void format_ogg_free_plugin (_Ptr<format_plugin_t> plugin)
 {
-    _Ptr<ogg_state_t> state = plugin->_state;
+    _Ptr<ogg_state_t> state = (_Ptr<ogg_state_t>) plugin->_state;
 
     /* free memory associated with this plugin instance */
     free_ogg_codecs (state);
@@ -215,7 +221,7 @@ static void format_ogg_free_plugin (_Ptr<format_plugin_t> plugin)
 /* a new BOS page has been seen so check which codec it is */
 static int process_initial_page (_Ptr<format_plugin_t> plugin, _Ptr<ogg_page> page)
 {
-    _Ptr<ogg_state_t> ogg_info = plugin->_state;
+    _Ptr<ogg_state_t> ogg_info = (_Ptr<ogg_state_t>)  plugin->_state;
     _Ptr<ogg_codec_t> codec = ((void *)0);
 
     if (ogg_info->bos_completed)
@@ -284,13 +290,21 @@ static int process_initial_page (_Ptr<format_plugin_t> plugin, _Ptr<ogg_page> pa
  * artist and title are provided separately so here we update the stats
  * and write log entry if required.
  */
+
+_Nt_array_ptr<char> stralloc(int size) : count(size) { 
+  _Unchecked { 
+    void *ptr = calloc(sizeof(char), size + 1); 
+    return _Assume_bounds_cast<_Nt_array_ptr<char>>(ptr, count(size));
+  }
+}
+
 static void update_comments (_Ptr<source_t> source)
 {
-    _Ptr<ogg_state_t> ogg_info = source->format->_state;
+    _Ptr<ogg_state_t> ogg_info = (_Ptr<ogg_state_t>) source->format->_state;
     _Nt_array_ptr<char> title = ogg_info->title;
     _Nt_array_ptr<char> artist = ogg_info->artist;
-    char *metadata = NULL;
     unsigned int len = 1; /* space for the nul byte at least */
+    _Nt_array_ptr<char> metadata : count(len) = NULL;
     _Ptr<ogg_codec_t> codec = ((void *)0);
     char codec_names _Nt_checked[100] = "";
 
@@ -298,14 +312,18 @@ static void update_comments (_Ptr<source_t> source)
     {
         if (title)
         {
-            len += strlen(artist) + strlen(title) + 3;
-            metadata = calloc<char> (1, len);
-            snprintf (metadata, len, "%s - %s", artist, title);
+            int newlen = len + strlen(artist) + strlen(title) + 3;
+            //len += strlen(artist) + strlen(title) + 3;
+            metadata = stralloc(newlen), len = newlen;
+            _Unchecked {
+              snprintf (metadata, len, "%s - %s", artist, title);
+            }
         }
         else
         {
-            len += strlen(artist);
-            metadata = calloc<char> (1, len);
+            int newlen = len + strlen(artist);
+            //len += strlen(artist);
+            metadata = stralloc(newlen), len = newlen;
             snprintf (metadata, len, "%s", artist);
         }
     }
@@ -313,14 +331,14 @@ static void update_comments (_Ptr<source_t> source)
     {
         if (title)
         {
-            len += strlen (title);
-            metadata = calloc<char> (1, len);
+            int newlen = len + strlen(title);
+            metadata = stralloc(newlen), len = newlen;
             snprintf (metadata, len, "%s", title);
         }
     }
     if (metadata)
     {
-        logging_playlist (source->mount, _Assume_bounds_cast<_Ptr<const char>>(metadata), source->listeners);
+        logging_playlist (source->mount, (metadata), source->listeners);
         free<char> (metadata);
     }
     stats_event (source->mount, "artist", artist);
@@ -351,7 +369,7 @@ static void update_comments (_Ptr<source_t> source)
  */
 static _Ptr<refbuf_t> complete_buffer(_Ptr<source_t> source, _Ptr<refbuf_t> refbuf)
 {
-    _Ptr<ogg_state_t> ogg_info = source->format->_state;
+    _Ptr<ogg_state_t> ogg_info = (_Ptr<ogg_state_t>) source->format->_state;
     _Ptr<refbuf_t> header = ogg_info->header_pages;
 
     while (header)
@@ -405,7 +423,7 @@ static _Ptr<refbuf_t> process_ogg_page(_Ptr<ogg_state_t> ogg_info, _Ptr<ogg_page
  */
 static _Ptr<refbuf_t> ogg_get_buffer(_Ptr<source_t> source)
 {
-    _Ptr<ogg_state_t> ogg_info = source->format->_state;
+    _Ptr<ogg_state_t> ogg_info = (_Ptr<ogg_state_t>) source->format->_state;
     _Ptr<format_plugin_t> format = source->format;
     _Array_ptr<char> data : byte_count(4096) = NULL;
     int bytes = 0;
@@ -414,7 +432,7 @@ static _Ptr<refbuf_t> ogg_get_buffer(_Ptr<source_t> source)
     {
         while (1)
         {
-            ogg_page page;
+            ogg_page page = { NULL };
             _Ptr<refbuf_t> refbuf = NULL;
             _Ptr<ogg_codec_t> codec = ogg_info->current;
 
@@ -469,13 +487,13 @@ static _Ptr<refbuf_t> ogg_get_buffer(_Ptr<source_t> source)
 
 static int create_ogg_client_data (_Ptr<source_t> source, _Ptr<client_t> client) 
 {
-    struct ogg_client *client_data = calloc<struct ogg_client> (1, sizeof (struct ogg_client));
+    _Ptr<struct ogg_client> client_data = calloc<struct ogg_client> (1, sizeof (struct ogg_client));
     int ret = -1;
 
     if (client_data)
     {
         client_data->headers_sent = 1;
-        client->format_data = client_data;
+        client_set_format<struct ogg_client>(client, client_data);
         client->free_client_data = free_ogg_client_data;
         ret = 0;
     }
@@ -485,8 +503,9 @@ static int create_ogg_client_data (_Ptr<source_t> source, _Ptr<client_t> client)
 
 static void free_ogg_client_data (_Ptr<client_t> client)
 {
-    free<void> (client->format_data);
-    client->format_data = NULL;
+  _Ptr<void> p = client_get_format<void>(client);
+  free<void>(p);
+  client_set_format<void>(client, NULL);
 }
 
 
@@ -495,7 +514,7 @@ static void free_ogg_client_data (_Ptr<client_t> client)
  */
 static int send_ogg_headers (_Ptr<client_t> client, _Ptr<refbuf_t> headers)
 {
-    struct ogg_client *client_data = client->format_data;
+    _Ptr<struct ogg_client> client_data = client_get_format<struct ogg_client>(client);
     _Ptr<refbuf_t> refbuf = ((void *)0);
     int written = 0;
 
@@ -539,7 +558,7 @@ static int write_buf_to_client (_Ptr<client_t> client)
     _Ptr<refbuf_t> refbuf = client->refbuf;
     unsigned len = refbuf->len - client->pos;
     _Array_ptr<char> buf : count(len) = refbuf->data + client->pos;
-    struct ogg_client *client_data = client->format_data;
+    _Ptr<struct ogg_client> client_data = client_get_format<struct ogg_client>(client);
     int ret, written = 0;
 
     do
@@ -586,7 +605,7 @@ static int write_ogg_data (_Ptr<struct source_tag> source, _Ptr<refbuf_t> refbuf
 
 static void write_ogg_to_file (_Ptr<struct source_tag> source, _Ptr<refbuf_t> refbuf)
 {
-    _Ptr<ogg_state_t> ogg_info = source->format->_state;
+    _Ptr<ogg_state_t> ogg_info = (_Ptr<ogg_state_t>) source->format->_state;
 
     if (ogg_info->file_headers != refbuf->associated)
     {

@@ -97,7 +97,7 @@ static _Ptr<stats_event_t> _get_event_from_queue(_Ptr<event_queue_t> queue);
 
 
 /* simple helper function for creating an event */
-static _Ptr<stats_event_t> build_event(_Nt_array_ptr<const char> source, _Nt_array_ptr<const char> name : count(9), _Nt_array_ptr<const char> value : byte_count(0))
+static _Ptr<stats_event_t> build_event(_Nt_array_ptr<const char> source, _Nt_array_ptr<const char> name , _Nt_array_ptr<const char> value : byte_count(0))
 {
     _Ptr<stats_event_t> event = ((void *)0);
 
@@ -200,7 +200,7 @@ stats_t *stats_get_stats(void) : itype(_Ptr<stats_t>)
 }
 
 /* simple name=tag stat create/update */
-void stats_event(const char *source : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>) count(9), const char *value : itype(_Nt_array_ptr<const char>))
+void stats_event(const char *source : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>) , const char *value : itype(_Nt_array_ptr<const char>))
 {
     _Ptr<stats_event_t> event = ((void *)0);
 
@@ -216,7 +216,7 @@ void stats_event(const char *source : itype(_Nt_array_ptr<const char>), const ch
 
 
 /* wrapper for stats_event, this takes a charset to convert from */
-void stats_event_conv(const char *mount : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>) count(9), const char *value : itype(_Nt_array_ptr<const char>), const char *charset : itype(_Ptr<const char>))
+void stats_event_conv(const char *mount : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>), const char *value : itype(_Nt_array_ptr<const char>), const char *charset : itype(_Ptr<const char>))
 {
     const char *metadata = value;
     xmlBufferPtr conv = xmlBufferCreate ();
@@ -244,7 +244,7 @@ void stats_event_conv(const char *mount : itype(_Nt_array_ptr<const char>), cons
 
 /* make stat hidden (non-zero). name can be NULL if it applies to a whole
  * source stats tree. */
-void stats_event_hidden (const char *source : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>) count(9), int hidden)
+void stats_event_hidden (const char *source : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>) , int hidden)
 {
     _Ptr<stats_event_t> event = ((void *)0);
     _Nt_array_ptr<const char> str : byte_count(0) = NULL;
@@ -260,7 +260,7 @@ void stats_event_hidden (const char *source : itype(_Nt_array_ptr<const char>), 
 }
 
 /* printf style formatting for stat create/update */
-void stats_event_args(const char *source : itype(_Nt_array_ptr<const char>), char *name : itype(_Nt_array_ptr<char>) count(9), char *format : itype(_Nt_array_ptr<char>), ...)
+void stats_event_args(const char *source : itype(_Nt_array_ptr<const char>), char *name : itype(_Nt_array_ptr<char>), char *format : itype(_Nt_array_ptr<char>), ...)
 {
     char buf _Nt_checked[1024];
     va_list val;
@@ -311,7 +311,7 @@ char *stats_get_value(const char *source : itype(_Nt_array_ptr<const char>), con
 }
 
 /* increase the value in the provided stat by 1 */
-void stats_event_inc(const char *source : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>) count(9))
+void stats_event_inc(const char *source : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>))
 {
     _Ptr<stats_event_t> event = build_event (source, name, NULL);
     /* ICECAST_LOG_DEBUG("%s on %s", name, source==NULL?"global":source); */
@@ -322,7 +322,7 @@ void stats_event_inc(const char *source : itype(_Nt_array_ptr<const char>), cons
     }
 }
 
-void stats_event_add(const char *source : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>) count(9), unsigned long value)
+void stats_event_add(const char *source : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>), unsigned long value)
 {
     _Ptr<stats_event_t> event = build_event (source, name, NULL);
     /* ICECAST_LOG_DEBUG("%s on %s", name, source==NULL?"global":source); */
@@ -335,7 +335,7 @@ void stats_event_add(const char *source : itype(_Nt_array_ptr<const char>), cons
     }
 }
 
-void stats_event_sub(const char *source : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>) count(9), unsigned long value)
+void stats_event_sub(const char *source : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>), unsigned long value)
 {
     _Ptr<stats_event_t> event = build_event (source, name, NULL);
     if (event)
@@ -348,7 +348,7 @@ void stats_event_sub(const char *source : itype(_Nt_array_ptr<const char>), cons
 }
 
 /* decrease the value in the provided stat by 1 */
-void stats_event_dec(const char *source : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>) count(9))
+void stats_event_dec(const char *source : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>))
 {
     /* ICECAST_LOG_DEBUG("%s on %s", name, source==NULL?"global":source); */
     _Ptr<stats_event_t> event = build_event (source, name, NULL);
@@ -634,7 +634,7 @@ static inline void __format_time(_Nt_array_ptr<char> buffer : count(len), size_t
     snprintf(buffer, len, "%s%s", timebuffer, tzbuffer);
 }
 
-void stats_event_time (const char *mount : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>) count(12))
+void stats_event_time (const char *mount : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>))
 {
     char buffer _Nt_checked[100];
 
@@ -643,7 +643,7 @@ void stats_event_time (const char *mount : itype(_Nt_array_ptr<const char>), con
 }
 
 
-void stats_event_time_iso8601 (const char *mount : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>) count(20))
+void stats_event_time_iso8601 (const char *mount : itype(_Nt_array_ptr<const char>), const char *name : itype(_Nt_array_ptr<const char>))
 {
     char buffer _Nt_checked[100];
 
@@ -972,7 +972,7 @@ typedef struct _source_xml_tag {
 } source_xml_t;
 
 
-void stats_transform_xslt(client_t *client : itype(_Ptr<client_t>), const char *uri : itype(_Nt_array_ptr<const char>) count(0))
+void stats_transform_xslt(client_t *client : itype(_Ptr<client_t>), const char *uri : itype(_Nt_array_ptr<const char>))
 {
     xmlDocPtr doc = NULL;
     _Nt_array_ptr<char> xslpath = ((_Nt_array_ptr<char> )util_get_path_from_normalised_uri (uri));
