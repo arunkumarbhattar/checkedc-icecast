@@ -24,7 +24,7 @@
 
 typedef struct ogg_state_tag
 {
-    char *mount;
+    char *mount : itype(_Nt_array_ptr<char>);
     ogg_sync_state oy;
     int error;
 

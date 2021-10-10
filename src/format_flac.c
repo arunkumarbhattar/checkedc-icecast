@@ -31,6 +31,7 @@ typedef struct source_tag source_t;
 #define CATMODULE "format-flac"
 #include "logging.h"
 
+#pragma CHECKED_SCOPE on
 
 static void flac_codec_free (_Ptr<ogg_state_t> ogg_info, _Ptr<ogg_codec_t> codec)
 {
@@ -48,7 +49,7 @@ static _Ptr<refbuf_t> process_flac_page(_Ptr<ogg_state_t> ogg_info, _Ptr<ogg_cod
 
     if (codec->headers)
     {
-        ogg_packet packet;
+        ogg_packet packet = { NULL };
         if (ogg_stream_pagein (&codec->os, page) < 0)
         {
             ogg_info->error = 1;
@@ -84,9 +85,9 @@ static _Ptr<refbuf_t> process_flac_page(_Ptr<ogg_state_t> ogg_info, _Ptr<ogg_cod
 
 ogg_codec_t *initial_flac_page(format_plugin_t *plugin : itype(_Ptr<format_plugin_t>), ogg_page *page : itype(_Ptr<ogg_page>)) : itype(_Ptr<ogg_codec_t>)
 {
-    _Ptr<ogg_state_t> ogg_info = plugin->_state;
+    _Ptr<ogg_state_t> ogg_info = (_Ptr<ogg_state_t>) plugin->_state;
     _Ptr<ogg_codec_t> codec = calloc<ogg_codec_t> (1, sizeof (ogg_codec_t));
-    ogg_packet packet;
+    ogg_packet packet = { NULL };
 
     ogg_stream_init (&codec->os, ogg_page_serialno (page));
     ogg_stream_pagein (&codec->os, page);
@@ -96,7 +97,7 @@ ogg_codec_t *initial_flac_page(format_plugin_t *plugin : itype(_Ptr<format_plugi
     ICECAST_LOG_DEBUG("checking for FLAC codec");
     do
     {
-        unsigned char *parse = packet.packet;
+        _Array_ptr<unsigned char> parse : bounds(packet.packet, packet.packet + packet.bytes) = packet.packet;
 
         if (page->header_len + page->body_len != 79)
             break;
@@ -109,10 +110,10 @@ ogg_codec_t *initial_flac_page(format_plugin_t *plugin : itype(_Ptr<format_plugi
         ICECAST_LOG_INFO("seen initial FLAC header");
 
         parse += 4;
-        stats_event_args (ogg_info->mount, "FLAC_version", "%d.%d",  parse[0], parse[1]);
-        _Checked {
-        codec->process_page = process_flac_page;
+        _Unchecked { // Varargs
+          stats_event_args (ogg_info->mount, "FLAC_version", "%d.%d",  parse[0], parse[1]);
         }
+        codec->process_page = process_flac_page;
         codec->codec_free = flac_codec_free;
         codec->headers = 1;
         codec->name = "FLAC";
