@@ -29,6 +29,8 @@ typedef struct source_tag source_t;
 #define CATMODULE "format-opus"
 #include "logging.h"
 
+#pragma CHECKED_SCOPE on
+
 static void opus_codec_free (_Ptr<ogg_state_t> ogg_info, _Ptr<ogg_codec_t> codec)
 {
     ogg_stream_clear (&codec->os);
@@ -42,7 +44,7 @@ static _Ptr<refbuf_t> process_opus_page(_Ptr<ogg_state_t> ogg_info, _Ptr<ogg_cod
 
     if (codec->headers < 2)
     {
-        ogg_packet packet;
+        ogg_packet packet = { NULL };
 
         ogg_stream_pagein (&codec->os, page);
         while (ogg_stream_packetout (&codec->os, &packet) > 0)
@@ -61,9 +63,9 @@ static _Ptr<refbuf_t> process_opus_page(_Ptr<ogg_state_t> ogg_info, _Ptr<ogg_cod
 
 ogg_codec_t *initial_opus_page(format_plugin_t *plugin : itype(_Ptr<format_plugin_t>), ogg_page *page : itype(_Ptr<ogg_page>)) : itype(_Ptr<ogg_codec_t>)
 {
-    _Ptr<ogg_state_t> ogg_info = plugin->_state;
+    _Ptr<ogg_state_t> ogg_info = (_Ptr<ogg_state_t>) plugin->_state;
     _Ptr<ogg_codec_t> codec = calloc<ogg_codec_t> (1, sizeof (ogg_codec_t));
-    ogg_packet packet;
+    ogg_packet packet = { NULL };
 
     ogg_stream_init (&codec->os, ogg_page_serialno (page));
     ogg_stream_pagein (&codec->os, page);
@@ -71,16 +73,14 @@ ogg_codec_t *initial_opus_page(format_plugin_t *plugin : itype(_Ptr<format_plugi
     ogg_stream_packetout (&codec->os, &packet);
 
     ICECAST_LOG_DEBUG("checking for opus codec");
-    if (packet.bytes < 8 || strncmp((char *)packet.packet, "OpusHead", 8) != 0)
+    if (packet.bytes < 8 || memcmp(packet.packet, "OpusHead", 8) != 0)
     {
         ogg_stream_clear (&codec->os);
         free<ogg_codec_t> (codec);
         return NULL;
     }
     ICECAST_LOG_INFO("seen initial opus header");
-    _Checked {
     codec->process_page = process_opus_page;
-    }
     codec->codec_free = opus_codec_free;
     codec->headers = 1;
     codec->name = "Opus";
