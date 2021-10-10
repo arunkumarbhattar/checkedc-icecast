@@ -87,7 +87,7 @@ typedef struct {
    to a single raw Ogg/Vorbis packet *************************************/
 
 typedef struct {
-  unsigned char *packet;
+  unsigned char *packet : itype(_Array_ptr<unsigned char>) count(bytes);
   long  bytes;
   long  b_o_s;
   long  e_o_s;
