@@ -141,8 +141,8 @@ typedef struct _listener_t {
 typedef struct ice_config_tag {
     char *config_filename : itype(_Nt_array_ptr<char>);
 
-    char *location;
-    char *admin;
+    char *location : itype(_Nt_array_ptr<char>);
+    char *admin : itype(_Nt_array_ptr<char>);
 
     int client_limit;
     int source_limit;
@@ -156,28 +156,28 @@ typedef struct ice_config_tag {
     int fileserve;
     int on_demand; /* global setting for all relays */
 
-    char *shoutcast_mount;
-    char *source_password;
-    char *admin_username;
-    char *admin_password;
-    char *relay_username;
-    char *relay_password;
+    char *shoutcast_mount : itype(_Nt_array_ptr<char>);
+    char *source_password : itype(_Nt_array_ptr<char>);
+    char *admin_username : itype(_Nt_array_ptr<char>);
+    char *admin_password : itype(_Nt_array_ptr<char>);
+    char *relay_username : itype(_Nt_array_ptr<char>);
+    char *relay_password : itype(_Nt_array_ptr<char>);
 
     int touch_interval;
     ice_config_dir_t *dir_list : itype(_Ptr<ice_config_dir_t>);
 
-    char *hostname;
+    char *hostname : itype(_Nt_array_ptr<char>);
     int port;
-    char *mimetypes_fn;
+    char *mimetypes_fn : itype(_Nt_array_ptr<char>);
 
     listener_t *listen_sock : itype(_Ptr<listener_t>);
     unsigned int listen_sock_count;
 
-    char *master_server;
+    char *master_server : itype(_Nt_array_ptr<char>);
     int master_server_port;
     int master_update_interval;
-    char *master_username;
-    char *master_password;
+    char *master_username : itype(_Nt_array_ptr<char>);
+    char *master_password : itype(_Nt_array_ptr<char>);
 
     ice_config_http_header_t *http_headers : itype(_Ptr<ice_config_http_header_t>);
 
@@ -185,29 +185,29 @@ typedef struct ice_config_tag {
 
     mount_proxy *mounts : itype(_Ptr<mount_proxy>);
 
-    char *server_id;
-    char *base_dir;
-    char *log_dir;
-    char *pidfile;
-    char *banfile;
-    char *allowfile;
-    char *cert_file;
-    char *cipher_list;
-    char *webroot_dir;
-    char *adminroot_dir;
+    char *server_id : itype(_Nt_array_ptr<char>);
+    char *base_dir : itype(_Nt_array_ptr<char>);
+    char *log_dir : itype(_Nt_array_ptr<char>);
+    char *pidfile : itype(_Nt_array_ptr<char>);
+    char *banfile : itype(_Nt_array_ptr<char>);
+    char *allowfile : itype(_Nt_array_ptr<char>);
+    char *cert_file : itype(_Nt_array_ptr<char>);
+    char *cipher_list : itype(_Nt_array_ptr<char>);
+    char *webroot_dir : itype(_Nt_array_ptr<char>);
+    char *adminroot_dir : itype(_Nt_array_ptr<char>);
     aliases *aliases : itype(_Ptr<aliases>);
 
-    char *access_log;
-    char *error_log;
-    char *playlist_log;
+    char *access_log : itype(_Nt_array_ptr<char>);
+    char *error_log : itype(_Nt_array_ptr<char>);
+    char *playlist_log : itype(_Nt_array_ptr<char>);
     int loglevel;
     int logsize;
     int logarchive;
 
     int chroot;
     int chuid;
-    char *user;
-    char *group;
+    char *user : itype(_Nt_array_ptr<char>);
+    char *group : itype(_Nt_array_ptr<char>);
     char *yp_url[25] : itype(char * _Checked[MAX_YP_DIRECTORIES]);
     int yp_url_timeout[25] : itype(int _Checked[MAX_YP_DIRECTORIES]);
     int yp_touch_interval[25] : itype(int _Checked[MAX_YP_DIRECTORIES]);
@@ -222,7 +222,7 @@ typedef struct {
 void config_initialize(void);
 void config_shutdown(void);
 
-int config_parse_file(const char *filename : itype(_Nt_array_ptr<const char>), ice_config_t *configuration : itype(_Array_ptr<ice_config_t>));
+int config_parse_file(const char *filename : itype(_Nt_array_ptr<const char>), ice_config_t *configuration : itype(_Ptr<ice_config_t>));
 int config_initial_parse_file(const char *filename : itype(_Nt_array_ptr<const char>));
 int config_parse_cmdline(int arg, char **argv : itype(_Ptr<_Nt_array_ptr<char>>));
 void config_set_config(ice_config_t *config : itype(_Array_ptr<ice_config_t>));
