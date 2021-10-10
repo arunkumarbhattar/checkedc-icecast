@@ -70,21 +70,21 @@ typedef enum _mount_type {
 } mount_type;
 
 typedef struct _mount_proxy {
-    char *mountname; /* The mountpoint this proxy is used for */
+    char *mountname : itype(_Nt_array_ptr<char>); /* The mountpoint this proxy is used for */
 
     mount_type mounttype; /* The type of the mount point */
 
-    char *username; /* Username and password for this mountpoint. If unset, */
-    char *password; /* falls back to global source password */
+    char *username : itype(_Nt_array_ptr<char>); /* Username and password for this mountpoint. If unset, */
+    char *password : itype(_Nt_array_ptr<char>); /* falls back to global source password */
 
-    char *dumpfile; /* Filename to dump this stream to (will be appended). NULL
+    char *dumpfile : itype(_Nt_array_ptr<char>); /* Filename to dump this stream to (will be appended). NULL
                        to not dump. */
-    char *intro_filename;   /* Send contents of file to client before the stream */
+    char *intro_filename : itype(_Nt_array_ptr<char>);   /* Send contents of file to client before the stream */
     int fallback_when_full; /* switch new listener to fallback source
                                when max listeners reached */
     int max_listeners; /* Max listeners for this mountpoint only. -1 to not 
                           limit here (i.e. only use the global limit) */
-    char *fallback_mount; /* Fallback mountname */
+    char *fallback_mount : itype(_Nt_array_ptr<char>); /* Fallback mountname */
 
     int fallback_override; /* When this source arrives, do we steal back
                               clients from the fallback? */
@@ -95,26 +95,26 @@ typedef struct _mount_proxy {
     unsigned int queue_size_limit;
     int hidden; /* Do we list this on the xsl pages */
     unsigned int source_timeout;  /* source timeout in seconds */
-    char *charset;  /* character set if not utf8 */
+    char *charset : itype(_Nt_array_ptr<char>);  /* character set if not utf8 */
     int mp3_meta_interval; /* outgoing per-stream metadata interval */
 
     ice_config_http_header_t *http_headers : itype(_Ptr<ice_config_http_header_t>); /* additional HTTP headers */
 
-    char *auth_type; /* Authentication type */
+    char *auth_type : itype(_Nt_array_ptr<char>); /* Authentication type */
     struct auth_tag *auth : itype(_Ptr<struct auth_tag>);
-    char *cluster_password;
+    char *cluster_password : itype(_Nt_array_ptr<char>);
     config_options_t *auth_options : itype(_Ptr<config_options_t>); /* Options for this type */
-    char *on_connect;
-    char *on_disconnect;
+    char *on_connect : itype(_Nt_array_ptr<char>);
+    char *on_disconnect : itype(_Nt_array_ptr<char>);
     unsigned int max_listener_duration;
 
-    char *stream_name;
-    char *stream_description;
-    char *stream_url;
-    char *stream_genre;
-    char *bitrate;
-    char *type;
-    char *subtype;
+    char *stream_name : itype(_Nt_array_ptr<char>);
+    char *stream_description : itype(_Nt_array_ptr<char>);
+    char *stream_url : itype(_Nt_array_ptr<char>);
+    char *stream_genre : itype(_Nt_array_ptr<char>);
+    char *bitrate : itype(_Nt_array_ptr<char>);
+    char *type : itype(_Nt_array_ptr<char>);
+    char *subtype : itype(_Nt_array_ptr<char>);
     int yp_public;
 
     struct _mount_proxy *next : itype(_Ptr<struct _mount_proxy>);

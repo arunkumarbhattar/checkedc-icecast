@@ -52,6 +52,8 @@
 #define snprintf _snprintf
 #endif
 
+#pragma CHECKED_SCOPE on
+
 static int format_prepare_headers (_Ptr<source_t> source, _Ptr<client_t> client);
 
 
@@ -298,14 +300,16 @@ static int format_prepare_headers (_Ptr<source_t> source, _Ptr<client_t> client)
     _Nt_array_ptr<char> ptr : count(client->refbuf->len) = client->refbuf->data;
     client->respcode = 200;
 
-    bytes = util_http_build_header(_Assume_bounds_cast<_Nt_array_ptr<char>>(ptr, byte_count(0)), remaining, 0, 0, 200, NULL, source->format->contenttype, NULL, NULL, source);
+    bytes = util_http_build_header(_Dynamic_bounds_cast<_Nt_array_ptr<char>>(ptr, byte_count(0)), remaining, 0, 0, 200, NULL, source->format->contenttype, NULL, NULL, source);
     if (bytes <= 0) {
         ICECAST_LOG_ERROR("Dropping client as we can not build response headers.");
         client_send_500(client, "Header generation failed.");
         return -1;
     } else if ((bytes + 1024) >= remaining) { /* we don't know yet how much to follow but want at least 1kB free space */
       int length = bytes + 1024;
-        _Nt_array_ptr<char> new_ptr : count(length) = (_Nt_array_ptr<char>) realloc<char>(ptr, bytes + 1024);
+        _Array_ptr<char> temp : count(length) = realloc<char>(ptr, bytes + 1024);
+        temp[length - 1] = '\0'; // null terminate for safety
+        _Nt_array_ptr<char> new_ptr : count(length -1) = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(temp, count(length - 1));
         if (new_ptr) {
             ICECAST_LOG_DEBUG("Client buffer reallocation succeeded.");
             client->refbuf->data = ptr = new_ptr;
@@ -313,7 +317,7 @@ static int format_prepare_headers (_Ptr<source_t> source, _Ptr<client_t> client)
               _Dynamic_bounds_cast<_Nt_array_ptr<char>>(client->refbuf->data, count(bytes + 1024)),
                 ptr = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(ptr, count(bytes + 1024)),
                 client->refbuf->len = remaining = bytes + 1024;
-            bytes = util_http_build_header(_Assume_bounds_cast<_Nt_array_ptr<char>>(ptr, byte_count(0)), remaining, 0, 0, 200, NULL, source->format->contenttype, NULL, NULL, source);
+            bytes = util_http_build_header(_Dynamic_bounds_cast<_Nt_array_ptr<char>>(ptr, byte_count(0)), remaining, 0, 0, 200, NULL, source->format->contenttype, NULL, NULL, source);
             if (bytes <= 0 || bytes >= remaining) {
                 ICECAST_LOG_ERROR("Dropping client as we can not build response headers.");
                 client_send_500(client, "Header generation failed.");
