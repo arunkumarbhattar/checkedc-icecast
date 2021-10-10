@@ -26,6 +26,7 @@ typedef unsigned __int64 uint64_t;
 # define timing_sleep _mangle(timing_sleep)
 #endif
 
+
 uint64_t timing_get_time(void);
 void timing_sleep(uint64_t sleeptime);
 

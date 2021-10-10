@@ -40,6 +40,9 @@
 
 #include "timing.h"
 
+
+#pragma CHECKED_SCOPE on
+
 /* see timing.h for an explanation of _mangle() */
 
 /* 
@@ -63,6 +66,12 @@ uint64_t timing_get_time(void)
 #endif
 }
 
+
+int select(int nfds, 
+    fd_set *readfds : itype(_Ptr<fd_set>),
+    fd_set *writefds : itype(_Ptr<fd_set>),
+    fd_set *exceptfds : itype(_Ptr<fd_set>),
+    struct timeval *timeout : itype(_Ptr<struct timeval>));
 
 void timing_sleep(uint64_t sleeptime)
 {
