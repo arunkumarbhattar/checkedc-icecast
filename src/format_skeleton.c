@@ -32,6 +32,7 @@ typedef struct source_tag source_t;
 #define CATMODULE "format-skeleton"
 #include "logging.h"
 
+#pragma CHECKED_SCOPE on
 
 static void skeleton_codec_free (_Ptr<ogg_state_t> ogg_info, _Ptr<ogg_codec_t> codec)
 {
@@ -46,7 +47,7 @@ static void skeleton_codec_free (_Ptr<ogg_state_t> ogg_info, _Ptr<ogg_codec_t> c
  */
 static _Ptr<refbuf_t> process_skeleton_page(_Ptr<ogg_state_t> ogg_info, _Ptr<ogg_codec_t> codec, _Ptr<ogg_page> page)
 {
-    ogg_packet packet;
+    ogg_packet packet = { NULL };
 
     if (ogg_stream_pagein (&codec->os, page) < 0)
     {
@@ -70,9 +71,9 @@ static _Ptr<refbuf_t> process_skeleton_page(_Ptr<ogg_state_t> ogg_info, _Ptr<ogg
  */
 ogg_codec_t *initial_skeleton_page(format_plugin_t *plugin : itype(_Ptr<format_plugin_t>), ogg_page *page : itype(_Ptr<ogg_page>)) : itype(_Ptr<ogg_codec_t>)
 {
-    _Ptr<ogg_state_t> ogg_info = plugin->_state;
+    _Ptr<ogg_state_t> ogg_info = (_Ptr<ogg_state_t>) plugin->_state;
     _Ptr<ogg_codec_t> codec = calloc<ogg_codec_t> (1, sizeof (ogg_codec_t));
-    ogg_packet packet;
+    ogg_packet packet = {NULL};
 
     ogg_stream_init (&codec->os, ogg_page_serialno (page));
     ogg_stream_pagein (&codec->os, page);
