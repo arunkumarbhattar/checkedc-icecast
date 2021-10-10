@@ -33,18 +33,18 @@ typedef struct source_tag source_t;
 #include "logging.h"
 
 
-static void skeleton_codec_free (ogg_state_t *ogg_info, ogg_codec_t *codec)
+static void skeleton_codec_free (_Ptr<ogg_state_t> ogg_info, _Ptr<ogg_codec_t> codec)
 {
     ICECAST_LOG_DEBUG("freeing skeleton codec");
     ogg_stream_clear (&codec->os);
-    free (codec);
+    free<ogg_codec_t> (codec);
 }
 
 
 /* skeleton pages are not rebuilt, so here we just for headers and then
  * pass them straight through to the the queue
  */
-static refbuf_t *process_skeleton_page (ogg_state_t *ogg_info, ogg_codec_t *codec, ogg_page *page)
+static _Ptr<refbuf_t> process_skeleton_page(_Ptr<ogg_state_t> ogg_info, _Ptr<ogg_codec_t> codec, _Ptr<ogg_page> page)
 {
     ogg_packet packet;
 
@@ -68,10 +68,10 @@ static refbuf_t *process_skeleton_page (ogg_state_t *ogg_info, ogg_codec_t *code
 /* Check if specified BOS page is the start of a skeleton stream and
  * if so, create a codec structure for handling it
  */
-ogg_codec_t *initial_skeleton_page (format_plugin_t *plugin, ogg_page *page)
+ogg_codec_t *initial_skeleton_page(format_plugin_t *plugin : itype(_Ptr<format_plugin_t>), ogg_page *page : itype(_Ptr<ogg_page>)) : itype(_Ptr<ogg_codec_t>)
 {
-    ogg_state_t *ogg_info = plugin->_state;
-    ogg_codec_t *codec = calloc (1, sizeof (ogg_codec_t));
+    _Ptr<ogg_state_t> ogg_info = plugin->_state;
+    _Ptr<ogg_codec_t> codec = calloc<ogg_codec_t> (1, sizeof (ogg_codec_t));
     ogg_packet packet;
 
     ogg_stream_init (&codec->os, ogg_page_serialno (page));
@@ -84,12 +84,14 @@ ogg_codec_t *initial_skeleton_page (format_plugin_t *plugin, ogg_page *page)
     if ((packet.bytes<8) || memcmp(packet.packet, "fishead\0", 8))
     {
         ogg_stream_clear (&codec->os);
-        free (codec);
+        free<ogg_codec_t> (codec);
         return NULL;
     }
 
     ICECAST_LOG_INFO("seen initial skeleton header");
+    _Checked {
     codec->process_page = process_skeleton_page;
+    }
     codec->codec_free = skeleton_codec_free;
     codec->headers = 1;
     codec->name = "Skeleton";

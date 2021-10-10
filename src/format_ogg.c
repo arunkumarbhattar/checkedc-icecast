@@ -76,6 +76,11 @@ _Itype_for_any(T) void set_specific(ogg_codec_t *codec : itype(_Ptr<ogg_codec_t>
   codec->specific = spec;
 }
 
+_Itype_for_any(T)
+void* get_specific(ogg_codec_t *codec : itype(_Ptr<ogg_codec_t>)) : itype(_Ptr<T>) { 
+  return codec->specific;
+}
+
 refbuf_t *make_refbuf_with_page(ogg_page *page : itype(_Ptr<ogg_page>)) : itype(_Ptr<refbuf_t>)
 {
     _Ptr<refbuf_t> refbuf = refbuf_new (page->header_len + page->body_len);

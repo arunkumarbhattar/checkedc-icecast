@@ -224,7 +224,7 @@ xmlDocPtr admin_build_sourcelist (const char *mount : itype(_Nt_array_ptr<const 
 
             xmlNewTextChild(srcnode, NULL, XMLSTR("fallback"), 
                     (source->fallback_mount != NULL)?
-                    a(source->fallback_mount):Xa(""));
+                    (source->fallback_mount):(""));
             snprintf (buf, sizeof(buf), "%lu", source->listeners);
             xmlNewTextChild(srcnode, NULL, XMLSTR("listeners"), XMLSTR(buf));
 
@@ -233,7 +233,7 @@ xmlDocPtr admin_build_sourcelist (const char *mount : itype(_Nt_array_ptr<const 
             if (mountinfo && mountinfo->auth)
             {
                 xmlNewTextChild(srcnode, NULL, XMLSTR("authenticator"),
-                        a(mountinfo->auth->type));
+                        (mountinfo->auth->type));
             }
             config_release_config();
 
@@ -246,7 +246,7 @@ xmlDocPtr admin_build_sourcelist (const char *mount : itype(_Nt_array_ptr<const 
                     xmlNewTextChild (srcnode, NULL, XMLSTR("Connected"), XMLSTR(buf));
                 }
                 xmlNewTextChild (srcnode, NULL, XMLSTR("content-type"), 
-                        a(source->format->contenttype));
+                        (source->format->contenttype));
             }
         }
         node = avl_get_next(node);
@@ -279,7 +279,7 @@ void admin_send_response (xmlDocPtr doc : itype(_Ptr<xmlDoc>), client_t *client 
         if (ret == -1) {
             ICECAST_LOG_ERROR("Dropping client as we can not build response headers.");
             client_send_500(client, "Header generation failed.");
-            xmlFreea(buff);
+            xmlFree(buff);
             return;
         } else if (buf_len < (len + ret + 64)) {
             buf_len = ret + len + 64;
@@ -1092,7 +1092,7 @@ static void command_list_mounts(_Ptr<client_t> client, int response)
             return;
         }
 
-        refbuf_wien(client->refbuf);
+        refbuf_widen(client->refbuf);
         client->respcode = 200;
 
         client->refbuf->next = stats_get_streams ();

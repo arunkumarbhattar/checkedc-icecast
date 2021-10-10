@@ -50,7 +50,7 @@ typedef struct _kate_codec_tag
 } kate_codec_t;
 
 
-static void kate_codec_free (ogg_state_t *ogg_info, ogg_codec_t *codec)
+static void kate_codec_free (_Ptr<ogg_state_t> ogg_info, _Ptr<ogg_codec_t> codec)
 {
     kate_codec_t *kate = codec->specific;
 
@@ -66,20 +66,20 @@ static void kate_codec_free (ogg_state_t *ogg_info, ogg_codec_t *codec)
     kate_comment_clear (&kate->kc);
 #endif
     ogg_stream_clear (&codec->os);
-    free (kate);
-    free (codec);
+    free<kate_codec_t> (kate);
+    free<ogg_codec_t> (codec);
 }
 
 
 /* kate pages are not rebuilt, so here we just for headers and then
  * pass them straight through to the the queue
  */
-static refbuf_t *process_kate_page (ogg_state_t *ogg_info, ogg_codec_t *codec, ogg_page *page)
+static _Ptr<refbuf_t> process_kate_page(_Ptr<ogg_state_t> ogg_info, _Ptr<ogg_codec_t> codec, _Ptr<ogg_page> page)
 {
     kate_codec_t *kate = codec->specific;
     ogg_packet packet;
     int header_page = 0;
-    refbuf_t *refbuf = NULL;
+    _Ptr<refbuf_t> refbuf = NULL;
     ogg_int64_t granulepos;
 
     if (ogg_stream_pagein (&codec->os, page) < 0)
@@ -178,13 +178,13 @@ static refbuf_t *process_kate_page (ogg_state_t *ogg_info, ogg_codec_t *codec, o
 /* Check if specified BOS page is the start of a kate stream and
  * if so, create a codec structure for handling it
  */
-ogg_codec_t *initial_kate_page (format_plugin_t *plugin, ogg_page *page)
+ogg_codec_t *initial_kate_page(format_plugin_t *plugin : itype(_Ptr<format_plugin_t>), ogg_page *page : itype(_Ptr<ogg_page>)) : itype(_Ptr<ogg_codec_t>)
 {
-    ogg_state_t *ogg_info = plugin->_state;
-    ogg_codec_t *codec = calloc (1, sizeof (ogg_codec_t));
+    _Ptr<ogg_state_t> ogg_info = plugin->_state;
+    _Ptr<ogg_codec_t> codec = calloc<ogg_codec_t> (1, sizeof (ogg_codec_t));
     ogg_packet packet;
 
-    kate_codec_t *kate_codec = calloc (1, sizeof (kate_codec_t));
+    _Ptr<kate_codec_t> kate_codec = calloc<kate_codec_t> (1, sizeof (kate_codec_t));
 
     ogg_stream_init (&codec->os, ogg_page_serialno (page));
     ogg_stream_pagein (&codec->os, page);
@@ -212,15 +212,17 @@ ogg_codec_t *initial_kate_page (format_plugin_t *plugin, ogg_page *page)
     if ((packet.bytes<9) || memcmp(packet.packet, "\x80kate\0\0\0\0", 9))
     {
         ogg_stream_clear (&codec->os);
-        free (kate_codec);
-        free (codec);
+        free<kate_codec_t> (kate_codec);
+        free<ogg_codec_t> (codec);
         return NULL;
     }
 #endif
 
     ICECAST_LOG_INFO("seen initial kate header");
     set_specific<kate_codec_t>(codec, kate_codec);
+    _Checked {
     codec->process_page = process_kate_page;
+    }
     codec->codec_free = kate_codec_free;
     codec->headers = 1;
     codec->name = "Kate";

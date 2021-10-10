@@ -62,6 +62,8 @@ typedef struct ogg_codec_tag
 
 _Itype_for_any(T)
 void set_specific(ogg_codec_t *codec : itype(_Ptr<ogg_codec_t>), void *spec : itype(_Ptr<T>));
+_Itype_for_any(T)
+void* get_specific(ogg_codec_t *codec : itype(_Ptr<ogg_codec_t>)) : itype(_Ptr<T>);
 
 
 refbuf_t *make_refbuf_with_page(ogg_page *page : itype(_Ptr<ogg_page>)) : itype(_Ptr<refbuf_t>);
