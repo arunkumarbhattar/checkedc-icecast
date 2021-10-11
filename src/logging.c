@@ -117,13 +117,16 @@ int get_clf_time (char *buffer, unsigned len, struct tm *t)
 ** AGENT = get from client->parser
 ** TIME = timing_get_time() - client->con->con_time
 */
-void logging_access(client_t *client)
+void logging_access(client_t *client : itype(_Ptr<client_t>))
 {
-    char datebuf[128];
+    char datebuf _Nt_checked[128];
     struct tm thetime;
     time_t now;
     time_t stayed;
-    const char *referrer, *user_agent, *username;
+    _Nt_array_ptr<const char> referrer = ((void *)0);
+_Nt_array_ptr<const char> user_agent = ((void *)0);
+_Nt_array_ptr<const char> username = ((void *)0);
+
 
     now = time(NULL);
 
@@ -143,11 +146,11 @@ void logging_access(client_t *client)
     else
         username = client->username;
 
-    referrer = httpp_getvar (client->parser, "referer");
+    referrer = (_Nt_array_ptr<char>) httpp_getvar (client->parser, "referer");
     if (referrer == NULL)
         referrer = "-";
 
-    user_agent = httpp_getvar (client->parser, "user-agent");
+    user_agent = (_Nt_array_ptr<char>) httpp_getvar (client->parser, "user-agent");
     if (user_agent == NULL)
         user_agent = "-";
 
@@ -169,9 +172,9 @@ void logging_access(client_t *client)
 /* This function will provide a log of metadata for each
    mountpoint.  The metadata *must* be in UTF-8, and thus
    you can assume that the log itself is UTF-8 encoded */
-void logging_playlist(const char *mount, const char *metadata, long listeners)
+void logging_playlist(const char *mount : itype(_Nt_array_ptr<const char>), const char *metadata : itype(_Nt_array_ptr<const char>), long listeners)
 {
-    char datebuf[128];
+    char datebuf _Nt_checked[128];
     struct tm thetime;
     time_t now;
 
@@ -201,24 +204,24 @@ void logging_playlist(const char *mount, const char *metadata, long listeners)
 
 void log_parse_failure (void *ctx, const char *fmt, ...)
 {
-    char line [200];
+    char line _Nt_checked[200];
     va_list ap;
-    char *eol;
+    _Nt_array_ptr<char> eol = ((void *)0);
 
     va_start (ap, fmt);
     vsnprintf (line, sizeof (line), fmt, ap);
-    eol = strrchr (line, '\n');
+    eol = (_Nt_array_ptr<char>) strrchr (line, '\n');
     if (eol) *eol='\0';
     va_end (ap);
-    log_write (errorlog, 2, (char*)ctx, "", "%s", line);
+    log_write (errorlog, 2, _Assume_bounds_cast<_Nt_array_ptr<const char>>((char*)ctx, byte_count(0)), "", "%s", line);
 }
 
 
-void restart_logging (ice_config_t *config)
+void restart_logging (ice_config_t *config : itype(_Ptr<ice_config_t>))
 {
     if (strcmp (config->error_log, "-"))
     {
-        char fn_error[FILENAME_MAX];
+        char fn_error _Nt_checked[FILENAME_MAX];
         snprintf (fn_error, FILENAME_MAX, "%s%s%s", config->log_dir, PATH_SEPARATOR, config->error_log);
         log_set_filename (errorlog, fn_error);
         log_set_level (errorlog, config->loglevel);
@@ -229,7 +232,7 @@ void restart_logging (ice_config_t *config)
 
     if (strcmp (config->access_log, "-"))
     {
-        char fn_error[FILENAME_MAX];
+        char fn_error _Nt_checked[FILENAME_MAX];
         snprintf (fn_error, FILENAME_MAX, "%s%s%s", config->log_dir, PATH_SEPARATOR, config->access_log);
         log_set_filename (accesslog, fn_error);
         log_set_trigger (accesslog, config->logsize);
@@ -239,7 +242,7 @@ void restart_logging (ice_config_t *config)
 
     if (config->playlist_log)
     {
-        char fn_error[FILENAME_MAX];
+        char fn_error _Nt_checked[FILENAME_MAX];
         snprintf (fn_error, FILENAME_MAX, "%s%s%s", config->log_dir, PATH_SEPARATOR, config->playlist_log);
         log_set_filename (playlistlog, fn_error);
         log_set_trigger (playlistlog, config->logsize);
