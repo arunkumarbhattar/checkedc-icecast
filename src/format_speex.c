@@ -30,6 +30,8 @@ typedef struct source_tag source_t;
 #define CATMODULE "format-speex"
 #include "logging.h"
 
+#error "Not in port"
+
 static void speex_codec_free (ogg_state_t *ogg_info, ogg_codec_t *codec)
 {
     ogg_stream_clear (&codec->os);
