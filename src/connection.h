@@ -55,8 +55,8 @@ typedef struct connection_tag
 
     int ((*read)(struct connection_tag *handle, void *buf : byte_count(len), size_t len)) : itype(_Ptr<int (_Ptr<struct connection_tag> handle, _Array_ptr<void> buf : byte_count(len), size_t len)>);
 
-    char *ip;
-    char *host : itype(_Ptr<char>);
+    char *ip : itype(_Nt_array_ptr<char>);
+    char *host : itype(_Nt_array_ptr<char>);
 
 } connection_t;
 

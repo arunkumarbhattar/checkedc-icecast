@@ -863,3 +863,20 @@ int get_line(FILE *file : itype(_Ptr<FILE>), char *buf : itype(_Nt_array_ptr<cha
     return 0;
 }
 
+_Nt_array_ptr<char> stralloc(int size) : count(size) { 
+  _Unchecked { 
+    void *ptr = calloc(sizeof(char), size + 1); 
+    return _Assume_bounds_cast<_Nt_array_ptr<char>>(ptr, count(size));
+  }
+}
+
+
+_Nt_array_ptr<char> strrealloc(_Nt_array_ptr<char> x, unsigned int new_len) : count(new_len) { 
+  _Unchecked { 
+    void *ptr = (void*) x; 
+    void *new = calloc(sizeof(char), new_len); 
+    return _Assume_bounds_cast<_Nt_array_ptr<char>>(new, count(new_len));
+  }
+}
+
+

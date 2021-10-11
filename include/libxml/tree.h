@@ -950,7 +950,7 @@ XMLPUBFUN int XMLCALL
 XMLPUBFUN void XMLCALL
 		xmlDocDumpFormatMemory	(xmlDocPtr cur : itype(_Ptr<xmlDoc>), xmlChar **mem : itype(_Ptr<_Ptr<xmlChar>>), int *size : itype(_Ptr<int>), int format);
 XMLPUBFUN void XMLCALL
-		xmlDocDumpMemory	(xmlDocPtr cur : itype(_Ptr<xmlDoc>), xmlChar **mem : itype(_Ptr<xmlChar *>), int *size : itype(_Ptr<int>));
+		xmlDocDumpMemory	(xmlDocPtr cur : itype(_Ptr<xmlDoc>), xmlChar **mem : itype(_Ptr<_Nt_array_ptr<xmlChar>>), int *size : itype(_Ptr<int>));
 XMLPUBFUN void XMLCALL
 		xmlDocDumpMemoryEnc	(xmlDocPtr out_doc : itype(_Ptr<xmlDoc>), xmlChar **doc_txt_ptr : itype(_Ptr<_Ptr<xmlChar>>), int *doc_txt_len : itype(_Ptr<int>), const char *txt_encoding : itype(_Ptr<const char>));
 XMLPUBFUN void XMLCALL

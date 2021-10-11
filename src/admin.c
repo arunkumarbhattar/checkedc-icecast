@@ -47,6 +47,8 @@
 
 #define COMMAND_ERROR             (-1)
 
+#pragma CHECKED_SCOPE on
+
 /* Mount-specific commands */
 #define COMMAND_RAW_FALLBACK        1
 #define COMMAND_RAW_METADATA_UPDATE     2
@@ -109,6 +111,7 @@
 #define DEFAULT_RAW_REQUEST ""
 #define DEFAULT_TRANSFORMED_REQUEST ""
 #define BUILDM3U_RAW_REQUEST "buildm3u"
+
 
 int admin_get_command(const char *command : itype(_Nt_array_ptr<const char>))
 {
@@ -194,7 +197,7 @@ xmlDocPtr admin_build_sourcelist (const char *mount : itype(_Nt_array_ptr<const 
     _Ptr<source_t> source = ((void *)0);
     xmlNodePtr xmlnode = NULL, srcnode = NULL;
     xmlDocPtr doc = NULL;
-    char buf[22];
+    char buf _Nt_checked[22] = { '\0' };
     time_t now = time(NULL);
 
     doc = xmlNewDoc (XMLSTR("1.0"));
@@ -202,7 +205,7 @@ xmlDocPtr admin_build_sourcelist (const char *mount : itype(_Nt_array_ptr<const 
     xmlDocSetRootElement(doc, xmlnode);
 
     if (mount) {
-        xmlNewTextChild (xmlnode, NULL, XMLSTR("current_source"),(mount));
+        xmlNewTextChild (xmlnode, NULL, XMLSTR("current_source"), XMLSTR(mount));
     }
 
     node = avl_get_first(global.source_tree);
@@ -220,11 +223,14 @@ xmlDocPtr admin_build_sourcelist (const char *mount : itype(_Nt_array_ptr<const 
             _Ptr<mount_proxy> mountinfo = ((void *)0);
 
             srcnode = xmlNewChild(xmlnode, NULL, XMLSTR("source"), NULL);
-            xmlSetProp(srcnode, XMLSTR("mount"),(source->mount));
+            xmlSetProp(srcnode, XMLSTR("mount"),XMLSTR(source->mount));
 
-            xmlNewTextChild(srcnode, NULL, XMLSTR("fallback"), 
-                    (source->fallback_mount != NULL)?
-                    (source->fallback_mount):(""));
+
+            if (source->fallback_mount) 
+              xmlNewTextChild(srcnode, NULL, XMLSTR("fallback"), XMLSTR(source->fallback_mount));
+            else 
+              xmlNewTextChild(srcnode, NULL, XMLSTR("fallback"), NULL);
+
             snprintf (buf, sizeof(buf), "%lu", source->listeners);
             xmlNewTextChild(srcnode, NULL, XMLSTR("listeners"), XMLSTR(buf));
 
@@ -246,7 +252,7 @@ xmlDocPtr admin_build_sourcelist (const char *mount : itype(_Nt_array_ptr<const 
                     xmlNewTextChild (srcnode, NULL, XMLSTR("Connected"), XMLSTR(buf));
                 }
                 xmlNewTextChild (srcnode, NULL, XMLSTR("content-type"), 
-                        (source->format->contenttype));
+                        XMLSTR(source->format->contenttype));
             }
         }
         node = avl_get_next(node);
@@ -258,12 +264,15 @@ void admin_send_response (xmlDocPtr doc : itype(_Ptr<xmlDoc>), client_t *client 
 {
     if (response == RAW)
     {
-        xmlChar *buff = NULL;
+        _Ptr<_Nt_array_ptr<xmlChar>> pbuff = malloc<_Nt_array_ptr<xmlChar>>(sizeof *pbuff);
+        _Nt_array_ptr<xmlChar> buff = NULL;
         int len = 0;
         size_t buf_len;
         ssize_t ret;
 
-        xmlDocDumpMemory(doc, &buff, &len);
+        xmlDocDumpMemory(doc, pbuff, &len);
+        buff = *pbuff;
+        
 
         buf_len = len + 1024;
         if (buf_len < 4096)
@@ -279,11 +288,11 @@ void admin_send_response (xmlDocPtr doc : itype(_Ptr<xmlDoc>), client_t *client 
         if (ret == -1) {
             ICECAST_LOG_ERROR("Dropping client as we can not build response headers.");
             client_send_500(client, "Header generation failed.");
-            xmlFree(buff);
+            xmlSafeFree((_Nt_array_ptr<char>)buff);
             return;
         } else if (buf_len < (len + ret + 64)) {
             buf_len = ret + len + 64;
-            _Nt_array_ptr<char> new_data : count(buf_len) = (_Nt_array_ptr<char>) realloc<char>(client->refbuf->data, buf_len);
+            _Nt_array_ptr<char> new_data : count(buf_len) = strrealloc(client->refbuf->data, buf_len);
             if (new_data) {
                 ICECAST_LOG_DEBUG("Client buffer reallocation succeeded.");
                 client->refbuf->data = new_data, client->refbuf->len = buf_len;
@@ -294,13 +303,13 @@ void admin_send_response (xmlDocPtr doc : itype(_Ptr<xmlDoc>), client_t *client 
                 if (ret == -1) {
                     ICECAST_LOG_ERROR("Dropping client as we can not build response headers.");
                     client_send_500(client, "Header generation failed.");
-                    xmlFree(buff);
+                    xmlSafeFree((_Nt_array_ptr<char>)buff);
                     return;
                 }
             } else {
                 ICECAST_LOG_ERROR("Client buffer reallocation failed. Dropping client.");
                 client_send_500(client, "Buffer reallocation failed.");
-                xmlFree(buff);
+                xmlSafeFree((_Nt_array_ptr<char>)buff);
                 return;
             } 
         }
@@ -310,25 +319,26 @@ void admin_send_response (xmlDocPtr doc : itype(_Ptr<xmlDoc>), client_t *client 
 
         client->refbuf->data = _Dynamic_bounds_cast<_Nt_array_ptr<char>>(client->refbuf->data, count(ret)),  client->refbuf->len = ret;
         
-        xmlFree(buff);
+        xmlSafeFree((_Nt_array_ptr<char>)buff);
         client->respcode = 200;
         fserve_add_client (client, NULL);
     }
     if (response == TRANSFORMED)
     {
-        char *fullpath_xslt_template;
-        int fullpath_xslt_template_len;
+        //_Nt_array_ptr<char> fullpath_xslt_template = NULL;
+        unsigned int fullpath_xslt_template_len;
         _Ptr<ice_config_t> config = config_get_config();
 
         fullpath_xslt_template_len = strlen (config->adminroot_dir) + 
             strlen (xslt_template) + 2;
-        fullpath_xslt_template = malloc<char>(fullpath_xslt_template_len);
+        _Nt_array_ptr<char> fullpath_xslt_template : count(fullpath_xslt_template_len) = stralloc(fullpath_xslt_template_len); 
         snprintf(fullpath_xslt_template, fullpath_xslt_template_len, "%s%s%s",
             config->adminroot_dir, PATH_SEPARATOR, xslt_template);
         config_release_config();
 
+
         ICECAST_LOG_DEBUG("Sending XSLT (%s)", fullpath_xslt_template);
-        xslt_transform(doc, _Assume_bounds_cast<_Nt_array_ptr<const char>>(fullpath_xslt_template, byte_count(0)), client);
+        xslt_transform(doc, fullpath_xslt_template, client);
         free<char>(fullpath_xslt_template);
     }
 }
@@ -369,7 +379,7 @@ _Nt_array_ptr<const char> command_string = ((void *)0);
     if (command == COMMAND_SHOUTCAST_METADATA_UPDATE) {
 
         _Ptr<ice_config_t> config = ((void *)0);
-        const char *sc_mount;
+        _Nt_array_ptr<const char> sc_mount = NULL;
         _Nt_array_ptr<const char> pass = (_Nt_array_ptr<char>) httpp_get_query_param (client->parser, "pass");
         _Ptr<listener_t> listener = ((void *)0);
 
@@ -386,7 +396,7 @@ _Nt_array_ptr<const char> command_string = ((void *)0);
         if (listener && listener->shoutcast_mount)
             sc_mount = listener->shoutcast_mount;
 
-        httpp_set_query_param (client->parser, "mount", _Assume_bounds_cast<_Nt_array_ptr<const char>>(sc_mount, byte_count(0)));
+        httpp_set_query_param (client->parser, "mount", sc_mount);
         httpp_setvar (client->parser, HTTPP_VAR_PROTOCOL, "ICY");
         httpp_setvar (client->parser, HTTPP_VAR_ICYPASSWORD, pass);
         config_release_config ();
@@ -520,7 +530,7 @@ static void admin_handle_mount_request(_Ptr<client_t> client, _Ptr<source_t> sou
 {
     switch(command) {
         case COMMAND_RAW_STATS:
-            command_stats(client, _Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), RAW);
+            command_stats(client, source->mount, RAW);
             break;
         case COMMAND_RAW_FALLBACK:
             command_fallback(client, source, RAW);
@@ -547,7 +557,7 @@ static void admin_handle_mount_request(_Ptr<client_t> client, _Ptr<source_t> sou
             command_kill_source(client, source, RAW);
             break;
         case COMMAND_TRANSFORMED_STATS:
-            command_stats(client, _Assume_bounds_cast<_Nt_array_ptr<const char>>(source->mount, byte_count(0)), TRANSFORMED);
+            command_stats(client, source->mount, TRANSFORMED);
             break;
         case COMMAND_TRANSFORMED_FALLBACK:
             command_fallback(client, source, RAW);
@@ -625,7 +635,7 @@ static void command_move_clients(_Ptr<client_t> client, _Ptr<source_t> source, i
     _Ptr<source_t> dest = ((void *)0);
     xmlDocPtr doc = NULL;
     xmlNodePtr node = NULL;
-    char buf[255];
+    char buf _Nt_checked [255] : count(255) = { '\0' };
     int parameters_passed = 0;
 
     ICECAST_LOG_DEBUG("Doing optional check");
@@ -669,7 +679,7 @@ static void command_move_clients(_Ptr<client_t> client, _Ptr<source_t> source, i
 
     source_move_clients (source, dest);
 
-    memset(buf, '\000', sizeof(buf));
+    memset(buf, 0, sizeof(buf));
     snprintf (buf, sizeof(buf), "Clients moved from %s to %s",
             source->mount, dest_source);
     xmlNewTextChild(node, NULL, XMLSTR("message"), XMLSTR(buf));
@@ -686,17 +696,17 @@ static void command_show_listeners(_Ptr<client_t> client, _Ptr<source_t> source,
     xmlNodePtr node = NULL, srcnode = NULL, listenernode = NULL;
     _Ptr<avl_node> client_node = ((void *)0);
     _Ptr<client_t> current = ((void *)0);
-    char buf[22];
+    char buf _Nt_checked[22] : count(22);
     _Nt_array_ptr<const char> userAgent = NULL;
     time_t now = time(NULL);
 
     doc = xmlNewDoc (XMLSTR("1.0"));
     node = xmlNewDocNode(doc, NULL, XMLSTR("icestats"), NULL);
     srcnode = xmlNewChild(node, NULL, XMLSTR("source"), NULL);
-    xmlSetProp(srcnode, XMLSTR("mount"),(source->mount));
+    xmlSetProp(srcnode, XMLSTR("mount"), XMLSTR(source->mount));
     xmlDocSetRootElement(doc, node);
 
-    memset(buf, '\000', sizeof(buf));
+    memset(buf, 0, sizeof(buf));
     snprintf (buf, sizeof(buf), "%lu", source->listeners);
     xmlNewTextChild(srcnode, NULL, XMLSTR("Listeners"), XMLSTR(buf));
 
@@ -706,7 +716,7 @@ static void command_show_listeners(_Ptr<client_t> client, _Ptr<source_t> source,
     while(client_node) {
         current = avl_get<client_t>(client_node);
         listenernode = xmlNewChild(srcnode, NULL, XMLSTR("listener"), NULL);
-        xmlNewTextChild(listenernode, NULL, XMLSTR("IP"),(current->con->ip));
+        xmlNewTextChild(listenernode, NULL, XMLSTR("IP"),XMLSTR(current->con->ip));
         userAgent = (_Nt_array_ptr<char>) httpp_getvar(current->parser, "user-agent");
         if (userAgent) {
             xmlNewTextChild(listenernode, NULL, XMLSTR("UserAgent"), XMLSTR(userAgent));
@@ -714,10 +724,10 @@ static void command_show_listeners(_Ptr<client_t> client, _Ptr<source_t> source,
         else {
             xmlNewTextChild(listenernode, NULL, XMLSTR("UserAgent"), XMLSTR("Unknown"));
         }
-        memset(buf, '\000', sizeof(buf));
+        memset(buf, 0, sizeof(buf));
         snprintf(buf, sizeof(buf), "%lu", (unsigned long)(now - current->con->con_time));
         xmlNewTextChild(listenernode, NULL, XMLSTR("Connected"), XMLSTR(buf));
-        memset(buf, '\000', sizeof(buf));
+        memset(buf, 0, sizeof(buf));
         snprintf(buf, sizeof(buf)-1, "%lu", current->con->id);
         xmlNewTextChild(listenernode, NULL, XMLSTR("ID"), XMLSTR(buf));
         if (current->username) {
@@ -891,7 +901,7 @@ static void command_kill_client(_Ptr<client_t> client, _Ptr<source_t> source, in
     _Ptr<client_t> listener = ((void *)0);
     xmlDocPtr doc = NULL;
     xmlNodePtr node = NULL;
-    char buf[50] = "";
+    char buf _Nt_checked[50] : count(50) = "";
 
     COMMAND_REQUIRE(client, "id", idtext);
 
@@ -911,13 +921,13 @@ static void command_kill_client(_Ptr<client_t> client, _Ptr<source_t> source, in
          * loop
          */
         listener->con->error = 1;
-        memset(buf, '\000', sizeof(buf));
+        memset(buf, 0, sizeof(buf));
         snprintf(buf, sizeof(buf)-1, "Client %d removed", id);
         xmlNewTextChild(node, NULL, XMLSTR("message"), XMLSTR(buf));
         xmlNewTextChild(node, NULL, XMLSTR("return"), XMLSTR("1"));
     }
     else {
-        memset(buf, '\000', sizeof(buf));
+        memset(buf, 0, sizeof(buf));
         snprintf(buf, sizeof(buf)-1, "Client %d not found", id);
         xmlNewTextChild(node, NULL, XMLSTR("message"), XMLSTR(buf));
         xmlNewTextChild(node, NULL, XMLSTR("return"), XMLSTR("0"));
@@ -930,7 +940,7 @@ static void command_kill_client(_Ptr<client_t> client, _Ptr<source_t> source, in
 static void command_fallback(_Ptr<client_t> client, _Ptr<source_t> source, int response)
 {
     _Nt_array_ptr<const char> fallback = ((void *)0);
-    char *old;
+    _Nt_array_ptr<char> old = NULL;
 
     ICECAST_LOG_DEBUG("Got fallback request");
 

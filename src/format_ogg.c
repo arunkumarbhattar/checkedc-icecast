@@ -291,12 +291,6 @@ static int process_initial_page (_Ptr<format_plugin_t> plugin, _Ptr<ogg_page> pa
  * and write log entry if required.
  */
 
-_Nt_array_ptr<char> stralloc(int size) : count(size) { 
-  _Unchecked { 
-    void *ptr = calloc(sizeof(char), size + 1); 
-    return _Assume_bounds_cast<_Nt_array_ptr<char>>(ptr, count(size));
-  }
-}
 
 static void update_comments (_Ptr<source_t> source)
 {

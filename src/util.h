@@ -7,8 +7,7 @@
  *                      Michael Smith <msmith@xiph.org>,
  *                      oddsock <oddsock@xiph.org>,
  *                      Karl Heyes <karl@xiph.org>
- *                      and others (see AUTHORS for details).
- * Copyright 2012-2014, Philipp "ph3-der-loewe" Schafft <lion@lion.leolix.org>,
+ *                      and others (see AUTHORS for details).  Copyright 2012-2014, Philipp "ph3-der-loewe" Schafft <lion@lion.leolix.org>,
  */
 
 #ifndef __UTIL_H__
@@ -84,4 +83,9 @@ struct tm *localtime_r (const time_t *timep, struct tm *result);
 char *util_conv_string(const char *string : itype(_Nt_array_ptr<const char>), const char *in_charset : itype(_Nt_array_ptr<const char>), const char *out_charset : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>);
 
 int get_line(FILE *file : itype(_Ptr<FILE>), char *buf : itype(_Nt_array_ptr<char>) count(511), size_t siz);
+
+
+_Nt_array_ptr<char> stralloc(int size) : count(size);
+_Nt_array_ptr<char> strrealloc(_Nt_array_ptr<char> x, unsigned int new_len) : count(new_len);
+
 #endif  /* __UTIL_H__ */
