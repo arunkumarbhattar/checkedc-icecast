@@ -85,7 +85,7 @@ char *util_conv_string(const char *string : itype(_Nt_array_ptr<const char>), co
 int get_line(FILE *file : itype(_Ptr<FILE>), char *buf : itype(_Nt_array_ptr<char>) count(511), size_t siz);
 
 
-_Nt_array_ptr<char> stralloc(int size) : count(size);
+_Nt_array_ptr<char> stralloc(unsigned int size) : count(size);
 _Nt_array_ptr<char> strrealloc(_Nt_array_ptr<char> x, unsigned int new_len) : count(new_len);
 
 #endif  /* __UTIL_H__ */

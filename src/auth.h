@@ -88,6 +88,9 @@ auth_client **tailp : itype(_Ptr<_Ptr<auth_client>>);
     _Nt_array_ptr<char> type;
 } auth_t;
 
+_Itype_for_any(T) 
+ void* auth_get_state(_Ptr<auth_t>) : itype(_Ptr<T>);
+
 void auth_add_listener (const char *mount : itype(_Nt_array_ptr<const char>), client_t *client : itype(_Ptr<client_t>));
 int  auth_release_listener (client_t *client : itype(_Ptr<client_t>));
 
@@ -109,6 +112,9 @@ int auth_stream_authenticate (client_t *client : itype(_Ptr<client_t>), const ch
 /* called from auth thread, after the client has successfully authenticated
  * and requires adding to source or fserve. */
 int auth_postprocess_listener (auth_client *auth_user : itype(_Ptr<auth_client>));
+
+_Itype_for_any(T) 
+  void auth_set_state(_Ptr<auth_t> p, void* s : itype(_Ptr<T>));
 
 #endif
 

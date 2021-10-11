@@ -863,7 +863,7 @@ int get_line(FILE *file : itype(_Ptr<FILE>), char *buf : itype(_Nt_array_ptr<cha
     return 0;
 }
 
-_Nt_array_ptr<char> stralloc(int size) : count(size) { 
+_Nt_array_ptr<char> stralloc(unsigned int size) : count(size) { 
   _Unchecked { 
     void *ptr = calloc(sizeof(char), size + 1); 
     return _Assume_bounds_cast<_Nt_array_ptr<char>>(ptr, count(size));

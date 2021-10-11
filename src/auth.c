@@ -41,6 +41,15 @@
 
 static void auth_postprocess_source (_Ptr<auth_client> auth_user);
 
+_Itype_for_any(T) 
+  void* auth_get_state(_Ptr<auth_t> p) : itype(_Ptr<T>) _Unchecked {
+  return p->state;
+}
+
+_Itype_for_any(T) 
+  void auth_set_state(_Ptr<auth_t> p, void* s : itype(_Ptr<T>)) _Unchecked { 
+  p->state = s;
+}
 
 static _Ptr<auth_client> auth_client_setup(_Nt_array_ptr<const char> mount, _Ptr<client_t> client)
 {
