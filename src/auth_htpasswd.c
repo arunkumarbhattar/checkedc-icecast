@@ -103,7 +103,7 @@ static int _free_user (void *key)
 
 _Nt_array_ptr<char> strchr_safe(_Nt_array_ptr<const char> s, int c) : count(1)
 _Checked {
-  _Nt_array_ptr<char> r = strchr(s, c); 
+  _Nt_array_ptr<char> r = ((_Nt_array_ptr<char> )strchr(s, c)); 
   if (r != NULL) { 
     if (r[0] != '\0') { 
       return r;
@@ -181,7 +181,7 @@ static void htpasswd_recheckfile (_Ptr<htpasswd_auth_state> htpasswd)
 
     thread_rwlock_wlock (&htpasswd->file_rwlock);
     if (htpasswd->users)
-        avl_tree_free (htpasswd->users,(_free_user));
+        avl_tree_free (htpasswd->users,((_free_user)));
     htpasswd->users = new_users;
     thread_rwlock_unlock (&htpasswd->file_rwlock);
 }
