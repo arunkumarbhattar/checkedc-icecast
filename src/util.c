@@ -52,7 +52,7 @@
 #include "logging.h"
 
   void xmlSafeFree(_Nt_array_ptr<char> p) { 
-    xmlFree((void*) p); 
+    xmlFree(((void*) p)); 
   }
 
 
@@ -92,12 +92,12 @@ int util_timed_wait_for_fd(sock_t fd, int timeout)
 #endif
 }
 
-int util_read_header(sock_t sock, char *buff, unsigned long len, int entire)
+int util_read_header(sock_t sock, char *buff : itype(_Array_ptr<char>) count(4095), unsigned long len, int entire)
 {
     int read_bytes, ret;
     unsigned long pos;
     char c;
-    ice_config_t *config;
+    _Ptr<ice_config_t> config = ((void *)0);
     int header_timeout;
 
     config = config_get_config();
@@ -139,8 +139,8 @@ int util_read_header(sock_t sock, char *buff, unsigned long len, int entire)
     return ret;
 }
 
-char *util_get_extension(const char *path) {
-    char *ext = strrchr(path, '.');
+char *util_get_extension(const char *path : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>) {
+    _Nt_array_ptr<char> ext = ((_Nt_array_ptr<char> )strrchr(path, '.'));
 
     if(ext == NULL)
         return "";
@@ -148,12 +148,12 @@ char *util_get_extension(const char *path) {
         return ext+1;
 }
 
-int util_check_valid_extension(const char *uri) {
+int util_check_valid_extension(const char *uri : itype(_Nt_array_ptr<const char>)) {
     int    ret = 0;
-    char    *p2;
+    _Nt_array_ptr<char> p2 = ((void *)0);
 
     if (uri) {
-        p2 = strrchr(uri, '.');
+        p2 = ((_Nt_array_ptr<char> )strrchr(uri, '.'));
         if (p2) {
             p2++;
             if (strncmp(p2, "xsl", strlen("xsl")) == 0) {
@@ -192,7 +192,7 @@ static int hex(char c)
         return -1;
 }
 
-static int verify_path(char *path) {
+static int verify_path(_Nt_array_ptr<char> path) {
     int dir = 0, indotseq = 0;
 
     while(*path) {
@@ -220,27 +220,27 @@ static int verify_path(char *path) {
     return 1;
 }
 
-char *util_get_path_from_uri(char *uri) {
-    char *path = util_normalise_uri(uri);
-    char *fullpath;
+char *util_get_path_from_uri(char *uri : itype(_Nt_array_ptr<char>)) : itype(_Ptr<char>) {
+    _Nt_array_ptr<char> path = (_Nt_array_ptr<char>) util_normalise_uri(uri);
+    _Nt_array_ptr<char> fullpath = ((void *)0);
 
     if(!path)
         return NULL;
     else {
-        fullpath = util_get_path_from_normalised_uri(path);
-        free(path);
+        fullpath = ((_Nt_array_ptr<char> )util_get_path_from_normalised_uri(path));
+        free<char>(path);
         return fullpath;
     }
 }
 
-char *util_get_path_from_normalised_uri(const char *uri) {
+char *util_get_path_from_normalised_uri(const char *uri : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>) {
     char *fullpath;
-    char *webroot;
-    ice_config_t *config = config_get_config();
+    _Nt_array_ptr<char> webroot = ((void *)0);
+    _Ptr<ice_config_t> config = config_get_config();
 
     webroot = config->webroot_dir;
 
-    fullpath = malloc(strlen(uri) + strlen(webroot) + 1);
+    fullpath = malloc<char>(strlen(uri) + strlen(webroot) + 1);
     if (fullpath)
         sprintf (fullpath, "%s%s", webroot, uri);
     config_release_config();
@@ -248,11 +248,11 @@ char *util_get_path_from_normalised_uri(const char *uri) {
     return fullpath;
 }
 
-static char hexchars[16] = {
+static char hexchars _Checked[16] = {
     '0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'
 };
 
-static char safechars[256] = {
+static char safechars _Checked[256] = {
       0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
       0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
       0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -283,7 +283,7 @@ char *util_url_escape (const char *src)
 
     len = strlen(src);
     /* Efficiency not a big concern here, keep the code simple/conservative */
-    dst = calloc(1, len*3 + 1);
+    dst = calloc<char>(1, len*3 + 1);
 
     for(i = 0, j = 0; i < len; i++) {
         if(safechars[source[i]]) {
@@ -299,7 +299,7 @@ char *util_url_escape (const char *src)
     return dst;
 }
 
-char *util_url_unescape (const char *src)
+char *util_url_unescape (const char *src : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>)
 {
     int len = strlen(src);
     char *decoded;
@@ -307,7 +307,7 @@ char *util_url_unescape (const char *src)
     char *dst;
     int done = 0;
 
-    decoded = calloc(1, len + 1);
+    decoded = calloc<char>(1, len + 1);
 
     dst = decoded;
 
@@ -315,11 +315,11 @@ char *util_url_unescape (const char *src)
         switch(src[i]) {
             case '%':
                 if(i+2 >= len) {
-                    free(decoded);
+                    free<char>(decoded);
                     return NULL;
                 }
                 if(hex(src[i+1]) == -1 || hex(src[i+2]) == -1 ) {
-                    free(decoded);
+                    free<char>(decoded);
                     return NULL;
                 }
 
@@ -331,7 +331,7 @@ char *util_url_unescape (const char *src)
                 break;
             case 0:
                 ICECAST_LOG_ERROR("Fatal internal logic error in util_url_unescape()");
-                free(decoded);
+                free<char>(decoded);
                 return NULL;
                 break;
             default:
@@ -352,8 +352,8 @@ char *util_url_unescape (const char *src)
  * escape from the webroot) or if it cannot be URI-decoded.
  * Caller should free the path.
  */
-char *util_normalise_uri(const char *uri) {
-    char *path;
+char *util_normalise_uri(const char *uri : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>) {
+    _Nt_array_ptr<char> path = ((void *)0);
 #ifdef _WIN32
     size_t len;
 #endif
@@ -361,7 +361,7 @@ char *util_normalise_uri(const char *uri) {
     if(uri[0] != '/')
         return NULL;
 
-    path = util_url_unescape(uri);
+    path = ((_Nt_array_ptr<char> )util_url_unescape(uri));
 
     if(path == NULL) {
         ICECAST_LOG_WARN("Error decoding URI: %s\n", uri);
@@ -379,19 +379,19 @@ char *util_normalise_uri(const char *uri) {
         return path;
     else {
         ICECAST_LOG_WARN("Rejecting invalid path \"%s\"", path);
-        free(path);
+        free<char>(path);
         return NULL;
     }
 }
 
-static char base64table[64] = {
+static char base64table _Checked[64] = {
     'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P',
     'Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f',
     'g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v',
     'w','x','y','z','0','1','2','3','4','5','6','7','8','9','+','/'
 };
 
-static signed char base64decode[256] = {
+static signed char base64decode _Checked[256] = {
      -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
      -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2,
      -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, 62, -2, -2, -2, 63,
@@ -410,9 +410,9 @@ static signed char base64decode[256] = {
      -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2
 };
 
-char *util_bin_to_hex(unsigned char *data, int len)
+char *util_bin_to_hex(unsigned char *data : itype(_Array_ptr<unsigned char>) count(len), int len) : itype(_Nt_array_ptr<char>)
 {
-    char *hex = malloc(len*2 + 1);
+    char *hex = malloc<char>(len*2 + 1);
     int i;
 
     for(i = 0; i < len; i++) {
@@ -426,10 +426,10 @@ char *util_bin_to_hex(unsigned char *data, int len)
 }
 
 /* This isn't efficient, but it doesn't need to be */
-char *util_base64_encode(const char *data)
+char *util_base64_encode(const char *data : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>)
 {
     int len = strlen(data);
-    char *out = malloc(len*4/3 + 4);
+    char *out = malloc<char>(len*4/3 + 4);
     char *result = out;
     int chunk;
 
@@ -463,14 +463,14 @@ char *util_base64_decode(const char *data)
 {
     const unsigned char *input = (const unsigned char *)data;
     int len = strlen (data);
-    char *out = malloc(len*3/4 + 5);
+    char *out = malloc<char>(len*3/4 + 5);
     char *result = out;
-    signed char vals[4];
+    signed char vals _Checked[4];
 
     while(len > 0) {
         if(len < 4)
         {
-            free(result);
+            free<char>(result);
             return NULL; /* Invalid Base64 data */
         }
 
@@ -507,10 +507,10 @@ char *util_base64_decode(const char *data)
 }
 
 /* TODO, FIXME: handle memory allocation errors better. */
-static inline void   _build_headers_loop(char **ret, size_t *len, ice_config_http_header_t *header, int status) {
+static inline void   _build_headers_loop(_Ptr<char *> ret, _Ptr<size_t> len, _Ptr<ice_config_http_header_t> header, int status) {
     size_t headerlen;
-    const char *name;
-    const char *value;
+    _Nt_array_ptr<const char> name = ((void *)0);
+    _Nt_array_ptr<const char> value = ((void *)0);
     char * r = *ret;
 
     if (!header)
@@ -538,7 +538,7 @@ static inline void   _build_headers_loop(char **ret, size_t *len, ice_config_htt
         /* append the header to the buffer */
         headerlen = strlen(name) + strlen(value) + 4;
         *len += headerlen;
-        r = realloc(r, *len);
+        r = realloc<char>(r, *len);
         strcat(r, name);
         strcat(r, ": ");
         strcat(r, value);
@@ -546,15 +546,15 @@ static inline void   _build_headers_loop(char **ret, size_t *len, ice_config_htt
     } while ((header = header->next));
     *ret = r;
 }
-static inline char * _build_headers(int status, ice_config_t *config, source_t *source) {
-    mount_proxy *mountproxy = NULL;
+static char *_build_headers(int status, _Ptr<ice_config_t> config, _Ptr<source_t> source) : itype(_Nt_array_ptr<char>) {
+    _Ptr<mount_proxy> mountproxy = NULL;
     char *ret = NULL;
     size_t len = 1;
 
     if (source)
         mountproxy = config_find_mount(config, source->mount, MOUNT_TYPE_NORMAL);
 
-    ret = calloc(1, 1);
+    ret = calloc<char>(1, 1);
     *ret = 0;
 
     _build_headers_loop(&ret, &len, config->http_headers, status);
@@ -564,22 +564,17 @@ static inline char * _build_headers(int status, ice_config_t *config, source_t *
     return ret;
 }
 
-ssize_t util_http_build_header(char * out, size_t len, ssize_t offset,
-        int cache,
-        int status, const char * statusmsg,
-        const char * contenttype, const char * charset,
-        const char * datablock,
-        struct source_tag * source) {
-    const char * http_version = "1.0";
-    ice_config_t *config;
+ssize_t util_http_build_header(char *out : itype(_Nt_array_ptr<char>), size_t len, ssize_t offset, int cache, int status, const char *statusmsg : itype(_Nt_array_ptr<const char>), const char *contenttype : itype(_Nt_array_ptr<const char>), const char *charset : itype(_Nt_array_ptr<const char>) count(5), const char *datablock : itype(_Nt_array_ptr<const char>), struct source_tag *source : itype(_Ptr<struct source_tag>)) {
+    _Nt_array_ptr<const char> http_version : byte_count(3) = "1.0";
+    _Ptr<ice_config_t> config = ((void *)0);
     time_t now;
     struct tm result;
     struct tm *gmtime_result;
-    char currenttime_buffer[80];
-    char status_buffer[80];
-    char contenttype_buffer[80];
+    char currenttime_buffer _Nt_checked[80];
+    char status_buffer _Nt_checked[80];
+    char contenttype_buffer _Nt_checked[80];
     ssize_t ret;
-    char * extra_headers;
+    _Nt_array_ptr<char> extra_headers = ((void *)0);
 
     if (!out)
         return -1;
@@ -643,7 +638,7 @@ ssize_t util_http_build_header(char * out, size_t len, ssize_t offset,
         currenttime_buffer[0] = '\0';
 
     config = config_get_config();
-    extra_headers = _build_headers(status, config, source);
+    extra_headers = ((_Nt_array_ptr<char> )_build_headers(status, config, source));
     ret = snprintf (out, len, "%sServer: %s\r\nConnection: Close\r\n%s%s%s%s%s%s%s",
                               status_buffer,
 			      config->server_id,
@@ -656,36 +651,36 @@ ssize_t util_http_build_header(char * out, size_t len, ssize_t offset,
                               extra_headers,
                               (datablock ? "\r\n" : ""),
                               (datablock ? datablock : ""));
-    free(extra_headers);
+    free<char>(extra_headers);
     config_release_config();
 
     return ret;
 }
 
 
-util_dict *util_dict_new(void)
+util_dict *util_dict_new(void) : itype(_Ptr<util_dict>)
 {
-    return (util_dict *)calloc(1, sizeof(util_dict));
+    return (_Ptr<util_dict>)calloc<util_dict>(1, sizeof(util_dict));
 }
 
-void util_dict_free(util_dict *dict)
+void util_dict_free(util_dict *dict : itype(_Ptr<util_dict>))
 {
-    util_dict *next;
+    _Ptr<util_dict> next = ((void *)0);
 
     while (dict) {
         next = dict->next;
 
         if (dict->key)
-            free (dict->key);
+            free<char> (dict->key);
         if (dict->val)
-            free (dict->val);
-        free (dict);
+            free<char> (dict->val);
+        free<util_dict> (dict);
 
         dict = next;
     }
 }
 
-const char *util_dict_get(util_dict *dict, const char *key)
+const char *util_dict_get(util_dict *dict : itype(_Ptr<util_dict>), const char *key : itype(_Nt_array_ptr<const char>)) : itype(_Ptr<const char>)
 {
     while (dict) {
         if (!strcmp(key, dict->key))
@@ -695,9 +690,9 @@ const char *util_dict_get(util_dict *dict, const char *key)
     return NULL;
 }
 
-int util_dict_set(util_dict *dict, const char *key, const char *val)
+int util_dict_set(util_dict *dict : itype(_Ptr<util_dict>), const char *key : itype(_Nt_array_ptr<const char>) count(99), const char *val : itype(_Nt_array_ptr<const char>))
 {
-    util_dict *prev;
+    _Ptr<util_dict> prev = ((void *)0);
 
     if (!dict || !key) {
         ICECAST_LOG_ERROR("NULL values passed to util_dict_set()");
@@ -723,8 +718,8 @@ int util_dict_set(util_dict *dict, const char *key, const char *val)
     }
 
     if (dict->key)
-        free (dict->val);
-    else if (!(dict->key = strdup(key))) {
+        free<char> (dict->val);
+    else if (!(dict->key = ((_Nt_array_ptr<char> )strdup(key)))) {
         if (prev)
             prev->next = NULL;
         util_dict_free (dict);
@@ -733,7 +728,7 @@ int util_dict_set(util_dict *dict, const char *key, const char *val)
         return 0;
     }
 
-    dict->val = strdup(val);
+    dict->val = ((_Nt_array_ptr<char> )strdup(val));
     if (!dict->val) {
         ICECAST_LOG_ERROR("unable to allocate new dictionary value");
         return 0;
@@ -746,10 +741,10 @@ int util_dict_set(util_dict *dict, const char *key, const char *val)
    stringify it in order as key=val&key=val... if val 
    is set, or just key&key if val is NULL.
   TODO: Memory management needs overhaul. */
-char *util_dict_urlencode(util_dict *dict, char delim)
+char *util_dict_urlencode(util_dict *dict : itype(_Ptr<util_dict>), char delim) : itype(_Ptr<char>)
 {
     char *res, *tmp;
-    char *enc;
+    _Nt_array_ptr<char> enc = ((void *)0);
     int start = 1;
 
     for (res = NULL; dict; dict = dict->next) {
@@ -757,14 +752,14 @@ char *util_dict_urlencode(util_dict *dict, char delim)
         if (!dict->key)
             continue;
         if (start) {
-            if (!(res = malloc(strlen(dict->key) + 1))) {
+            if (!(res = malloc<char>(strlen(dict->key) + 1))) {
                 return NULL;
             }
             sprintf(res, "%s", dict->key);
             start = 0;
         } else {
-            if (!(tmp = realloc(res, strlen(res) + strlen(dict->key) + 2))) {
-                free(res);
+            if (!(tmp = realloc<char>(res, strlen(res) + strlen(dict->key) + 2))) {
+                free<char>(res);
                 return NULL;
             } else
                 res = tmp;
@@ -774,19 +769,19 @@ char *util_dict_urlencode(util_dict *dict, char delim)
         /* encode value */
         if (!dict->val)
             continue;
-        if (!(enc = util_url_escape(dict->val))) {
-            free(res);
+        if (!(enc = ((_Nt_array_ptr<char> )util_url_escape(dict->val)))) {
+            free<char>(res);
             return NULL;
         }
 
-        if (!(tmp = realloc(res, strlen(res) + strlen(enc) + 2))) {
-            free(enc);
-            free(res);
+        if (!(tmp = realloc<char>(res, strlen(res) + strlen(enc) + 2))) {
+            free<char>(enc);
+            free<char>(res);
             return NULL;
         } else
             res = tmp;
         sprintf(res + strlen(res), "=%s", enc);
-        free(enc);
+        free<char>(enc);
     }
 
     return res;
@@ -816,10 +811,12 @@ struct tm *localtime_r (const time_t *timep, struct tm *result)
 /* helper function for converting a passed string in one character set to another
  * we use libxml2 for this
  */
-char *util_conv_string (const char *string, const char *in_charset, const char *out_charset)
+char *util_conv_string(const char *string : itype(_Nt_array_ptr<const char>), const char *in_charset : itype(_Nt_array_ptr<const char>), const char *out_charset : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<char>)
 {
-    xmlCharEncodingHandlerPtr in, out;
-    char *ret = NULL;
+    xmlCharEncodingHandlerPtr in = ((void *)0);
+xmlCharEncodingHandlerPtr out = ((void *)0);
+
+    _Nt_array_ptr<char> ret = NULL;
 
     if (string == NULL || in_charset == NULL || out_charset == NULL)
         return NULL;
@@ -839,7 +836,7 @@ char *util_conv_string (const char *string, const char *in_charset, const char *
         {
             xmlCharEncOutFunc (out, conv, NULL);
             if (xmlCharEncOutFunc (out, conv, utf8) >= 0)
-                ret = strdup ((const char *)xmlBufferContent (conv));
+                ret = ((_Nt_array_ptr<char> )strdup ((const char *)xmlBufferContent (conv)));
         }
         xmlBufferFree (orig);
         xmlBufferFree (utf8);
@@ -852,7 +849,7 @@ char *util_conv_string (const char *string, const char *in_charset, const char *
 }
 
 
-int get_line(FILE *file, char *buf, size_t siz)
+int get_line(FILE *file : itype(_Ptr<FILE>), char *buf : itype(_Nt_array_ptr<char>) count(511), size_t siz)
 {
     if(fgets(buf, (int)siz, file)) {
         size_t len = strlen(buf);
