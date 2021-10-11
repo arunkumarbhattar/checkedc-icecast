@@ -85,6 +85,8 @@
 #include "logging.h"
 #define CATMODULE "auth_url"
 
+#error "not in port"
+
 typedef struct {
     char *pass_headers; // headers passed from client to addurl.
     char *prefix_headers; // prefix for passed headers.
