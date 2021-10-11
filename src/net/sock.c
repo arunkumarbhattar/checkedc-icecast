@@ -105,11 +105,11 @@ void sock_shutdown(void)
 ** in any case, it's as close as we can hope to get
 ** unless someone has better ideas on how to do this
 */
-char *sock_get_localip(char *buff, int len)
+char *sock_get_localip(char *buff : itype(_Array_ptr<char>) count(len), int len) : itype(_Ptr<char>)
 {
-    char temp[1024];
+    char temp _Nt_checked[1024];
 
-    if (gethostname(temp, sizeof(temp)) != 0)
+    if (gethostname(temp, sizeof(temp) - 1) != 0)
         return NULL;
 
     if (resolver_getip(temp, buff, len))
@@ -366,7 +366,7 @@ int sock_write_bytes(sock_t sock, const void *buff, size_t len)
 ** writes a string to a socket
 ** This function must only be called with a blocking socket.
 */
-int sock_write_string(sock_t sock, const char *buff)
+int sock_write_string(sock_t sock, const char *buff : itype(_Nt_array_ptr<const char>))
 {
     return (sock_write_bytes(sock, buff, strlen(buff)) > 0);
 }
@@ -377,7 +377,7 @@ int sock_write_string(sock_t sock, const char *buff)
 ** this function must only be called with a blocking socket.
 ** will truncate the string if it's greater than 1024 chars.
 */
-int sock_write(sock_t sock, const char *fmt, ...)
+int sock_write(sock_t sock, const char *fmt : itype(_Nt_array_ptr<const char>), ...)
 {
     int rc;
     va_list ap;
@@ -418,7 +418,7 @@ int sock_write_fmt(sock_t sock, const char *fmt, va_list ap)
     return ret;
 }
 #else
-int sock_write_fmt(sock_t sock, const char *fmt, va_list ap)
+int sock_write_fmt(sock_t sock, const char *fmt : itype(_Nt_array_ptr<const char>), va_list ap)
 {
     char buffer [1024], *buff = buffer;
     int len;
@@ -436,13 +436,13 @@ int sock_write_fmt(sock_t sock, const char *fmt, va_list ap)
         else
         {
             /* truncated */
-            buff = malloc (++len);
+            buff = malloc<char> (++len);
             if (buff)
             {
                 len = vsnprintf (buff, len, fmt, ap_retry);
                 if (len > 0)
                     rc = sock_write_bytes (sock, buff, len);
-                free (buff);
+                free<char> (buff);
             }
         }
     }
@@ -453,7 +453,7 @@ int sock_write_fmt(sock_t sock, const char *fmt, va_list ap)
 #endif
 
 
-int sock_read_bytes(sock_t sock, char *buff, size_t len)
+int sock_read_bytes(sock_t sock, char *buff : itype(_Array_ptr<char>) count(len), size_t len)
 {
 
     /*if (!sock_valid_socket(sock)) return 0; */
@@ -471,7 +471,7 @@ int sock_read_bytes(sock_t sock, char *buff, size_t len)
 **
 ** this function will probably not work on sockets in nonblocking mode
 */
-int sock_read_line(sock_t sock, char *buff, const int len)
+int sock_read_line(sock_t sock, char *buff : itype(_Array_ptr<char>) count(255), const int len)
 {
     char c = '\0';
     int read_bytes, pos;
@@ -581,18 +581,18 @@ int sock_connected (sock_t sock, int timeout)
 }
 #endif
 
-sock_t sock_connect_wto (const char *hostname, int port, int timeout)
+sock_t sock_connect_wto (const char *hostname : itype(_Nt_array_ptr<const char>), int port, int timeout)
 {
     return sock_connect_wto_bind(hostname, port, NULL, timeout);
 }
 
 #ifdef HAVE_GETADDRINFO
 
-sock_t sock_connect_non_blocking (const char *hostname, unsigned port)
+sock_t sock_connect_non_blocking (const char *hostname : itype(_Nt_array_ptr<const char>), unsigned port)
 {
     int sock = SOCK_ERROR;
     struct addrinfo *ai, *head, hints;
-    char service[8];
+    char service _Nt_checked[8];
 
     memset (&hints, 0, sizeof (hints));
     hints.ai_family = AF_UNSPEC;
@@ -600,7 +600,7 @@ sock_t sock_connect_non_blocking (const char *hostname, unsigned port)
 
     snprintf (service, sizeof (service), "%u", port);
 
-    if (getaddrinfo (hostname, service, &hints, &head))
+    if (getaddrinfo (hostname, service, &hints, ((struct addrinfo **__restrict )&head)))
         return SOCK_ERROR;
 
     ai = head;
@@ -630,18 +630,22 @@ sock_t sock_connect_non_blocking (const char *hostname, unsigned port)
  * timeout is 0 or less then we will wait until the OS gives up on the connect
  * The socket is returned
  */
-sock_t sock_connect_wto_bind (const char *hostname, int port, const char *bnd, int timeout)
+sock_t sock_connect_wto_bind (const char *hostname : itype(_Nt_array_ptr<const char>), int port, const char *bnd : itype(_Nt_array_ptr<const char>), int timeout)
 {
     sock_t sock = SOCK_ERROR;
-    struct addrinfo *ai, *head, *b_head=NULL, hints;
-    char service[8];
+    struct addrinfo *ai;
+struct addrinfo *head;
+_Ptr<struct addrinfo> b_head =NULL;
+struct addrinfo hints;
+
+    char service _Nt_checked[8];
 
     memset (&hints, 0, sizeof (hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     snprintf (service, sizeof (service), "%u", port);
 
-    if (getaddrinfo (hostname, service, &hints, &head))
+    if (getaddrinfo (hostname, service, &hints, ((struct addrinfo **__restrict )&head)))
         return SOCK_ERROR;
 
     ai = head;
@@ -702,11 +706,11 @@ sock_t sock_connect_wto_bind (const char *hostname, int port, const char *bnd, i
 }
 
 
-sock_t sock_get_server_socket (int port, const char *sinterface)
+sock_t sock_get_server_socket (int port, const char *sinterface : itype(_Nt_array_ptr<const char>))
 {
     struct sockaddr_storage sa;
     struct addrinfo hints, *res, *ai;
-    char service [10];
+    char service _Nt_checked[10];
     int sock;
 
     if (port < 0)
@@ -720,7 +724,7 @@ sock_t sock_get_server_socket (int port, const char *sinterface)
     hints.ai_socktype = SOCK_STREAM;
     snprintf (service, sizeof (service), "%d", port);
 
-    if (getaddrinfo (sinterface, service, &hints, &res))
+    if (getaddrinfo (sinterface, service, &hints, ((struct addrinfo **__restrict )&res)))
         return SOCK_ERROR;
     ai = res;
     do

@@ -49,7 +49,7 @@
 
 /* internal function */
 
-static int _isip(const char *what);
+static int _isip(_Nt_array_ptr<const char> what : count(1023));
 
 /* internal data */
 
@@ -59,7 +59,7 @@ static mutex_t _resolver_mutex;
 static int _initialized = 0;
 
 #ifdef HAVE_INET_PTON
-static int _isip(const char *what)
+static int _isip(_Nt_array_ptr<const char> what : count(1023))
 {
     union {
         struct in_addr v4addr;
@@ -83,9 +83,11 @@ static int _isip(const char *what)
 
 
 #if defined (HAVE_GETNAMEINFO) && defined (HAVE_GETADDRINFO)
-char *resolver_getname(const char *ip, char *buff, int len)
+char *resolver_getname(const char *ip : itype(_Nt_array_ptr<const char>) count(1023), char *buff : itype(_Array_ptr<char>) count(len), int len) : itype(_Ptr<char>)
 {
-    struct addrinfo *head = NULL, hints;
+    _Ptr<struct addrinfo> head = NULL;
+struct addrinfo hints;
+
     char *ret = NULL;
 
     if (!_isip(ip)) {
@@ -114,9 +116,11 @@ char *resolver_getname(const char *ip, char *buff, int len)
 }
 
 
-char *resolver_getip(const char *name, char *buff, int len)
+char *resolver_getip(const char *name : itype(_Nt_array_ptr<const char>) count(1023), char *buff : itype(_Array_ptr<char>) count(len), int len) : itype(_Ptr<char>)
 {
-    struct addrinfo *head, hints;
+    _Ptr<struct addrinfo> head = ((void *)0);
+struct addrinfo hints;
+
     char *ret = NULL;
 
     if (_isip(name)) {
