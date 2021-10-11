@@ -208,7 +208,7 @@ typedef struct ice_config_tag {
     int chuid;
     char *user : itype(_Nt_array_ptr<char>);
     char *group : itype(_Nt_array_ptr<char>);
-    char *yp_url[25] : itype(char * _Checked[MAX_YP_DIRECTORIES]);
+    char *yp_url[25] : itype(_Nt_array_ptr<char>  _Checked[MAX_YP_DIRECTORIES]);
     int yp_url_timeout[25] : itype(int _Checked[MAX_YP_DIRECTORIES]);
     int yp_touch_interval[25] : itype(int _Checked[MAX_YP_DIRECTORIES]);
     int num_yp_directories;
@@ -225,7 +225,7 @@ void config_shutdown(void);
 int config_parse_file(const char *filename : itype(_Nt_array_ptr<const char>), ice_config_t *configuration : itype(_Ptr<ice_config_t>));
 int config_initial_parse_file(const char *filename : itype(_Nt_array_ptr<const char>));
 int config_parse_cmdline(int arg, char **argv : itype(_Ptr<_Nt_array_ptr<char>>));
-void config_set_config(ice_config_t *config : itype(_Array_ptr<ice_config_t>));
+void config_set_config(ice_config_t *config : itype(_Ptr<ice_config_t>));
 listener_t *config_clear_listener(listener_t *listener : itype(_Ptr<listener_t>)) : itype(_Ptr<listener_t>);
 void config_clear(ice_config_t *config : itype(_Ptr<ice_config_t>));
 mount_proxy *config_find_mount(ice_config_t *config : itype(_Ptr<ice_config_t>), const char *mount : itype(_Nt_array_ptr<const char>), mount_type type) : itype(_Ptr<mount_proxy>);
@@ -236,7 +236,7 @@ int config_rehash(void);
 ice_config_locks *config_locks(void) : itype(_Ptr<ice_config_locks>);
 
 ice_config_t *config_get_config(void) : itype(_Ptr<ice_config_t>);
-ice_config_t *config_grab_config(void) : itype(_Array_ptr<ice_config_t>);
+ice_config_t *config_grab_config(void) : itype(_Ptr<ice_config_t>);
 void config_release_config(void);
 
 /* To be used ONLY in one-time startup code */

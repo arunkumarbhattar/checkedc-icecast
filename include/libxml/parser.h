@@ -836,8 +836,8 @@ XMLPUBFUN int XMLCALL
  * Basic parsing Interfaces
  */
 #ifdef LIBXML_SAX1_ENABLED
-XMLPUBFUN xmlDocPtr xmlParseDoc(const xmlChar *cur : itype(_Ptr<const xmlChar>)) : itype(_Ptr<xmlDoc>);
-XMLPUBFUN xmlDocPtr xmlParseFile(const char *filename : itype(_Ptr<const char>)) : itype(_Ptr<xmlDoc>);
+XMLPUBFUN xmlDocPtr xmlParseDoc(const xmlChar *cur : itype(_Nt_array_ptr<const xmlChar>)) : itype(_Ptr<xmlDoc>);
+XMLPUBFUN xmlDocPtr xmlParseFile(const char *filename : itype(_Nt_array_ptr<const char>)) : itype(_Ptr<xmlDoc>);
 XMLPUBFUN xmlDocPtr xmlParseMemory(const char *buffer : itype(_Ptr<const char>), int size) : itype(_Ptr<xmlDoc>);
 #endif /* LIBXML_SAX1_ENABLED */
 XMLPUBFUN int XMLCALL

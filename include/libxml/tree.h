@@ -192,7 +192,7 @@ typedef enum {
 typedef struct _xmlNotation xmlNotation;
 typedef xmlNotation *xmlNotationPtr;
 struct _xmlNotation {
-    const xmlChar *name : itype(_Ptr<const xmlChar>);	        /* Notation name */
+    const xmlChar *name : itype(_Nt_array_ptr<const xmlChar>);	        /* Notation name */
     const xmlChar *PublicID : itype(_Ptr<const xmlChar>);	/* Public identifier, if any */
     const xmlChar *SystemID : itype(_Ptr<const xmlChar>);	/* System identifier, if any */
 };
@@ -489,7 +489,7 @@ typedef _Ptr<xmlNode> xmlNodePtr;
 struct _xmlNode {
     void           *_private;	/* application data */
     xmlElementType   type;	/* type number, must be second ! */
-    const xmlChar *name : itype(_Ptr<const xmlChar>);      /* the name of the node, or the entity */
+    const xmlChar *name : itype(_Nt_array_ptr<const xmlChar>);      /* the name of the node, or the entity */
     struct _xmlNode *children : itype(_Ptr<struct _xmlNode>);	/* parent->childs link */
     struct _xmlNode *last : itype(_Ptr<struct _xmlNode>);	/* last child link */
     struct _xmlNode *parent : itype(_Ptr<struct _xmlNode>);	/* child->parent link */
@@ -873,7 +873,7 @@ XMLPUBFUN xmlAttrPtr xmlHasNsProp(const xmlNode *node : itype(_Ptr<const xmlNode
 XMLPUBFUN xmlChar *xmlGetNsProp(const xmlNode *node : itype(_Ptr<const xmlNode>), const xmlChar *name : itype(_Ptr<const xmlChar>), const xmlChar *nameSpace : itype(_Ptr<const xmlChar>)) : itype(_Ptr<xmlChar>);
 XMLPUBFUN xmlNodePtr xmlStringGetNodeList(const xmlDoc *doc : itype(_Ptr<const xmlDoc>), const xmlChar *value : itype(_Ptr<const xmlChar>)) : itype(_Ptr<xmlNode>);
 XMLPUBFUN xmlNodePtr xmlStringLenGetNodeList(const xmlDoc *doc : itype(_Ptr<const xmlDoc>), const xmlChar *value : itype(_Ptr<const xmlChar>), int len) : itype(_Ptr<xmlNode>);
-XMLPUBFUN xmlChar *xmlNodeListGetString(xmlDocPtr doc : itype(_Ptr<xmlDoc>), const xmlNode *list : itype(_Ptr<const xmlNode>), int inLine) : itype(_Ptr<xmlChar>);
+XMLPUBFUN xmlChar *xmlNodeListGetString(xmlDocPtr doc : itype(_Ptr<xmlDoc>), const xmlNode *list : itype(_Ptr<const xmlNode>), int inLine) : itype(_Nt_array_ptr<xmlChar>);
 #ifdef LIBXML_TREE_ENABLED
 XMLPUBFUN xmlChar *xmlNodeListGetRawString(const xmlDoc *doc : itype(_Ptr<const xmlDoc>), const xmlNode *list : itype(_Ptr<const xmlNode>), int inLine) : itype(_Ptr<xmlChar>);
 #endif /* LIBXML_TREE_ENABLED */

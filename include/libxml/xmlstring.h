@@ -38,31 +38,31 @@ typedef unsigned char xmlChar;
 /*
  * xmlChar handling
  */
-XMLPUBFUN xmlChar *xmlStrdup(const xmlChar *cur : itype(_Ptr<const xmlChar>)) : itype(_Ptr<xmlChar>);
-XMLPUBFUN xmlChar *xmlStrndup(const xmlChar *cur : itype(_Ptr<const xmlChar>), int len) : itype(_Ptr<xmlChar>);
-XMLPUBFUN xmlChar *xmlCharStrndup(const char *cur : itype(_Ptr<const char>), int len) : itype(_Ptr<xmlChar>);
+XMLPUBFUN xmlChar *xmlStrdup(const xmlChar *cur : itype(_Nt_array_ptr<const xmlChar>)) : itype(_Nt_array_ptr<xmlChar>);
+XMLPUBFUN xmlChar *xmlStrndup(const xmlChar *cur : itype(_Nt_array_ptr<const xmlChar>), int len) : itype(_Nt_array_ptr<xmlChar>);
+XMLPUBFUN xmlChar *xmlCharStrndup(const char *cur : itype(_Nt_array_ptr<const char>), int len) : itype(_Nt_array_ptr<xmlChar>);
 XMLPUBFUN xmlChar *xmlCharStrdup(const char *cur : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<xmlChar>);
-XMLPUBFUN xmlChar *xmlStrsub(const xmlChar *str : itype(_Ptr<const xmlChar>), int start, int len) : itype(_Ptr<xmlChar>);
-XMLPUBFUN const xmlChar *xmlStrchr(const xmlChar *str : itype(_Ptr<const xmlChar>), xmlChar val) : itype(_Ptr<const xmlChar>);
-XMLPUBFUN const xmlChar *xmlStrstr(const xmlChar *str : itype(_Ptr<const xmlChar>), const xmlChar *val : itype(_Ptr<const xmlChar>)) : itype(_Ptr<const xmlChar>);
-XMLPUBFUN const xmlChar *xmlStrcasestr(const xmlChar *str : itype(_Ptr<const xmlChar>), const xmlChar *val : itype(_Ptr<const xmlChar>)) : itype(_Ptr<const xmlChar>);
+XMLPUBFUN xmlChar *xmlStrsub(const xmlChar *str : itype(_Nt_array_ptr<const xmlChar>), int start, int len) : itype(_Nt_array_ptr<xmlChar>);
+XMLPUBFUN const xmlChar *xmlStrchr(const xmlChar *str : itype(_Nt_array_ptr<const xmlChar>), xmlChar val) : itype(_Nt_array_ptr<const xmlChar>);
+XMLPUBFUN const xmlChar *xmlStrstr(const xmlChar *str : itype(_Nt_array_ptr<const xmlChar>), const xmlChar *val : itype(_Nt_array_ptr<const xmlChar>)) : itype(_Nt_array_ptr<const xmlChar>);
+XMLPUBFUN const xmlChar *xmlStrcasestr(const xmlChar *str : itype(_Nt_array_ptr<const xmlChar>), const xmlChar *val : itype(_Nt_array_ptr<const xmlChar>)) : itype(_Nt_array_ptr<const xmlChar>);
 XMLPUBFUN int XMLCALL
-                xmlStrcmp                (const xmlChar *str1 : itype(_Ptr<const xmlChar>), const xmlChar *str2 : itype(_Ptr<const xmlChar>));
+                xmlStrcmp                (const xmlChar *str1 : itype(_Nt_array_ptr<const xmlChar>), const xmlChar *str2 : itype(_Nt_array_ptr<const xmlChar>));
 XMLPUBFUN int XMLCALL
-                xmlStrncmp               (const xmlChar *str1 : itype(_Ptr<const xmlChar>), const xmlChar *str2 : itype(_Ptr<const xmlChar>), int len);
+                xmlStrncmp               (const xmlChar *str1 : itype(_Nt_array_ptr<const xmlChar>), const xmlChar *str2 : itype(_Nt_array_ptr<const xmlChar>), int len);
 XMLPUBFUN int XMLCALL
-                xmlStrcasecmp            (const xmlChar *str1 : itype(_Ptr<const xmlChar>), const xmlChar *str2 : itype(_Ptr<const xmlChar>));
+                xmlStrcasecmp            (const xmlChar *str1 : itype(_Nt_array_ptr<const xmlChar>), const xmlChar *str2 : itype(_Nt_array_ptr<const xmlChar>));
 XMLPUBFUN int XMLCALL
-                xmlStrncasecmp           (const xmlChar *str1 : itype(_Ptr<const xmlChar>), const xmlChar *str2 : itype(_Ptr<const xmlChar>), int len);
+                xmlStrncasecmp           (const xmlChar *str1 : itype(_Nt_array_ptr<const xmlChar>), const xmlChar *str2 : itype(_Nt_array_ptr<const xmlChar>), int len);
 XMLPUBFUN int XMLCALL
-                xmlStrEqual              (const xmlChar *str1 : itype(_Ptr<const xmlChar>), const xmlChar *str2 : itype(_Ptr<const xmlChar>));
+                xmlStrEqual              (const xmlChar *str1 : itype(_Nt_array_ptr<const xmlChar>), const xmlChar *str2 : itype(_Nt_array_ptr<const xmlChar>));
 XMLPUBFUN int XMLCALL
-                xmlStrQEqual             (const xmlChar *pref : itype(_Ptr<const xmlChar>), const xmlChar *name : itype(_Ptr<const xmlChar>), const xmlChar *str : itype(_Ptr<const xmlChar>));
+                xmlStrQEqual             (const xmlChar *pref : itype(_Nt_array_ptr<const xmlChar>), const xmlChar *name : itype(_Nt_array_ptr<const xmlChar>), const xmlChar *str : itype(_Nt_array_ptr<const xmlChar>));
 XMLPUBFUN int XMLCALL
-                xmlStrlen                (const xmlChar *str : itype(_Ptr<const xmlChar>));
-XMLPUBFUN xmlChar *xmlStrcat(xmlChar *cur : itype(_Ptr<xmlChar>), const xmlChar *add : itype(_Ptr<const xmlChar>)) : itype(_Ptr<xmlChar>);
-XMLPUBFUN xmlChar *xmlStrncat(xmlChar *cur : itype(_Ptr<xmlChar>), const xmlChar *add : itype(_Ptr<const xmlChar>), int len) : itype(_Ptr<xmlChar>);
-XMLPUBFUN xmlChar *xmlStrncatNew(const xmlChar *str1 : itype(_Ptr<const xmlChar>), const xmlChar *str2 : itype(_Ptr<const xmlChar>), int len) : itype(_Ptr<xmlChar>);
+                xmlStrlen                (const xmlChar *str : itype(_Nt_array_ptr<const xmlChar>));
+XMLPUBFUN xmlChar *xmlStrcat(xmlChar *cur : itype(_Nt_array_ptr<xmlChar>), const xmlChar *add : itype(_Nt_array_ptr<const xmlChar>)) : itype(_Nt_array_ptr<xmlChar>);
+XMLPUBFUN xmlChar *xmlStrncat(xmlChar *cur : itype(_Nt_array_ptr<xmlChar>), const xmlChar *add : itype(_Nt_array_ptr<const xmlChar>), int len) : itype(_Nt_array_ptr<xmlChar>);
+XMLPUBFUN xmlChar *xmlStrncatNew(const xmlChar *str1 : itype(_Nt_array_ptr<const xmlChar>), const xmlChar *str2 : itype(_Nt_array_ptr<const xmlChar>), int len) : itype(_Nt_array_ptr<xmlChar>);
 XMLPUBFUN int XMLCALL
                 xmlStrPrintf             (xmlChar *buf : itype(_Ptr<xmlChar>), int len, const char *msg : itype(_Ptr<const char>), ...) LIBXML_ATTR_FORMAT(3,4);
 XMLPUBFUN int XMLCALL
