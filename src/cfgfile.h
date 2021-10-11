@@ -42,8 +42,8 @@ typedef struct ice_config_http_header_tag {
     http_header_type type;
 
     /* name and value of the header */
-    char *name;
-    char *value;
+    char *name : itype(_Nt_array_ptr<char>);
+    char *value : itype(_Nt_array_ptr<char>);
 
     /* filters */
     int status;
@@ -53,7 +53,7 @@ typedef struct ice_config_http_header_tag {
 } ice_config_http_header_t;
 
 typedef struct ice_config_dir_tag {
-    char *host;
+    char *host : itype(_Nt_array_ptr<char>);
     int touch_interval;
     struct ice_config_dir_tag *next : itype(_Ptr<struct ice_config_dir_tag>);
 } ice_config_dir_t;
@@ -121,10 +121,10 @@ typedef struct _mount_proxy {
 } mount_proxy;
 
 typedef struct _aliases {
-    char *source;
-    char *destination;
+    char *source : itype(_Nt_array_ptr<char>);
+    char *destination : itype(_Nt_array_ptr<char>);
     int port;
-    char *bind_address;
+    char *bind_address : itype(_Nt_array_ptr<char>);
     struct _aliases *next : itype(_Ptr<struct _aliases>);
 } aliases;
 
@@ -132,9 +132,9 @@ typedef struct _listener_t {
     struct _listener_t *next : itype(_Ptr<struct _listener_t>);
     int port;
     int so_sndbuf;
-    char *bind_address;
+    char *bind_address : itype(_Nt_array_ptr<char>);
     int shoutcast_compat;
-    char *shoutcast_mount;
+    char *shoutcast_mount : itype(_Nt_array_ptr<char>);
     int ssl;
 } listener_t;
 
@@ -227,7 +227,7 @@ int config_initial_parse_file(const char *filename : itype(_Nt_array_ptr<const c
 int config_parse_cmdline(int arg, char **argv : itype(_Ptr<_Nt_array_ptr<char>>));
 void config_set_config(ice_config_t *config : itype(_Array_ptr<ice_config_t>));
 listener_t *config_clear_listener(listener_t *listener : itype(_Ptr<listener_t>)) : itype(_Ptr<listener_t>);
-void config_clear(ice_config_t *config : itype(_Array_ptr<ice_config_t>));
+void config_clear(ice_config_t *config : itype(_Ptr<ice_config_t>));
 mount_proxy *config_find_mount(ice_config_t *config : itype(_Ptr<ice_config_t>), const char *mount : itype(_Nt_array_ptr<const char>), mount_type type) : itype(_Ptr<mount_proxy>);
 listener_t *config_get_listen_sock(ice_config_t *config : itype(_Ptr<ice_config_t>), connection_t *con : itype(_Ptr<connection_t>)) : itype(_Ptr<listener_t>);
 

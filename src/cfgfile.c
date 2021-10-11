@@ -76,6 +76,7 @@
 #define MIMETYPESFILE ".\\mime.types"
 #endif
 
+
 static ice_config_t _current_configuration;
 static ice_config_locks _locks;
 
@@ -112,14 +113,15 @@ void config_initialize(void) {
 
 void config_shutdown(void) {
     config_get_config();
-    config_clear(_Assume_bounds_cast<_Array_ptr<ice_config_t>>(&_current_configuration, byte_count(0)));
+    config_clear(&_current_configuration);
     config_release_config();
     release_locks();
 }
 
 void config_init_configuration(ice_config_t *configuration : itype(_Ptr<ice_config_t>))
 {
-    memset(configuration, 0, sizeof(ice_config_t));
+  _Array_ptr<void> buffer : byte_count(sizeof(ice_config_t)) = (_Array_ptr<void>) configuration;
+    memset(buffer, 0, sizeof(ice_config_t));
     _set_defaults(configuration);
 }
 
@@ -127,8 +129,8 @@ static void config_clear_http_header(_Ptr<ice_config_http_header_t> header) {
  _Ptr<ice_config_http_header_t> old = ((void *)0);
 
  while (header) {
-  xmlFree(header->name);
-  xmlFree(header->value);
+  xmlSafeFree(header->name);
+  xmlSafeFree(header->value);
   old = header;
   header = header->next;
   free<ice_config_http_header_t>(old);
@@ -153,13 +155,13 @@ static _Ptr<ice_config_http_header_t> config_copy_http_header(_Ptr<ice_config_ht
         if (!cur) return ret; /* TODO: do better error handling */
 
         cur->type   = header->type;
-        cur->name   = (char *)xmlCharStrdup(header->name);
-        cur->value  = (char *)xmlCharStrdup(header->value);
+        cur->name   = (_Nt_array_ptr<char>) xmlCharStrdup(header->name);
+        cur->value  = (_Nt_array_ptr<char>) xmlCharStrdup(header->value);
         cur->status = header->status;
 
         if (!cur->name || !cur->value) {
-            if (cur->name) xmlFree(cur->name);
-            if (cur->value) xmlFree(cur->value);
+            if (cur->name) xmlSafeFree(cur->name);
+            if (cur->value) xmlSafeFree(cur->value);
             if (old) {
                 old->next = NULL;
             } else {
@@ -179,30 +181,30 @@ static void config_clear_mount (_Ptr<mount_proxy> mount)
 {
     _Ptr<config_options_t> option = ((void *)0);
 
-    if (mount->mountname)       xmlFree (mount->mountname);
-    if (mount->username)        xmlFree (mount->username);
-    if (mount->password)        xmlFree (mount->password);
-    if (mount->dumpfile)        xmlFree (mount->dumpfile);
-    if (mount->intro_filename)  xmlFree (mount->intro_filename);
-    if (mount->on_connect)      xmlFree (mount->on_connect);
-    if (mount->on_disconnect)   xmlFree (mount->on_disconnect);
-    if (mount->fallback_mount)  xmlFree (mount->fallback_mount);
-    if (mount->stream_name)     xmlFree (mount->stream_name);
-    if (mount->stream_description)  xmlFree (mount->stream_description);
-    if (mount->stream_url)      xmlFree (mount->stream_url);
-    if (mount->stream_genre)    xmlFree (mount->stream_genre);
-    if (mount->bitrate)         xmlFree (mount->bitrate);
-    if (mount->type)            xmlFree (mount->type);
-    if (mount->charset)         xmlFree (mount->charset);
-    if (mount->cluster_password)    xmlFree (mount->cluster_password);
+    if (mount->mountname)       xmlSafeFree (mount->mountname);
+    if (mount->username)        xmlSafeFree (mount->username);
+    if (mount->password)        xmlSafeFree (mount->password);
+    if (mount->dumpfile)        xmlSafeFree (mount->dumpfile);
+    if (mount->intro_filename)  xmlSafeFree (mount->intro_filename);
+    if (mount->on_connect)      xmlSafeFree (mount->on_connect);
+    if (mount->on_disconnect)   xmlSafeFree (mount->on_disconnect);
+    if (mount->fallback_mount)  xmlSafeFree (mount->fallback_mount);
+    if (mount->stream_name)     xmlSafeFree (mount->stream_name);
+    if (mount->stream_description)  xmlSafeFree (mount->stream_description);
+    if (mount->stream_url)      xmlSafeFree (mount->stream_url);
+    if (mount->stream_genre)    xmlSafeFree (mount->stream_genre);
+    if (mount->bitrate)         xmlSafeFree (mount->bitrate);
+    if (mount->type)            xmlSafeFree (mount->type);
+    if (mount->charset)         xmlSafeFree (mount->charset);
+    if (mount->cluster_password)    xmlSafeFree (mount->cluster_password);
 
-    if (mount->auth_type)       xmlFree (mount->auth_type);
+    if (mount->auth_type)       xmlSafeFree (mount->auth_type);
     option = mount->auth_options;
     while (option)
     {
         _Ptr<config_options_t> nextopt = option->next;
-        if (option->name)   xmlFree (option->name);
-        if (option->value)  xmlFree (option->value);
+        if (option->name)   xmlSafeFree (option->name);
+        if (option->value)  xmlSafeFree (option->value);
         free<config_options_t> (option);
         option = nextopt;
     }
@@ -217,14 +219,14 @@ listener_t *config_clear_listener(listener_t *listener : itype(_Ptr<listener_t>)
     if (listener)
     {
         next = listener->next;
-        if (listener->bind_address)     xmlFree (listener->bind_address);
-        if (listener->shoutcast_mount)  xmlFree (listener->shoutcast_mount);
+        if (listener->bind_address)     xmlSafeFree (listener->bind_address);
+        if (listener->shoutcast_mount)  xmlSafeFree (listener->shoutcast_mount);
         free<listener_t> (listener);
     }
     return next;
 }
 
-void config_clear(ice_config_t *c : itype(_Array_ptr<ice_config_t>))
+void config_clear(ice_config_t *c : itype(_Ptr<ice_config_t>))
 {
     _Ptr<ice_config_dir_t> dirnode = ((void *)0);
 _Ptr<ice_config_dir_t> nextdirnode = ((void *)0);
@@ -244,39 +246,39 @@ _Ptr<aliases> nextalias = ((void *)0);
 
     free<char>(c->config_filename);
 
-    xmlFree (c->server_id);
-    if (c->location) xmlFree(c->location);
-    if (c->admin) xmlFree(c->admin);
-    if (c->source_password) xmlFree(c->source_password);
+    xmlSafeFree (c->server_id);
+    if (c->location) xmlSafeFree(c->location);
+    if (c->admin) xmlSafeFree(c->admin);
+    if (c->source_password) xmlSafeFree(c->source_password);
     if (c->admin_username)
-        xmlFree(c->admin_username);
+        xmlSafeFree(c->admin_username);
     if (c->admin_password)
-        xmlFree(c->admin_password);
+        xmlSafeFree(c->admin_password);
     if (c->relay_username)
-        xmlFree(c->relay_username);
+        xmlSafeFree(c->relay_username);
     if (c->relay_password)
-        xmlFree(c->relay_password);
-    if (c->hostname) xmlFree(c->hostname);
-    if (c->base_dir) xmlFree(c->base_dir);
-    if (c->log_dir) xmlFree(c->log_dir);
-    if (c->webroot_dir) xmlFree(c->webroot_dir);
-    if (c->adminroot_dir) xmlFree(c->adminroot_dir);
-    if (c->cert_file) xmlFree(c->cert_file);
-    if (c->cipher_list) xmlFree(c->cipher_list);
+        xmlSafeFree(c->relay_password);
+    if (c->hostname) xmlSafeFree(c->hostname);
+    if (c->base_dir) xmlSafeFree(c->base_dir);
+    if (c->log_dir) xmlSafeFree(c->log_dir);
+    if (c->webroot_dir) xmlSafeFree(c->webroot_dir);
+    if (c->adminroot_dir) xmlSafeFree(c->adminroot_dir);
+    if (c->cert_file) xmlSafeFree(c->cert_file);
+    if (c->cipher_list) xmlSafeFree(c->cipher_list);
     if (c->pidfile)
-        xmlFree(c->pidfile);
-    if (c->banfile) xmlFree(c->banfile);
-    if (c->allowfile) xmlFree(c->allowfile);
-    if (c->playlist_log) xmlFree(c->playlist_log);
-    if (c->access_log) xmlFree(c->access_log);
-    if (c->error_log) xmlFree(c->error_log);
-    if (c->shoutcast_mount) xmlFree(c->shoutcast_mount);
-    if (c->master_server) xmlFree(c->master_server);
-    if (c->master_username) xmlFree(c->master_username);
-    if (c->master_password) xmlFree(c->master_password);
-    if (c->user) xmlFree(c->user);
-    if (c->group) xmlFree(c->group);
-    if (c->mimetypes_fn) xmlFree (c->mimetypes_fn);
+        xmlSafeFree(c->pidfile);
+    if (c->banfile) xmlSafeFree(c->banfile);
+    if (c->allowfile) xmlSafeFree(c->allowfile);
+    if (c->playlist_log) xmlSafeFree(c->playlist_log);
+    if (c->access_log) xmlSafeFree(c->access_log);
+    if (c->error_log) xmlSafeFree(c->error_log);
+    if (c->shoutcast_mount) xmlSafeFree(c->shoutcast_mount);
+    if (c->master_server) xmlSafeFree(c->master_server);
+    if (c->master_username) xmlSafeFree(c->master_username);
+    if (c->master_password) xmlSafeFree(c->master_password);
+    if (c->user) xmlSafeFree(c->user);
+    if (c->group) xmlSafeFree(c->group);
+    if (c->mimetypes_fn) xmlSafeFree (c->mimetypes_fn);
 
     while ((c->listen_sock = config_clear_listener (c->listen_sock)))
         ;
@@ -285,9 +287,9 @@ _Ptr<aliases> nextalias = ((void *)0);
     relay = c->relay;
     while(relay) {
         nextrelay = relay->next;
-        xmlFree(relay->server);
-        xmlFree(relay->mount);
-        xmlFree(relay->localmount);
+        xmlSafeFree(relay->server);
+        xmlSafeFree(relay->mount);
+        xmlSafeFree(relay->localmount);
         free<relay_server>(relay);
         relay = nextrelay;
     }
@@ -303,9 +305,9 @@ _Ptr<aliases> nextalias = ((void *)0);
     alias = c->aliases;
     while(alias) {
         nextalias = alias->next;
-        xmlFree(alias->source);
-        xmlFree(alias->destination);
-        xmlFree(alias->bind_address);
+        xmlSafeFree(alias->source);
+        xmlSafeFree(alias->destination);
+        xmlSafeFree(alias->bind_address);
         free<aliases>(alias);
         alias = nextalias;
     }
@@ -313,7 +315,7 @@ _Ptr<aliases> nextalias = ((void *)0);
     dirnode = c->dir_list;
     while(dirnode) {
         nextdirnode = dirnode->next;
-        xmlFree(dirnode->host);
+        xmlSafeFree(dirnode->host);
         free<ice_config_dir_t>(dirnode);
         dirnode = nextdirnode;
     }
@@ -328,7 +330,8 @@ _Ptr<aliases> nextalias = ((void *)0);
 
     config_clear_http_header(c->http_headers);
 
-    memset(c, 0, sizeof(ice_config_t));
+    _Array_ptr<void> buffer : byte_count(sizeof(ice_config_t)) = (_Array_ptr<void>) c;
+    memset(buffer, 0, sizeof(ice_config_t));
 }
 
 int config_initial_parse_file(const char *filename : itype(_Nt_array_ptr<const char>))

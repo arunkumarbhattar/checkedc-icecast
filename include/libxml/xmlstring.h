@@ -41,7 +41,7 @@ typedef unsigned char xmlChar;
 XMLPUBFUN xmlChar *xmlStrdup(const xmlChar *cur : itype(_Ptr<const xmlChar>)) : itype(_Ptr<xmlChar>);
 XMLPUBFUN xmlChar *xmlStrndup(const xmlChar *cur : itype(_Ptr<const xmlChar>), int len) : itype(_Ptr<xmlChar>);
 XMLPUBFUN xmlChar *xmlCharStrndup(const char *cur : itype(_Ptr<const char>), int len) : itype(_Ptr<xmlChar>);
-XMLPUBFUN xmlChar *xmlCharStrdup(const char *cur : itype(_Ptr<const char>)) : itype(_Nt_array_ptr<xmlChar>);
+XMLPUBFUN xmlChar *xmlCharStrdup(const char *cur : itype(_Nt_array_ptr<const char>)) : itype(_Nt_array_ptr<xmlChar>);
 XMLPUBFUN xmlChar *xmlStrsub(const xmlChar *str : itype(_Ptr<const xmlChar>), int start, int len) : itype(_Ptr<xmlChar>);
 XMLPUBFUN const xmlChar *xmlStrchr(const xmlChar *str : itype(_Ptr<const xmlChar>), xmlChar val) : itype(_Ptr<const xmlChar>);
 XMLPUBFUN const xmlChar *xmlStrstr(const xmlChar *str : itype(_Ptr<const xmlChar>), const xmlChar *val : itype(_Ptr<const xmlChar>)) : itype(_Ptr<const xmlChar>);
