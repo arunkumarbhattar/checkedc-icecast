@@ -31,8 +31,8 @@
 void event_config_read(void *arg)
 {
     int ret;
-    ice_config_t *config;
-    ice_config_t new_config;
+    _Ptr<ice_config_t> config = ((void *)0);
+    ice_config_t new_config = {};
     /* reread config file */
 
     config = config_grab_config(); /* Both to get the lock, and to be able
