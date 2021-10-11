@@ -32,6 +32,7 @@ typedef struct source_tag source_t;
 #define CATMODULE "format-theora"
 #include "logging.h"
 
+#error "Not in port"
 
 typedef struct _theora_codec_tag
 {
