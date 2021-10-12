@@ -7,7 +7,6 @@
 -p \
 compile_commands.json \
 -extra-arg=-w \
--extra-arg=-v \
 -output-dir=out.checked \
 src/md5.c \
 src/sighandler.c \
