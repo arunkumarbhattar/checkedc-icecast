@@ -22,7 +22,9 @@ if test -z "$GCC"; then
 else
     XIPH_CPPFLAGS="-Wall -ffast-math -fsigned-char"
     PROFILE="-pg -g"
-    AC_DEFINE([_GNU_SOURCE], 1, [Define to include GNU extensions to POSIX])
+    dnl _GNU_SOURCE introduces a transparent union that Checked C currently can't handle:
+    dnl https://github.com/microsoft/checkedc/issues/441#issue-849296920
+    dnl AC_DEFINE([_GNU_SOURCE], 1, [Define to include GNU extensions to POSIX])
 fi
 
 dnl Checks for programs.

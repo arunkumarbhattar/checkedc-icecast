@@ -12424,9 +12424,7 @@ if test -z "$GCC"; then
 else
     XIPH_CPPFLAGS="-Wall -ffast-math -fsigned-char"
     PROFILE="-pg -g"
-
-
-fi
+            fi
 
 
 
