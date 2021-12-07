@@ -14626,9 +14626,11 @@ fi
 if test "${with_openssl+set}" = set; then :
   withval=$with_openssl; openssl_prefix="$withval"
 else
-  openssl_prefix=""
+  openssl_prefix="no"
 fi
 
+
+if test "x$openssl_prefix" != "xno"; then
 
 if test "x$openssl_prefix" != "x" -a "x$openssl_prefix" != "xyes"; then
     OPENSSL_LIBS="-L$openssl_prefix/lib -lssl"
@@ -14712,6 +14714,8 @@ rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
 CFLAGS="$xt_save_CFLAGS"
 LIBS="$xt_save_LIBS"
+
+fi
 
 if test "$openssl_ok" = "yes"; then
 

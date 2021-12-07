@@ -8,7 +8,9 @@ dnl Get the cflags and libraries
 dnl
 AC_ARG_WITH(openssl,
     AC_HELP_STRING([--with-openssl=PFX],[Prefix where openssl is installed (optional)]),
-    openssl_prefix="$withval", openssl_prefix="")
+    openssl_prefix="$withval", openssl_prefix="no")
+
+if test "x$openssl_prefix" != "xno"; then
 
 if test "x$openssl_prefix" != "x" -a "x$openssl_prefix" != "xyes"; then
     OPENSSL_LIBS="-L$openssl_prefix/lib -lssl"
@@ -37,6 +39,8 @@ LIBS="$OPENSSL_LIBS $LIBS"
 AC_TRY_LINK([#include <openssl/ssl.h>], [void *a = SSL_new], [openssl_ok='yes'])
 CFLAGS="$xt_save_CFLAGS"
 LIBS="$xt_save_LIBS"
+
+fi
 
 if test "$openssl_ok" = "yes"; then
     AC_DEFINE(HAVE_OPENSSL, 1, [Define if you have libopenssl.])
