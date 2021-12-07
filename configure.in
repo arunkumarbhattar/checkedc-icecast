@@ -137,6 +137,11 @@ XIPH_PATH_OPENSSL([
     [ AC_MSG_NOTICE([SSL disabled!])
     ])
 
+dnl Give our bundled checked versions of library headers priority over the
+dnl originals. I couldn't find a way to do this on the ./configure command
+dnl line. ~ Matt 2021-12-07
+XIPH_VAR_PREPEND([XIPH_CPPFLAGS],[-I$PWD/include])
+
 dnl Make substitutions
 
 AC_SUBST(XIPH_CPPFLAGS)

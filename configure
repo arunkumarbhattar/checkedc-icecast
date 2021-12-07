@@ -14773,6 +14773,23 @@ fi
 
 
 
+xt_compare="$XIPH_CPPFLAGS"
+xt_filtered=""
+for arg in -I$PWD/include
+do
+  if { cat <<EOF
+ $xt_compare x
+EOF
+} | $FGREP -v -e " $arg " > /dev/null
+  then
+    xt_compare="$arg $xt_compare"
+    xt_filtered="$xt_filtered $arg"
+  fi
+done
+XIPH_CPPFLAGS="$xt_filtered $XIPH_CPPFLAGS"
+
+
+
 
 
 
