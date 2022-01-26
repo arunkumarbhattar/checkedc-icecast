@@ -120,7 +120,8 @@ static void htpasswd_recheckfile (_Ptr<htpasswd_auth_state> htpasswd)
 
     if (htpasswd->filename == NULL)
         return;
-    if (stat (htpasswd->filename, &file_stat) < 0)
+    _Unchecked{
+    if (stat ((const char *)htpasswd->filename, &file_stat) < 0)
     {
         ICECAST_LOG_WARN("failed to check status of %s", htpasswd->filename);
 
@@ -131,6 +132,7 @@ static void htpasswd_recheckfile (_Ptr<htpasswd_auth_state> htpasswd)
         thread_rwlock_unlock (&htpasswd->file_rwlock);
 
         return;
+    }
     }
 
     if (file_stat.st_mtime == htpasswd->mtime)
@@ -355,7 +357,8 @@ static auth_result htpasswd_deleteuser(_Ptr<auth_t> auth, _Nt_array_ptr<const ch
     tmpfile_len = strlen(state->filename) + 6;
     _Nt_array_ptr<char> tmpfile : count(tmpfile_len) = stralloc(tmpfile_len); 
     snprintf (tmpfile, tmpfile_len, "%s.tmp", state->filename);
-    if (stat (tmpfile, &file_info) == 0)
+    _Unchecked{
+    if (stat ((const char*)tmpfile, &file_info) == 0)
     {
         ICECAST_LOG_WARN("temp file \"%s\" exists, rejecting operation", tmpfile);
         free<char> (tmpfile);
@@ -363,7 +366,7 @@ static auth_result htpasswd_deleteuser(_Ptr<auth_t> auth, _Nt_array_ptr<const ch
         thread_rwlock_unlock (&state->file_rwlock);
         return AUTH_FAILED;
     }
-
+    }
     tmp_passwdfile = fopen(tmpfile, "wb");
 
     if(tmp_passwdfile == NULL) {

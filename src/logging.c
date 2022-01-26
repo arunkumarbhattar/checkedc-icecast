@@ -134,9 +134,9 @@ _Nt_array_ptr<const char> username = ((void *)0);
     /* build the data */
 #ifdef _WIN32
     memset(datebuf, '\000', sizeof(datebuf));
-    get_clf_time(datebuf, sizeof(datebuf)-1, &thetime);
+    get_clf_time(_Assume_bounds_cast<_Nt_checked<char>>(datebuf, byte_count(129)), sizeof(datebuf)-1, &thetime);
 #else
-    strftime (datebuf, sizeof(datebuf), LOGGING_FORMAT_CLF, &thetime);
+    strftime (_Assume_bounds_cast<_Nt_array_ptr<char>>(datebuf,bounds((char *)datebuf, (char *)datebuf + sizeof (datebuf))), sizeof(datebuf), LOGGING_FORMAT_CLF, &thetime);
 #endif
 
     stayed = now - client->con->con_time;
@@ -190,7 +190,7 @@ void logging_playlist(const char *mount : itype(_Nt_array_ptr<const char>), cons
     memset(datebuf, '\000', sizeof(datebuf));
     get_clf_time(datebuf, sizeof(datebuf)-1, &thetime);
 #else
-    strftime (datebuf, sizeof(datebuf), LOGGING_FORMAT_CLF, &thetime);
+    strftime (_Assume_bounds_cast<_Nt_array_ptr<char>>(datebuf,bounds((char *)datebuf, (char *)datebuf + sizeof (datebuf))), sizeof(datebuf), LOGGING_FORMAT_CLF, &thetime);
 #endif
     /* This format MAY CHANGE OVER TIME.  We are looking into finding a good
        standard format for this, if you have any ideas, please let us know */
@@ -209,7 +209,7 @@ void log_parse_failure (void *ctx, const char *fmt, ...)
     _Nt_array_ptr<char> eol = ((void *)0);
 
     va_start (ap, fmt);
-    vsnprintf (line, sizeof (line), fmt, ap);
+    vsnprintf (_Assume_bounds_cast<_Nt_array_ptr<char>>(line,bounds((char *)line, (char *)line + sizeof (line))), sizeof (line), fmt, ap);
     eol = (_Nt_array_ptr<char>) strrchr (line, '\n');
     if (eol) *eol='\0';
     va_end (ap);

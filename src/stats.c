@@ -269,7 +269,7 @@ void stats_event_args(const char *source : itype(_Nt_array_ptr<const char>), cha
     if (name == NULL)
         return;
     va_start(val, format);
-    ret = vsnprintf(buf, sizeof(buf), format, val);
+    ret = vsnprintf(_Assume_bounds_cast<_Nt_array_ptr<char>>(buf,bounds((char *)buf, (char *)buf + sizeof (buf))), sizeof(buf), format, val);
     va_end(val);
 
     if (ret < 0 || (unsigned int)ret >= sizeof (buf))
@@ -600,7 +600,7 @@ static inline void __format_time(_Nt_array_ptr<char> buffer : count(len), size_t
 
     localtime_r (&now, &local);
 #ifndef _WIN32
-    strftime (tzbuffer, sizeof(tzbuffer), "%z", &local);
+    strftime (_Assume_bounds_cast<_Nt_array_ptr<char>>(tzbuffer,bounds((char *)tzbuffer, (char *)tzbuffer + sizeof (tzbuffer))), sizeof(tzbuffer), "%z", &local);
 #else
     thetime = gmtime (&now);
     time_days = local.tm_yday - thetime->tm_yday;
@@ -629,7 +629,7 @@ static inline void __format_time(_Nt_array_ptr<char> buffer : count(len), size_t
 
     snprintf(tzbuffer, sizeof(tzbuffer), "%c%.2d%.2d", sign, time_tz / 60, time_tz % 60);
 #endif
-    strftime (timebuffer, sizeof(timebuffer), format, &local);
+    strftime (_Assume_bounds_cast<_Nt_array_ptr<char>>(timebuffer,bounds((char *)timebuffer, (char *)timebuffer + sizeof (timebuffer))), sizeof(timebuffer), format, &local);
 
     snprintf(buffer, len, "%s%s", timebuffer, tzbuffer);
 }

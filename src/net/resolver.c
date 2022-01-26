@@ -25,11 +25,13 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include <string.h>
+#include <netinet/in.h>
 
 #ifndef _WIN32
 #include <netdb.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netinet/in6.h>
 #include <arpa/inet.h>
 #else
 #include <winsock2.h>
@@ -66,8 +68,8 @@ static int _isip(_Nt_array_ptr<const char> what : count(1023))
         struct in6_addr v6addr;
     } addr_u;
 
-    if (inet_pton(AF_INET, what, &addr_u.v4addr) <= 0)
-        return inet_pton(AF_INET6, what, &addr_u.v6addr) > 0 ? 1 : 0;
+    if (inet_pton(AF_INET, (const char*)what, &addr_u.v4addr) <= 0)
+        return inet_pton(AF_INET6, (const char*)what, &addr_u.v6addr) > 0 ? 1 : 0;
 
     return 1;
 }
@@ -100,7 +102,7 @@ struct addrinfo hints;
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_CANONNAME;
-    if (getaddrinfo (ip, NULL, &hints, &head))
+    if (getaddrinfo (ip, NULL, &hints, (struct addrinfo **)&head))
         return NULL;
 
     if (head)
@@ -109,7 +111,7 @@ struct addrinfo hints;
                     0, NI_NAMEREQD) == 0)
             ret = buff;
 
-        freeaddrinfo (head);
+        freeaddrinfo ((struct addrinfo *)head);
     }
 
     return ret;
@@ -132,7 +134,7 @@ struct addrinfo hints;
     memset (&hints, 0, sizeof (hints));
     hints . ai_family = AF_UNSPEC;
     hints . ai_socktype = SOCK_STREAM;
-    if (getaddrinfo (name, NULL, &hints, &head))
+    if (getaddrinfo (name, NULL, &hints, (struct addrinfo **)&head))
         return NULL;
 
     if (head)
@@ -140,7 +142,7 @@ struct addrinfo hints;
         if (getnameinfo(head->ai_addr, head->ai_addrlen, buff, len, NULL, 
                     0, NI_NUMERICHOST) == 0)
             ret = buff;
-        freeaddrinfo (head);
+        freeaddrinfo ((struct addrinfo *)head);
     }
 
     return ret;

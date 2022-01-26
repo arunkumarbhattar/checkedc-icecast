@@ -290,7 +290,7 @@ int format_advance_queue (_Ptr<source_t> source, _Ptr<client_t> client)
 
 
 static int format_prepare_headers (_Ptr<source_t> source, _Ptr<client_t> client)
-{
+_Unchecked{
     unsigned remaining;
     int bytes;
     int bitrate_filtered = 0;
@@ -341,7 +341,7 @@ static int format_prepare_headers (_Ptr<source_t> source, _Ptr<client_t> client)
         int next = 1;
         _Ptr<http_var_t> var = avl_get<http_var_t>(node);
         bytes = 0;
-        if (!strcasecmp(var->name, "ice-audio-info"))
+        if (!strcasecmp((const char *)var->name, "ice-audio-info"))
         {
             /* convert ice-audio-info to icy-br */
             _Nt_array_ptr<char> brfield = NULL;
@@ -361,10 +361,10 @@ static int format_prepare_headers (_Ptr<source_t> source, _Ptr<client_t> client)
         }
         else
         {
-            if (strcasecmp(var->name, "ice-password") &&
-                strcasecmp(var->name, "icy-metaint"))
+            if (strcasecmp((const char *)var->name, "ice-password") &&
+                strcasecmp((const char *)var->name, "icy-metaint"))
             {
-		if (!strcasecmp(var->name, "ice-name"))
+		if (!strcasecmp((const char *)var->name, "ice-name"))
 		{
 		    _Ptr<ice_config_t> config = ((void *)0);
 		    _Ptr<mount_proxy> mountinfo = ((void *)0);
@@ -379,12 +379,12 @@ static int format_prepare_headers (_Ptr<source_t> source, _Ptr<client_t> client)
 
                     config_release_config();
 		}
-                else if (!strncasecmp("ice-", var->name, 4))
+                else if (!strncasecmp("ice-", (const char *)var->name, 4))
                 {
-                    if (!strcasecmp("ice-public", var->name))
+                    if (!strcasecmp("ice-public", (const char *)var->name))
                         bytes = snprintf (ptr, remaining, "icy-pub:%s\r\n", var->value);
                     else
-                        if (!strcasecmp ("ice-bitrate", var->name))
+                        if (!strcasecmp ("ice-bitrate", (const char *)var->name))
                             bytes = snprintf (ptr, remaining, "icy-br:%s\r\n", var->value);
                         else
                             bytes = snprintf (ptr, remaining, "icy%s:%s\r\n",

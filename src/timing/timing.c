@@ -52,9 +52,9 @@ uint64_t timing_get_time(void)
 {
 #ifdef HAVE_GETTIMEOFDAY
     struct timeval mtv;
-
-    gettimeofday(&mtv, NULL);
-
+    _Unchecked{
+    gettimeofday((struct timeval *)&mtv, NULL);
+    }
     return (uint64_t)(mtv.tv_sec) * 1000 + (uint64_t)(mtv.tv_usec) / 1000;
 #elif HAVE_FTIME
     struct timeb t;

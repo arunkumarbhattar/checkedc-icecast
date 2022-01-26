@@ -633,7 +633,8 @@ ssize_t util_http_build_header(char *out : itype(_Nt_array_ptr<char>), size_t le
 #endif
 
     if (gmtime_result)
-        strftime(currenttime_buffer, sizeof(currenttime_buffer), "Date: %a, %d %b %Y %X GMT\r\n", gmtime_result);
+        strftime(_Assume_bounds_cast<_Nt_array_ptr<char>>(currenttime_buffer, bounds((char *)currenttime_buffer, (char *)currenttime_buffer + sizeof (currenttime_buffer))), 
+		sizeof(currenttime_buffer), "Date: %a, %d %b %Y %X GMT\r\n", gmtime_result);
     else
         currenttime_buffer[0] = '\0';
 

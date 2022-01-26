@@ -156,8 +156,10 @@ int fserve_client_waiting (void)
     if (client_tree_changed)
     {
         client_tree_changed = 0;
-        ufds = realloc<struct pollfd>(ufds, fserve_clients * sizeof(struct pollfd));
-        fclient = active_list;
+        _Array_ptr<struct pollfd> read_pos =
+	_Dynamic_bounds_cast<_Array_ptr<struct pollfd>>(ufds,bounds((_Array_ptr<char>)ufds, (_Array_ptr<char>)ufds + fserve_clients));
+	ufds = realloc<struct pollfd>(_Assume_bounds_cast<_Array_ptr<struct pollfd>>(read_pos,bounds((_Array_ptr<char>)read_pos, (_Array_ptr<char>)read_pos + fserve_clients)), fserve_clients * sizeof(struct pollfd));
+	fclient = active_list;
         while (fclient)
         {
             ufds[i].fd = fclient->client->con->sock;
@@ -438,7 +440,7 @@ int fserve_client_create (client_t *httpclient : itype(_Ptr<client_t>), const ch
         xslt_playlist_requested = "vclt.xsl";
 
     /* check for the actual file */
-    if (stat (fullpath, &file_buf) != 0)
+    if (stat ((const char *)fullpath, &file_buf) != 0)
     {
         /* the m3u can be generated, but send an m3u file if available */
         if (m3u_requested == 0 && xslt_playlist_requested == NULL)
@@ -551,7 +553,7 @@ int fserve_client_create (client_t *httpclient : itype(_Ptr<client_t>), const ch
     /* full http range handling is currently not done but we deal with the common case */
     if (range != NULL) {
         ret = 0;
-        if (strncasecmp (range, "bytes=", 6) == 0)
+        if (strncasecmp ((const char *)range, "bytes=", 6) == 0)
             ret = sscanf (range+6, "%" SCN_OFF_T "-", &rangenumber);
 
         if (ret != 1) {

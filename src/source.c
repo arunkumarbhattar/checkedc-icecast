@@ -610,7 +610,7 @@ static _Ptr<FILE> source_open_dumpfile(_Nt_array_ptr<const char> filename) {
     /* Convert it to local time representation. */
     loctime = localtime (&curtime);
 
-    strftime (buffer, sizeof(buffer), filename, loctime);
+    strftime (_Assume_bounds_cast<_Nt_array_ptr<char>>(buffer,bounds((char *)buffer, (char *)buffer + sizeof (buffer))), sizeof(buffer), filename, loctime);
     filename = buffer;
 #endif
 
