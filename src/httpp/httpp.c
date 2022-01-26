@@ -343,19 +343,19 @@ _Nt_array_ptr<char> tmp = ((void *)0);
         }
     }
 
-    if (strcasecmp("GET", req_type) == 0) {
+    if (strcasecmp("GET", (const char*)req_type) == 0) {
         parser->req_type = httpp_req_get;
-    } else if (strcasecmp("POST", req_type) == 0) {
+    } else if (strcasecmp("POST", (const char*)req_type) == 0) {
         parser->req_type = httpp_req_post;
-    } else if (strcasecmp("PUT", req_type) == 0) {
+    } else if (strcasecmp("PUT", (const char*)req_type) == 0) {
         parser->req_type = httpp_req_put;
-    } else if (strcasecmp("HEAD", req_type) == 0) {
+    } else if (strcasecmp("HEAD", (const char*)req_type) == 0) {
         parser->req_type = httpp_req_head;
-    } else if (strcasecmp("SOURCE", req_type) == 0) {
+    } else if (strcasecmp("SOURCE", (const char*)req_type) == 0) {
         parser->req_type = httpp_req_source;
-    } else if (strcasecmp("PLAY", req_type) == 0) {
+    } else if (strcasecmp("PLAY", (const char*)req_type) == 0) {
         parser->req_type = httpp_req_play;
-    } else if (strcasecmp("STATS", req_type) == 0) {
+    } else if (strcasecmp("STATS", (const char*)req_type) == 0) {
         parser->req_type = httpp_req_stats;
     } else {
         parser->req_type = httpp_req_unknown;
