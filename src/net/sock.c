@@ -109,7 +109,7 @@ char *sock_get_localip(char *buff : itype(_Array_ptr<char>) count(len), int len)
 {
     char temp _Nt_checked[1024];
 
-    if (gethostname(temp, sizeof(temp) - 1) != 0)
+    if (gethostname((char*)temp, sizeof(temp) - 1) != 0)
         return NULL;
 
     if (resolver_getip(temp, buff, len))
@@ -600,7 +600,7 @@ sock_t sock_connect_non_blocking (const char *hostname : itype(_Nt_array_ptr<con
 
     snprintf (service, sizeof (service), "%u", port);
 
-    if (getaddrinfo (hostname, service, &hints, ((struct addrinfo **__restrict )&head)))
+    if (getaddrinfo (hostname, (const char*)service, &hints, ((struct addrinfo **__restrict )&head)))
         return SOCK_ERROR;
 
     ai = head;
@@ -645,7 +645,7 @@ struct addrinfo hints;
     hints.ai_socktype = SOCK_STREAM;
     snprintf (service, sizeof (service), "%u", port);
 
-    if (getaddrinfo (hostname, service, &hints, ((struct addrinfo **__restrict )&head)))
+    if (getaddrinfo (hostname, (const char*)service, &hints, ((struct addrinfo **__restrict )&head)))
         return SOCK_ERROR;
 
     ai = head;
@@ -663,7 +663,7 @@ struct addrinfo hints;
                 b_hints.ai_family = ai->ai_family;
                 b_hints.ai_socktype = ai->ai_socktype;
                 b_hints.ai_protocol = ai->ai_protocol;
-                if (getaddrinfo (bnd, NULL, &b_hints, &b_head) ||
+                if (getaddrinfo (bnd, NULL, &b_hints,(struct addrinfo **) &b_head) ||
                         bind (sock, b_head->ai_addr, b_head->ai_addrlen) < 0)
                 {
                     sock_close (sock);
@@ -699,7 +699,7 @@ struct addrinfo hints;
         ai = ai->ai_next;
     }
     if (b_head)
-        freeaddrinfo (b_head);
+        freeaddrinfo ((struct addrinfo *)b_head);
     freeaddrinfo (head);
 
     return sock;
@@ -724,7 +724,7 @@ sock_t sock_get_server_socket (int port, const char *sinterface : itype(_Nt_arra
     hints.ai_socktype = SOCK_STREAM;
     snprintf (service, sizeof (service), "%d", port);
 
-    if (getaddrinfo (sinterface, service, &hints, ((struct addrinfo **__restrict )&res)))
+    if (getaddrinfo (sinterface, (const char*)service, &hints, ((struct addrinfo **__restrict )&res)))
         return SOCK_ERROR;
     ai = res;
     do
